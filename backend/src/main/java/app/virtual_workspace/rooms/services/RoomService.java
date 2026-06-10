@@ -2,6 +2,8 @@ package app.virtual_workspace.rooms.services;
 
 import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.repositories.UserRepository;
+import app.virtual_workspace.accounts.services.UserAuthService;
+import app.virtual_workspace.accounts.services.UserService;
 import app.virtual_workspace.rooms.dtos.CreateRoomRequestDto;
 import app.virtual_workspace.rooms.dtos.AllRoomResponseDto;
 import app.virtual_workspace.rooms.dtos.CreateRoomResponseDto;
@@ -22,27 +24,25 @@ import java.util.Map;
 public class RoomService {
 
     private final RoomRepository roomRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final UserAuthService userAuthService;
     private final RoomMapper roomMapper;
-    private final JwtService jwtService;
-    private final RoomAuthService roomAuthService;
 
     public List<AllRoomResponseDto> getAllRooms(){
         return roomMapper.toAllRoomResponseDto(roomRepository.findAll());
     }
 
     public CreateRoomResponseDto createRoom(
-            CreateRoomRequestDto createRoomRequestDto,
-            String token
+            CreateRoomRequestDto createRoomRequestDto
     ){
-        User user = jwtService.extractUserFromToken(token);
+        User user = userAuthService.getAuthenticatedUser();
 
         Room room = roomMapper.createRoomRequestDtoToModel(createRoomRequestDto);
 
         room.setUser(user);
         user.setRoom(room);
         roomRepository.save(room);
-        userRepository.save(user);
+        userService.saveUser(user);
 
         return roomMapper.createRoomRequestToResponse(room);
     }
@@ -53,8 +53,10 @@ public class RoomService {
         return response;
     }
 
-    public RoomDataResponseDto updateRoom(Long roomId, UpdateRoomRequestDto updateRoomRequestDto, String token) {
-        User user = jwtService.extractUserFromToken(token);
+    public RoomDataResponseDto updateRoom(
+            Long roomId,
+            UpdateRoomRequestDto updateRoomRequestDto
+    ) {
         Room room = roomRepository.getRoomById(roomId);
 
         room.setTitle(updateRoomRequestDto.getTitle());

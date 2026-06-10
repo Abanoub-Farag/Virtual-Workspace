@@ -39,12 +39,10 @@ public class RoomController {
 
     @PostMapping("")
     public ResponseEntity<CreateRoomResponseDto> createRoom(
-            @RequestBody CreateRoomRequestDto createRoomRequestDto,
-            @RequestHeader Map<String, String> header
+            @RequestBody CreateRoomRequestDto createRoomRequestDto
             ){
 
-        String token = jwtService.extractTokenFromHeader(header);
-        CreateRoomResponseDto response = roomService.createRoom(createRoomRequestDto, token);
+        CreateRoomResponseDto response = roomService.createRoom(createRoomRequestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -55,14 +53,12 @@ public class RoomController {
     }
 
     @PostMapping("/{roomId}")
-    @PreAuthorize("@roomAuthService.isOwner(#roomId, #header)")
+    @PreAuthorize("@roomAuthService.isOwner(#roomId)")
     public ResponseEntity<RoomDataResponseDto> updateRoom(
             @PathVariable Long roomId,
-            @RequestBody UpdateRoomRequestDto updateRoomRequestDto,
-            @RequestHeader Map<String, String> header
+            @RequestBody UpdateRoomRequestDto updateRoomRequestDto
     ){
-        String token = jwtService.extractTokenFromHeader(header);
-        RoomDataResponseDto roomDataResponseDto = roomService.updateRoom(roomId, updateRoomRequestDto, token);
+        RoomDataResponseDto roomDataResponseDto = roomService.updateRoom(roomId, updateRoomRequestDto);
         return ResponseEntity.ok(roomDataResponseDto);
     }
 }

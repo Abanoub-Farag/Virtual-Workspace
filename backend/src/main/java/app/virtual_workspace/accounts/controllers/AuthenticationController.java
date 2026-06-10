@@ -3,7 +3,7 @@ package app.virtual_workspace.accounts.controllers;
 import app.virtual_workspace.accounts.dtos.auth.AuthResponseDto;
 import app.virtual_workspace.accounts.dtos.auth.LoginDto;
 import app.virtual_workspace.accounts.dtos.auth.RegisterDto;
-import app.virtual_workspace.accounts.services.interfaces.UserAuthService;
+import app.virtual_workspace.accounts.services.UserAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

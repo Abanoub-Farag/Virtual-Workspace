@@ -2,7 +2,8 @@ package app.virtual_workspace.accounts.controllers;
 
 import app.virtual_workspace.accounts.dtos.profile.UpdateUserProfileDto;
 import app.virtual_workspace.accounts.dtos.profile.UserProfileDto;
-import app.virtual_workspace.accounts.services.interfaces.ProfileService;
+import app.virtual_workspace.accounts.services.ProfileService;
+import app.virtual_workspace.accounts.services.UserAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final UserAuthService userAuthService;
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserProfileDto> getProfile(@PathVariable Long userId){
@@ -29,7 +31,7 @@ public class ProfileController {
     }
 
     @PostMapping("/{userId}")
-    @PreAuthorize("@UserAuthServiceImpl.isOwner(#userId)")
+    @PreAuthorize("@userAuthService.isOwner(#userId)")
     public ResponseEntity<UserProfileDto> updateProfile(
             @PathVariable Long userId, @RequestBody UpdateUserProfileDto updateDto
     ){

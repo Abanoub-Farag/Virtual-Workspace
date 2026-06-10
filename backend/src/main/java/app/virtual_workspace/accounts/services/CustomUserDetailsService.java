@@ -1,4 +1,4 @@
-package app.virtual_workspace.accounts.services.impl;
+package app.virtual_workspace.accounts.services;
 
 import app.virtual_workspace.accounts.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
