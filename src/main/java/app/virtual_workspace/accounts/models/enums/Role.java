@@ -1,0 +1,6 @@
+package app.virtual_workspace.accounts.models.enums;
+
+public enum Role {
+    ROLE_USER,
+    ROLE_ADMIN
+}
