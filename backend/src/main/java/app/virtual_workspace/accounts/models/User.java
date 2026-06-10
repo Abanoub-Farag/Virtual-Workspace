@@ -1,6 +1,7 @@
 package app.virtual_workspace.accounts.models;
 
 import app.virtual_workspace.accounts.models.enums.Role;
+import app.virtual_workspace.rooms.models.Room;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -70,6 +71,9 @@ public class User implements UserDetails {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Profile profile;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Room room;
 
 
     @Override
