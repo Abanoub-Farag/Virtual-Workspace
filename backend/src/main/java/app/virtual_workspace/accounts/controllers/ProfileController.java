@@ -29,7 +29,7 @@ public class ProfileController {
     }
 
     @PostMapping("/{userId}")
-    @PreAuthorize("@AuthServiceImpl.isOwner(#userId)")
+    @PreAuthorize("@UserAuthServiceImpl.isOwner(#userId)")
     public ResponseEntity<UserProfileDto> updateProfile(
             @PathVariable Long userId, @RequestBody UpdateUserProfileDto updateDto
     ){

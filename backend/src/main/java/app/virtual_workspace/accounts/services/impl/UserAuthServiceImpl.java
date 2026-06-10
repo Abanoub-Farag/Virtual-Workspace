@@ -7,25 +7,20 @@ import app.virtual_workspace.accounts.events.UserRegisteredEvent;
 import app.virtual_workspace.accounts.mappers.AuthMapper;
 import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.repositories.UserRepository;
-import app.virtual_workspace.accounts.services.interfaces.AuthService;
+import app.virtual_workspace.accounts.services.interfaces.UserAuthService;
 import app.virtual_workspace.security.JwtService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.support.NotFoundRestClientAdapterDecorator;
-
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class AuthServiceImpl implements AuthService {
+public class UserAuthServiceImpl implements UserAuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

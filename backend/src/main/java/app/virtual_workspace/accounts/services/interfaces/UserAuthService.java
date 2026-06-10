@@ -4,7 +4,7 @@ import app.virtual_workspace.accounts.dtos.auth.AuthResponseDto;
 import app.virtual_workspace.accounts.dtos.auth.LoginDto;
 import app.virtual_workspace.accounts.dtos.auth.RegisterDto;
 
-public interface AuthService {
+public interface UserAuthService {
     AuthResponseDto register(RegisterDto request);
     AuthResponseDto login(LoginDto request);
 //    Long getCurrentUserId(String userName);

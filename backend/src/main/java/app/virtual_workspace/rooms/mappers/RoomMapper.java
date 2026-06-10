@@ -4,6 +4,7 @@ import app.virtual_workspace.rooms.dtos.CreateRoomRequestDto;
 import app.virtual_workspace.rooms.dtos.AllRoomResponseDto;
 import app.virtual_workspace.rooms.dtos.CreateRoomResponseDto;
 import app.virtual_workspace.rooms.dtos.RoomDataResponseDto;
+import app.virtual_workspace.rooms.dtos.UpdateRoomRequestDto;
 import app.virtual_workspace.rooms.models.Room;
 import org.mapstruct.Mapper;
 import org.springframework.context.annotation.Bean;
@@ -18,4 +19,5 @@ public interface RoomMapper {
     Room createRoomRequestDtoToModel(CreateRoomRequestDto createRoomRequestDto);
     CreateRoomResponseDto createRoomRequestToResponse(Room room);
     RoomDataResponseDto roomModelToDto(Room room);
+    Room updateRoomDtoToModel(UpdateRoomRequestDto roomRequestDto);
 }
