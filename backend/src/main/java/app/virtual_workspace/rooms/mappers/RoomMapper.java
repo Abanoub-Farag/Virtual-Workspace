@@ -1,14 +1,12 @@
 package app.virtual_workspace.rooms.mappers;
 
-import app.virtual_workspace.rooms.dtos.CreateRoomRequestDto;
-import app.virtual_workspace.rooms.dtos.AllRoomResponseDto;
-import app.virtual_workspace.rooms.dtos.CreateRoomResponseDto;
-import app.virtual_workspace.rooms.dtos.RoomDataResponseDto;
-import app.virtual_workspace.rooms.dtos.UpdateRoomRequestDto;
+import app.virtual_workspace.rooms.dtos.room.CreateRoomRequestDto;
+import app.virtual_workspace.rooms.dtos.room.AllRoomResponseDto;
+import app.virtual_workspace.rooms.dtos.room.CreateRoomResponseDto;
+import app.virtual_workspace.rooms.dtos.room.RoomDataResponseDto;
+import app.virtual_workspace.rooms.dtos.room.UpdateRoomRequestDto;
 import app.virtual_workspace.rooms.models.Room;
 import org.mapstruct.Mapper;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 

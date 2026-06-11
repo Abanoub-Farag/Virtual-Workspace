@@ -1,6 +1,7 @@
 package app.virtual_workspace.accounts.models;
 
 import app.virtual_workspace.accounts.models.enums.Role;
+import app.virtual_workspace.rooms.models.FavoriteRoom;
 import app.virtual_workspace.rooms.models.Room;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -10,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -37,7 +39,6 @@ import java.util.List;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
     private Long id;
 
     @Column(unique = true, nullable = false)
@@ -75,6 +76,8 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Room room;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<FavoriteRoom> favoriteRoom;
 
     @Override
     public boolean equals(Object o){

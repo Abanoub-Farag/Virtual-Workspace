@@ -1,17 +1,19 @@
-package app.virtual_workspace.rooms.dtos;
+package app.virtual_workspace.rooms.dtos.favoriteroom;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
+
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
-public class CreateRoomRequestDto {
+public class FavoriteRoomResponseDto {
+    private Long roomId;
     private String title;
     private String description;
+    private LocalDateTime addedAt;
 }

@@ -1,4 +1,4 @@
-package app.virtual_workspace.rooms.dtos;
+package app.virtual_workspace.rooms.dtos.room;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class RoomDataResponseDto {
+public class AllRoomResponseDto {
     private String title;
+
     private String description;
 }

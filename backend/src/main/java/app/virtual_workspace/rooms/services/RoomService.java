@@ -1,23 +1,20 @@
 package app.virtual_workspace.rooms.services;
 
 import app.virtual_workspace.accounts.models.User;
-import app.virtual_workspace.accounts.repositories.UserRepository;
 import app.virtual_workspace.accounts.services.UserAuthService;
 import app.virtual_workspace.accounts.services.UserService;
-import app.virtual_workspace.rooms.dtos.CreateRoomRequestDto;
-import app.virtual_workspace.rooms.dtos.AllRoomResponseDto;
-import app.virtual_workspace.rooms.dtos.CreateRoomResponseDto;
-import app.virtual_workspace.rooms.dtos.RoomDataResponseDto;
-import app.virtual_workspace.rooms.dtos.UpdateRoomRequestDto;
+import app.virtual_workspace.rooms.dtos.room.CreateRoomRequestDto;
+import app.virtual_workspace.rooms.dtos.room.AllRoomResponseDto;
+import app.virtual_workspace.rooms.dtos.room.CreateRoomResponseDto;
+import app.virtual_workspace.rooms.dtos.room.RoomDataResponseDto;
+import app.virtual_workspace.rooms.dtos.room.UpdateRoomRequestDto;
 import app.virtual_workspace.rooms.mappers.RoomMapper;
 import app.virtual_workspace.rooms.models.Room;
 import app.virtual_workspace.rooms.repositories.RoomRepository;
-import app.virtual_workspace.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -65,4 +62,5 @@ public class RoomService {
         roomRepository.save(room);
         return roomMapper.roomModelToDto(room);
     }
+
 }

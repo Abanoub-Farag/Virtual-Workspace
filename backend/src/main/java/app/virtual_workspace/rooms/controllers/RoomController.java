@@ -1,11 +1,11 @@
 package app.virtual_workspace.rooms.controllers;
 
 
-import app.virtual_workspace.rooms.dtos.CreateRoomRequestDto;
-import app.virtual_workspace.rooms.dtos.AllRoomResponseDto;
-import app.virtual_workspace.rooms.dtos.CreateRoomResponseDto;
-import app.virtual_workspace.rooms.dtos.RoomDataResponseDto;
-import app.virtual_workspace.rooms.dtos.UpdateRoomRequestDto;
+import app.virtual_workspace.rooms.dtos.room.CreateRoomRequestDto;
+import app.virtual_workspace.rooms.dtos.room.AllRoomResponseDto;
+import app.virtual_workspace.rooms.dtos.room.CreateRoomResponseDto;
+import app.virtual_workspace.rooms.dtos.room.RoomDataResponseDto;
+import app.virtual_workspace.rooms.dtos.room.UpdateRoomRequestDto;
 import app.virtual_workspace.rooms.services.RoomService;
 import app.virtual_workspace.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +16,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -61,4 +59,5 @@ public class RoomController {
         RoomDataResponseDto roomDataResponseDto = roomService.updateRoom(roomId, updateRoomRequestDto);
         return ResponseEntity.ok(roomDataResponseDto);
     }
+    
 }

@@ -1,4 +1,4 @@
-package app.virtual_workspace.rooms.dtos;
+package app.virtual_workspace.rooms.dtos.room;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
