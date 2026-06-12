@@ -59,5 +59,5 @@ public class RoomController {
         RoomDataResponseDto roomDataResponseDto = roomService.updateRoom(roomId, updateRoomRequestDto);
         return ResponseEntity.ok(roomDataResponseDto);
     }
-    
+
 }

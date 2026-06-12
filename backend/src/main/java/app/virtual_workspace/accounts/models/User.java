@@ -37,8 +37,10 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
 
     @Column(unique = true, nullable = false)
@@ -59,7 +61,7 @@ public class User implements UserDetails {
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = true)
+    @Column(name = "role")
     private Role role = Role.ROLE_USER;
 
     @CreationTimestamp
