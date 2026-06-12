@@ -1,111 +1,71 @@
-# Virtual Workspace Backend
+# Virtual Workspace API
 
-A backend application for the Virtual Workspace platform, built with **Java** and **Spring Boot**. The project uses **PostgreSQL** for data persistence and secures endpoints via **JWT Authentication**. 
-
-The backend is modularized into feature-based packages (`accounts`, `rooms`, `security`), ensuring clean architecture and separation of concerns.
+A modular backend application built with **Java**, **Spring Boot 3**, and **PostgreSQL**. It provides a secure API for managing users, virtual rooms, and tasks, utilizing **JWT** for stateless authentication.
 
 ---
 
-## 🚀 Features
+## 🏗 Architecture & Modules
 
-### 1. User Authentication & Security
-- **JWT-based Security:** Stateless session management using JSON Web Tokens.
-- **Registration & Login:** Users can create accounts and securely log in.
-- **Role-based Access Control:** Supports user roles (e.g., `ROLE_USER`) and secures endpoints so only authenticated users can access core features.
-
-### 2. User Profiles
-- **Automatic Profile Setup:** When a user registers, a `Profile` entity is automatically created and linked to their account via events (`ProfileSetupListener`).
-- **Profile Management:** Users can view their profile and update details like bio, gender, and date of birth.
-- **Ownership Verification:** Updating a profile is secured using method-level security (`@PreAuthorize`) to ensure that users can only edit their *own* profiles.
-
-### 3. Room Management
-- **Create Rooms:** Authenticated users can create virtual rooms with a title and description.
-- **Browse Rooms:** Users can fetch a list of all available rooms or retrieve specific data for a single room.
-
----
-
-## 🛠 Tech Stack
-
-- **Java**
-- **Spring Boot 3** (Spring Web, Spring Security, Spring Data JPA)
-- **PostgreSQL** (Relational Database)
-- **JWT (JSON Web Tokens)** (Authentication/Authorization)
-- **Hibernate / JPA** (ORM)
-- **Lombok** (Boilerplate reduction)
-- **Maven** (Dependency Management)
+- **Accounts:** User registration, JWT authentication, and automated profile generation.
+- **Rooms:** Creation, retrieval, and updating of virtual rooms. Includes a "Favorites" feature to bookmark rooms.
+- **Tasks:** CRUD operations for task management.
+- **Security:** Stateless JWT filter and method-level security for ownership verification.
+- **Exception Handling:** Global error handling returning structured error responses.
 
 ---
 
 ## 🌐 API Endpoints
 
-All endpoints are prefixed with `/api/v1`.
+*Base URL:* `/api/v1`
 
 ### 🔐 Authentication (`/auth`)
-*These endpoints are public and do not require an authorization token.*
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/auth/register` | Register new user. |
+| `POST` | `/auth/login` | Authenticate and retrieve JWT. |
 
-| Method | Endpoint          | Description                                | Request Body                            |
-|--------|-------------------|--------------------------------------------|-----------------------------------------|
-| `POST` | `/auth/register`  | Register a new user account.               | `firstName`, `lastName`, `email`, `password` |
-| `POST` | `/auth/login`     | Authenticate a user and return a JWT.      | `email`, `password`                     |
+### 👤 Profiles (`/profile`) - *Requires JWT*
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `GET` | `/profile/{userId}` | Get user profile. | Any authenticated user. |
+| `POST` | `/profile/{userId}` | Update profile. | Profile owner only. |
 
-### 👤 User Profiles (`/profile`)
-*Requires a valid JWT token.*
+### 🏠 Rooms (`/rooms`) - *Requires JWT*
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `GET` | `/rooms` | Get all rooms. | Any authenticated user. |
+| `POST`| `/rooms` | Create a new room. | Any authenticated user. |
+| `GET` | `/rooms/{roomId}`| Get specific room details. | Any authenticated user. |
+| `POST`| `/rooms/{roomId}`| Update a room. | Room owner only. |
 
-| Method | Endpoint          | Description                                | Request Body                            |
-|--------|-------------------|--------------------------------------------|-----------------------------------------|
-| `GET`  | `/profile/{id}`   | Retrieve profile data for a specific user. | -                                       |
-| `POST` | `/profile/{id}`   | Update profile data (Only the profile owner). | `bio`, `gender`, `dateOfBirth`       |
+### ⭐ Favorite Rooms (`/rooms/favorites`) - *Requires JWT*
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/rooms/favorites` | Get all favorite rooms for the authenticated user. |
+| `POST` | `/rooms/favorites/{roomId}` | Add a room to user's favorites. |
+| `DELETE`| `/rooms/favorites/{roomId}` | Remove a room from user's favorites. |
 
-### 🏠 Rooms (`/rooms`)
-*Requires a valid JWT token.*
-
-| Method | Endpoint          | Description                                | Request Body                            |
-|--------|-------------------|--------------------------------------------|-----------------------------------------|
-| `GET`  | `/rooms`          | Get a list of all rooms.                   | -                                       |
-| `POST` | `/rooms`          | Create a new room.                         | `title`, `description`                  |
-| `GET`  | `/rooms/{id}`     | Get data for a specific room by its ID.    | -                                       |
+### ✅ Tasks (`/tasks`) - *Requires JWT*
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `GET` | `/tasks` | Get all tasks. | Any authenticated user. |
+| `POST`| `/tasks` | Create a new task. | Any authenticated user. |
+| `PUT` | `/tasks/{taskId}` | Update a task. | Task owner only. |
+| `DELETE`| `/tasks/{taskId}` | Delete a task. | Task owner only. |
 
 ---
 
-## 📁 Project Structure
+## ⚙️ Setup & Run
 
-The codebase follows a domain-driven package structure:
-
-```
-backend/src/main/java/app/virtual_workspace/
- ├── accounts/          # User, Profile entities, authentication, and user events
- │    ├── controllers/  # AuthController, ProfileController
- │    ├── dtos/         # Data Transfer Objects for Auth & Profiles
- │    ├── events/       # UserRegisteredEvent and ProfileSetupListener
- │    ├── models/       # User, Profile, Role, Gender
- │    ├── repositories/ # Spring Data JPA repositories
- │    └── services/     # Business logic for auth and user profiles
- │
- ├── rooms/             # Room entity and management features
- │    ├── controllers/  # RoomController
- │    ├── dtos/         # Room-related requests/responses
- │    ├── models/       # Room entity
- │    ├── repositories/ # Room JPA repository
- │    └── services/     # Room business logic
- │
- └── security/          # Security configurations and filters
-      ├── JwtAuthFilter.java    # Intercepts requests to validate JWTs
-      ├── JwtService.java       # JWT token generation and parsing
-      └── SecurityConfig.java   # Spring Security configuration and bean definitions
-```
-
-## ⚙️ Setup & Configuration
-
-The application is configured to connect to a PostgreSQL database by default. Update the `backend/src/main/resources/application.properties` to point to your local or remote database:
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
-spring.datasource.username=postgres
-spring.datasource.password=postgres
-spring.jpa.hibernate.ddl-auto=update
-```
-
-To run the project, navigate to the `backend` directory and execute:
-```bash
-./mvnw spring-boot:run
-```
+1. **Database Setup:** 
+   Update `src/main/resources/application.properties` with your PostgreSQL credentials:
+   ```properties
+   spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
+   spring.datasource.username=postgres
+   spring.datasource.password=postgres
+   spring.jpa.hibernate.ddl-auto=update
+   ```
+2. **Run Application:**
+   ```bash
+   ./mvnw spring-boot:run
+   ```
