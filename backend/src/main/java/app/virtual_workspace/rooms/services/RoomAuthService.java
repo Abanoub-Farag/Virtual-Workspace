@@ -4,11 +4,9 @@ import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.services.UserAuthService;
 import app.virtual_workspace.rooms.models.Room;
 import app.virtual_workspace.rooms.repositories.RoomRepository;
-import app.virtual_workspace.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor

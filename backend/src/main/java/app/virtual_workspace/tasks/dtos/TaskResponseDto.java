@@ -1,0 +1,20 @@
+package app.virtual_workspace.tasks.dtos;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
+public class TaskResponseDto {
+
+    private String title;
+
+    private boolean isCompleted = false;
+
+}

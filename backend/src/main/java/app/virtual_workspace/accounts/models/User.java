@@ -3,6 +3,7 @@ package app.virtual_workspace.accounts.models;
 import app.virtual_workspace.accounts.models.enums.Role;
 import app.virtual_workspace.rooms.models.FavoriteRoom;
 import app.virtual_workspace.rooms.models.Room;
+import app.virtual_workspace.tasks.models.Task;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -80,6 +81,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<FavoriteRoom> favoriteRoom;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Task> task;
 
     @Override
     public boolean equals(Object o){
