@@ -8,6 +8,7 @@ import app.virtual_workspace.rooms.dtos.room.RoomDataResponseDto;
 import app.virtual_workspace.rooms.dtos.room.UpdateRoomRequestDto;
 import app.virtual_workspace.rooms.services.RoomService;
 import app.virtual_workspace.security.JwtService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +39,7 @@ public class RoomController {
 
     @PostMapping("")
     public ResponseEntity<CreateRoomResponseDto> createRoom(
-            @RequestBody CreateRoomRequestDto createRoomRequestDto
+            @Valid @RequestBody CreateRoomRequestDto createRoomRequestDto
             ){
 
         CreateRoomResponseDto response = roomService.createRoom(createRoomRequestDto);
@@ -50,11 +52,11 @@ public class RoomController {
          return ResponseEntity.ok(roomService.getRoomData(id));
     }
 
-    @PostMapping("/{roomId}")
+    @PutMapping("/{roomId}")
     @PreAuthorize("@roomAuthService.isOwner(#roomId)")
     public ResponseEntity<RoomDataResponseDto> updateRoom(
             @PathVariable Long roomId,
-            @RequestBody UpdateRoomRequestDto updateRoomRequestDto
+            @Valid @RequestBody UpdateRoomRequestDto updateRoomRequestDto
     ){
         RoomDataResponseDto roomDataResponseDto = roomService.updateRoom(roomId, updateRoomRequestDto);
         return ResponseEntity.ok(roomDataResponseDto);
