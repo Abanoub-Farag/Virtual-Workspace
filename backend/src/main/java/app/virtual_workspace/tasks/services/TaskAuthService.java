@@ -2,11 +2,10 @@ package app.virtual_workspace.tasks.services;
 
 import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.services.UserAuthService;
+import app.virtual_workspace.exceptions.custom.ResourceNotFound;
 import app.virtual_workspace.tasks.models.Task;
 import app.virtual_workspace.tasks.repositories.TaskRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,7 +20,7 @@ public class TaskAuthService {
 
         Task task = taskRepository.findTasksById(taskId);
 
-        if (task == null) throw new EntityNotFoundException("No task found with id: " + taskId);
+        if (task == null) throw new ResourceNotFound("No task found with id: " + taskId);
 
         return task.getUser().getId().equals(user.getId());
     }

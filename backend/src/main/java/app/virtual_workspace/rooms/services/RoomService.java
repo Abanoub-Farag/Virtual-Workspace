@@ -3,6 +3,7 @@ package app.virtual_workspace.rooms.services;
 import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.services.UserAuthService;
 import app.virtual_workspace.accounts.services.UserService;
+import app.virtual_workspace.exceptions.custom.ResourceNotFound;
 import app.virtual_workspace.rooms.dtos.room.CreateRoomRequestDto;
 import app.virtual_workspace.rooms.dtos.room.AllRoomResponseDto;
 import app.virtual_workspace.rooms.dtos.room.CreateRoomResponseDto;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +47,9 @@ public class RoomService {
     }
 
     public RoomDataResponseDto getRoomData(Long id){
-        Room room = roomRepository.findById(id).orElseThrow(() -> new RuntimeException("No room available with this id " + id));
-        RoomDataResponseDto response = roomMapper.roomModelToDto(room);
-        return response;
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("Room not found with id: " + id));
+        return roomMapper.roomModelToDto(room);
     }
 
     public RoomDataResponseDto updateRoom(

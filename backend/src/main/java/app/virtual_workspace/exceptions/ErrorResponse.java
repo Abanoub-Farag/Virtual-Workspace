@@ -1,4 +1,4 @@
-package app.virtual_workspace.exceptions_handlers;
+package app.virtual_workspace.exceptions;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -8,7 +8,8 @@ import java.util.List;
 
 @Getter
 @Builder
-public class ErrorResponseDto {
+public class ErrorResponse {
+
     private LocalDateTime timeStamp;
     private int status;
     private String error;

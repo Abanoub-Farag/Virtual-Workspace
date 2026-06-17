@@ -2,7 +2,7 @@ package app.virtual_workspace.accounts.services;
 
 import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.repositories.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+import app.virtual_workspace.exceptions.custom.ResourceNotFound;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ public class UserService {
 
     public User findUserById(Long userId){
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found"));
+                .orElseThrow(() -> new ResourceNotFound("User with id " + userId + " not found"));
     }
 
     public User saveUser(User user){

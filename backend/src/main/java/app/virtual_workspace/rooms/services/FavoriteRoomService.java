@@ -2,6 +2,7 @@ package app.virtual_workspace.rooms.services;
 
 import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.services.UserAuthService;
+import app.virtual_workspace.exceptions.custom.ResourceNotFound;
 import app.virtual_workspace.rooms.dtos.favoriteroom.FavoriteRoomResponseDto;
 import app.virtual_workspace.rooms.mappers.FavoriteRoomMapper;
 import app.virtual_workspace.rooms.models.FavoriteRoom;
@@ -39,7 +40,7 @@ public class FavoriteRoomService {
         }
 
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new NullPointerException("No room found with id: " + roomId));
+                .orElseThrow(() -> new ResourceNotFound("No room found with id: " + roomId));
 
         FavoriteRoom favoriteRoom = new FavoriteRoom();
         favoriteRoom.setRoom(room);
