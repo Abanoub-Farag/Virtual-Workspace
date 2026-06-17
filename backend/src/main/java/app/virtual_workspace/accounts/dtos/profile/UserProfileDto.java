@@ -22,5 +22,4 @@ public class UserProfileDto {
     private String lastName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDate accountDateOfBirth;
 }

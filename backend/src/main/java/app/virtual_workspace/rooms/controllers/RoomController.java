@@ -29,7 +29,6 @@ import java.util.List;
 public class RoomController {
 
     private final RoomService roomService;
-    private final JwtService jwtService;
 
     @GetMapping("")
     public ResponseEntity<List<AllRoomResponseDto>> getAllRooms(){

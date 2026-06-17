@@ -80,7 +80,7 @@ public class User implements UserDetails {
     private Room room;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<FavoriteRoom> favoriteRoom;
+    private List<FavoriteRoom> favoriteRooms;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Task> task;

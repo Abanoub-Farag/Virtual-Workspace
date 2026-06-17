@@ -39,10 +39,6 @@ public class Profile {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    @Column(name = "account_date_of_birth")
-    @CreationTimestamp
-    private LocalDate accountDateOfBirth;
-
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;

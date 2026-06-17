@@ -13,8 +13,10 @@ import lombok.ToString;
 @ToString
 public class CreateRoomResponseDto {
 
-    private String title;
-    private String description;
+    private Long id;
 
+    private String title;
+
+    private String description;
 
 }

@@ -13,7 +13,6 @@ import lombok.Setter;
 @Setter
 public class UpdateRoomRequestDto {
 
-    @NotBlank(message = "This is a required field")
     @Size(min = 2, max = 50, message = "Title must be between 2 to 50 characters")
     private String title;
 

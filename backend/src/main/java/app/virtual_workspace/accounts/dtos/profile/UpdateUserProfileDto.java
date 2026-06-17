@@ -2,6 +2,7 @@ package app.virtual_workspace.accounts.dtos.profile;
 
 import app.virtual_workspace.accounts.models.enums.Gender;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,13 +24,12 @@ public class UpdateUserProfileDto {
 
     private Gender gender;
 
+    @Past
     private LocalDate dateOfBirth;
 
-    @NotBlank(message = "First name is required")
     @Size(min = 3, max = 20, message = "First name must be between 3 and 20 characters")
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
     @Size(min = 3, max = 20, message = "Last name must be between 3 and 20 characters")
     private String lastName;
 }

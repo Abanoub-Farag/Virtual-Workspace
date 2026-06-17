@@ -12,6 +12,11 @@ import lombok.ToString;
 @Setter
 @ToString
 public class RoomDataResponseDto {
+
+    private Long id;
+
     private String title;
+
     private String description;
+
 }

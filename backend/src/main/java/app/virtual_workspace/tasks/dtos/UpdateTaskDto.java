@@ -15,7 +15,6 @@ import lombok.Setter;
 @Builder
 public class UpdateTaskDto {
 
-    @NotBlank(message = "Title is a required field")
     @Size(min = 1, max = 50, message = "Title must be between 1 to 50 characters")
     private String title;
 

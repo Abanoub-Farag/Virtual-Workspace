@@ -16,6 +16,7 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final UserService userService;
     private final ProfileMapper profileMapper;
+    private final UserAuthService userAuthService;
 
     public void createProfile(Long userId) {
         User user = userService.findUserById(userId);
@@ -33,8 +34,8 @@ public class ProfileService {
         return profileMapper.toUserProfileDto(user, profile);
     }
 
-    public UserProfileDto updateProfile(Long userId, UpdateUserProfileDto updateDto) {
-        User user = userService.findUserById(userId);
+    public UserProfileDto updateProfile(UpdateUserProfileDto updateDto) {
+        User user = userAuthService.getAuthenticatedUser();
 
         Profile profile = user.getProfile();
 

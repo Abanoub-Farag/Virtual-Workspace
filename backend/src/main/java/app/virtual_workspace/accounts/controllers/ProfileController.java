@@ -30,13 +30,11 @@ public class ProfileController {
         return ResponseEntity.status(HttpStatus.OK).body(profile);
     }
 
-    @PutMapping("/{userId}")
-    @PreAuthorize("@userAuthService.isOwner(#userId)")
+    @PutMapping("")
     public ResponseEntity<UserProfileDto> updateProfile(
-            @PathVariable Long userId,
             @Valid @RequestBody UpdateUserProfileDto updateDto
     ){
-        UserProfileDto profile = profileService.updateProfile(userId, updateDto);
+        UserProfileDto profile = profileService.updateProfile(updateDto);
 
         return ResponseEntity.ok(profile);
     }

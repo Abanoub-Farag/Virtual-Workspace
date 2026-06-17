@@ -38,7 +38,7 @@ public class UserAuthService {
         UserRegisteredEvent event = new UserRegisteredEvent(savedUser.getId());
         applicationEventPublisher.publishEvent(event);
 
-        String token = jwtService.generateToken(user.getUsername());
+        String token = jwtService.generateToken(savedUser.getUsername());
 
         return AuthResponseDto.builder().token(token).build();
     }
@@ -53,7 +53,7 @@ public class UserAuthService {
     public User getAuthenticatedUser(){
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()){
+        if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof User)){
             throw new InsufficientAuthenticationException("User not authenticated");
         }
 

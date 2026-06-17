@@ -21,10 +21,9 @@ public class TaskAuthService {
 
         Task task = taskRepository.findTasksById(taskId);
 
-        if (user == null) throw new InsufficientAuthenticationException("User is not authenticated");
         if (task == null) throw new EntityNotFoundException("No task found with id: " + taskId);
 
-        return task.getUser().equals(user);
+        return task.getUser().getId().equals(user.getId());
     }
 
 }

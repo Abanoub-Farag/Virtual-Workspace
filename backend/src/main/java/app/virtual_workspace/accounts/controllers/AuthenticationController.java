@@ -6,6 +6,7 @@ import app.virtual_workspace.accounts.dtos.auth.RegisterDto;
 import app.virtual_workspace.accounts.services.UserAuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +23,7 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterDto user){
-       return ResponseEntity.ok(userAuthService.register(user));
+       return ResponseEntity.status(HttpStatus.CREATED).body(userAuthService.register(user));
     }
 
     @PostMapping("/login")

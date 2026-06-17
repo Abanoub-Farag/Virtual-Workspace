@@ -47,7 +47,7 @@ public class TaskController {
             @Valid @RequestBody UpdateTaskDto updateTaskDto
     ){
         taskService.updateTask(taskId, updateTaskDto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{taskId}")
@@ -56,7 +56,7 @@ public class TaskController {
             @PathVariable Long taskId
     ){
         taskService.deleteTask(taskId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
 }

@@ -38,7 +38,8 @@ public class FavoriteRoomService {
             return;
         }
 
-        Room room = roomRepository.getRoomById(roomId);
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new NullPointerException("No room found with id: " + roomId));
 
         FavoriteRoom favoriteRoom = new FavoriteRoom();
         favoriteRoom.setRoom(room);

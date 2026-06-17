@@ -19,6 +19,6 @@ public class RoomAuthService {
         User user = userAuthService.getAuthenticatedUser();
         Room room = roomRepository.getRoomById(roomId);
 
-        return room.getUser().equals(user);
+        return room.getUser().getId().equals(user.getId());
     }
 }
