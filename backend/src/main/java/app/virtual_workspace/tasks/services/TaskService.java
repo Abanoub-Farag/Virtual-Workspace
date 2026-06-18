@@ -2,6 +2,7 @@ package app.virtual_workspace.tasks.services;
 
 import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.services.UserAuthService;
+import app.virtual_workspace.exceptions.custom.ResourceNotFound;
 import app.virtual_workspace.tasks.dtos.CreateTaskDto;
 import app.virtual_workspace.tasks.dtos.TaskResponseDto;
 import app.virtual_workspace.tasks.dtos.UpdateTaskDto;
@@ -38,7 +39,8 @@ public class TaskService {
     }
 
     public void updateTask(Long taskId, UpdateTaskDto taskRequest){
-        Task task = taskRepository.findTasksById(taskId);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFound("Task Not Found"));
 
         task.setTitle(taskRequest.getTitle());
         task.setCompleted(taskRequest.isCompleted());
