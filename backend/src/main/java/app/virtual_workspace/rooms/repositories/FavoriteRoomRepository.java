@@ -2,6 +2,8 @@ package app.virtual_workspace.rooms.repositories;
 
 import app.virtual_workspace.rooms.models.FavoriteRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -9,7 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface FavoriteRoomRepository extends JpaRepository<FavoriteRoom, Long> {
-    List<FavoriteRoom> findFavoriteRoomsByUserId(Long userId);
+
+    @Query("SELECT f FROM FavoriteRoom f JOIN FETCH f.room WHERE f.user.id = :userId")
+    List<FavoriteRoom> findFavoriteRoomsByUserId(@Param("userId") Long userId);
 
     Optional<FavoriteRoom> findFavoriteRoomByUserIdAndRoomId(Long userId, Long roomId);
 
