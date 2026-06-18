@@ -8,6 +8,7 @@ import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.repositories.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -34,6 +35,7 @@ public class ProfileService {
         return profileMapper.toUserProfileDto(user, profile);
     }
 
+    @Transactional
     public UserProfileDto updateProfile(UpdateUserProfileDto updateDto) {
         User user = userAuthService.getAuthenticatedUser();
 

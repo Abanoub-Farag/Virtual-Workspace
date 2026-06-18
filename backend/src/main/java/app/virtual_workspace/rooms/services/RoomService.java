@@ -14,6 +14,7 @@ import app.virtual_workspace.rooms.models.Room;
 import app.virtual_workspace.rooms.repositories.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +32,7 @@ public class RoomService {
         return roomMapper.toAllRoomResponseDto(roomRepository.findAll());
     }
 
+    @Transactional
     public CreateRoomResponseDto createRoom(
             CreateRoomRequestDto createRoomRequestDto
     ){
