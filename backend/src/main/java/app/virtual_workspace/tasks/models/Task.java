@@ -15,7 +15,13 @@ import lombok.Setter;
 @Setter
 @Builder
 @Entity
-@Table(name = "tasks")
+@Table(
+        name = "tasks",
+        indexes = {
+                @Index(name = "idx_task_title", columnList = "title"),
+                @Index(name = "idx_task_user_id", columnList = "user_id")
+        }
+)
 public class Task {
 
     @Id

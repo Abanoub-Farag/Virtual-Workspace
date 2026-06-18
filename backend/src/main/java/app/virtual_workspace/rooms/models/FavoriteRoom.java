@@ -19,7 +19,10 @@ import java.time.LocalDateTime;
         name = "favorite_rooms",
         uniqueConstraints = @UniqueConstraint(
                 columnNames = {"user_id", "room_id"}
-        )
+        ),
+        indexes = {
+                @Index(name = "idx_fav_room_id", columnList = "room_id")
+        }
 )
 public class FavoriteRoom {
 

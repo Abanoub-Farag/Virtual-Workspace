@@ -1,21 +1,11 @@
 package app.virtual_workspace.accounts.models;
 
 import app.virtual_workspace.accounts.models.enums.Gender;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 
@@ -24,7 +14,12 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name = "profiles")
+@Table(
+        name = "profiles",
+        indexes = {
+                @Index(name = "idx_profile_user_id", columnList = "user_id")
+        }
+)
 public class Profile {
 
     @Id
@@ -39,7 +34,7 @@ public class Profile {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 }
