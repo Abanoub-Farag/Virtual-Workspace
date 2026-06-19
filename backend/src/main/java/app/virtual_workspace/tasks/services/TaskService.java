@@ -11,6 +11,7 @@ import app.virtual_workspace.tasks.models.Task;
 import app.virtual_workspace.tasks.repositories.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class TaskService {
         return taskMapper.toAllTasksResponseDto(tasks);
     }
 
+    @Transactional
     public void createTask(CreateTaskDto taskRequest){
         User user = userAuthService.getAuthenticatedUser();
 
@@ -38,6 +40,7 @@ public class TaskService {
         taskRepository.save(task);
     }
 
+    @Transactional
     public void updateTask(Long taskId, UpdateTaskDto taskRequest){
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFound("Task Not Found"));
@@ -48,6 +51,7 @@ public class TaskService {
         taskRepository.save(task);
     }
 
+    @Transactional
     public void deleteTask(Long taskId){
         Task task = taskRepository.findTasksById(taskId);
 

@@ -54,6 +54,7 @@ public class RoomService {
         return roomMapper.roomModelToDto(room);
     }
 
+    @Transactional
     public RoomDataResponseDto updateRoom(
             Long roomId,
             UpdateRoomRequestDto updateRoomRequestDto
@@ -65,6 +66,14 @@ public class RoomService {
 
         roomRepository.save(room);
         return roomMapper.roomModelToDto(room);
+    }
+
+    @Transactional
+    public void deleteRoom(Long roomId){
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFound("Room Not Found"));
+
+        roomRepository.deleteById(roomId);
     }
 
 }
