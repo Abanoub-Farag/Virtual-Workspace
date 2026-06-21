@@ -18,7 +18,12 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static SecretKey secretKey;
+    private final SecretKey secretKey;
+
+    public JwtService(@Value("${jwt.secretkey}") String key){
+        byte[] keyBytes = Decoders.BASE64.decode(key);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     public String generateToken(String username){
         Map<String, Object> claims = new HashMap<>();
@@ -57,13 +62,7 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
-    @Value("${jwt.secretkey}")
-    private void setSecretKey(String key){
-        byte[] keyBytes = Decoders.BASE64.decode(key);
-        JwtService.secretKey = Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    private static Key getKey(){
+    private Key getKey(){
         return secretKey;
     }
 
