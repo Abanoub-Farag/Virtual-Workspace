@@ -3,6 +3,7 @@ package app.virtual_workspace.accounts.models;
 import app.virtual_workspace.accounts.models.enums.Role;
 import app.virtual_workspace.rooms.models.FavoriteRoom;
 import app.virtual_workspace.rooms.models.Room;
+import app.virtual_workspace.rooms.models.RoomMembers;
 import app.virtual_workspace.tasks.models.Task;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -79,6 +80,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Task> task;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<RoomMembers> roomMembers;
 
     @Override
     public boolean equals(Object o){
