@@ -5,11 +5,14 @@ import app.virtual_workspace.accounts.services.UserAuthService;
 import app.virtual_workspace.exceptions.custom.ResourceNotFound;
 import app.virtual_workspace.rooms.dtos.favoriteroom.FavoriteRoomResponseDto;
 import app.virtual_workspace.rooms.mappers.FavoriteRoomMapper;
+import app.virtual_workspace.rooms.mappers.RoomMapper;
 import app.virtual_workspace.rooms.models.FavoriteRoom;
 import app.virtual_workspace.rooms.models.Room;
 import app.virtual_workspace.rooms.repositories.FavoriteRoomRepository;
 import app.virtual_workspace.rooms.repositories.RoomRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,12 +26,12 @@ public class FavoriteRoomService {
     private final FavoriteRoomMapper favoriteRoomMapper;
     private final UserAuthService userAuthService;
 
-    public List<FavoriteRoomResponseDto> getFavoriteRooms(){
+    public Slice<FavoriteRoomResponseDto> getFavoriteRooms(Pageable pageable){
         User user = userAuthService.getAuthenticatedUser();
 
-        List<FavoriteRoom> favoriteRooms = favoriteRoomRepository.findFavoriteRoomsByUserId(user.getId());
+        Slice<FavoriteRoom> favoriteRooms = favoriteRoomRepository.findFavoriteRoomsByUserId(user.getId(), pageable);
 
-        return favoriteRoomMapper.modelToFavoriteRoomResponseDto(favoriteRooms);
+        return favoriteRooms.map(favoriteRoomMapper::modelToFavoriteRoomResponseDto);
     }
 
     public void addRoomToFavorite(Long roomId){

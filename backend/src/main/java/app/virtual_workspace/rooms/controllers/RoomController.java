@@ -32,8 +32,7 @@ public class RoomController {
     public ResponseEntity<Slice<AllRoomResponseDto>> getAllRooms(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ){
-        Slice<AllRoomResponseDto> rooms = roomService.getAllRooms(pageable);
-        return ResponseEntity.ok(rooms);
+        return ResponseEntity.ok(roomService.getAllRooms(pageable));
     }
 
     @PostMapping("")

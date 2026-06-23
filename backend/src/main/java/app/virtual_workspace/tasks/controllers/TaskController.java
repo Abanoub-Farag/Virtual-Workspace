@@ -6,6 +6,10 @@ import app.virtual_workspace.tasks.dtos.UpdateTaskDto;
 import app.virtual_workspace.tasks.services.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,8 +32,10 @@ public class TaskController {
     private final TaskService taskService;
 
     @GetMapping("")
-    public ResponseEntity<List<TaskResponseDto>> getAllTasks(){
-        return ResponseEntity.ok(taskService.getAllTasks());
+    public ResponseEntity<Slice<TaskResponseDto>> getAllTasks(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            ){
+        return ResponseEntity.ok(taskService.getAllTasks(pageable));
     }
 
     @PostMapping("")

@@ -1,6 +1,8 @@
 package app.virtual_workspace.rooms.repositories;
 
 import app.virtual_workspace.rooms.models.FavoriteRoom;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +15,7 @@ import java.util.Optional;
 public interface FavoriteRoomRepository extends JpaRepository<FavoriteRoom, Long> {
 
     @Query("SELECT f FROM FavoriteRoom f JOIN FETCH f.room WHERE f.user.id = :userId")
-    List<FavoriteRoom> findFavoriteRoomsByUserId(@Param("userId") Long userId);
+    Slice<FavoriteRoom> findFavoriteRoomsByUserId(@Param("userId") Long userId, Pageable pageable);
 
     Optional<FavoriteRoom> findFavoriteRoomByUserIdAndRoomId(Long userId, Long roomId);
 

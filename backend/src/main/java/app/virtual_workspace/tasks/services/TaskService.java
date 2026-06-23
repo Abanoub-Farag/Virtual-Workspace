@@ -10,6 +10,8 @@ import app.virtual_workspace.tasks.mappers.TaskMapper;
 import app.virtual_workspace.tasks.models.Task;
 import app.virtual_workspace.tasks.repositories.TaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,12 +25,12 @@ public class TaskService {
     private final TaskMapper taskMapper;
     private final UserAuthService userAuthService;
 
-    public List<TaskResponseDto> getAllTasks(){
+    public Slice<TaskResponseDto> getAllTasks(Pageable pageable){
         User user = userAuthService.getAuthenticatedUser();
 
-        List<Task> tasks = taskRepository.findTasksByUserId(user.getId());
+        Slice<Task> tasks = taskRepository.findTasksByUserId(user.getId(), pageable);
 
-        return taskMapper.toAllTasksResponseDto(tasks);
+        return tasks.map(taskMapper::toAllTasksResponseDto);
     }
 
     @Transactional

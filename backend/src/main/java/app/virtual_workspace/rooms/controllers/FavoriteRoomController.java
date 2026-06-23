@@ -3,6 +3,10 @@ package app.virtual_workspace.rooms.controllers;
 import app.virtual_workspace.rooms.dtos.favoriteroom.FavoriteRoomResponseDto;
 import app.virtual_workspace.rooms.services.FavoriteRoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +25,10 @@ public class FavoriteRoomController {
     private final FavoriteRoomService favoriteRoomService;
 
     @GetMapping("")
-    public ResponseEntity<List<FavoriteRoomResponseDto>> getFavoriteRooms(){
-        return ResponseEntity.ok(favoriteRoomService.getFavoriteRooms());
+    public ResponseEntity<Slice<FavoriteRoomResponseDto>> getFavoriteRooms(
+            @PageableDefault(size = 10, sort = "addedAt", direction = Sort.Direction.DESC) Pageable pageable
+            ){
+        return ResponseEntity.ok(favoriteRoomService.getFavoriteRooms(pageable));
     }
 
     @PostMapping("/{roomId}")
