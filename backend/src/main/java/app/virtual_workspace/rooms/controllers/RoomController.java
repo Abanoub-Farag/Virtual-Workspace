@@ -10,6 +10,10 @@ import app.virtual_workspace.rooms.services.RoomService;
 import app.virtual_workspace.security.JwtService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,8 +29,10 @@ public class RoomController {
     private final RoomService roomService;
 
     @GetMapping("")
-    public ResponseEntity<List<AllRoomResponseDto>> getAllRooms(){
-        List<AllRoomResponseDto> rooms = roomService.getAllRooms();
+    public ResponseEntity<Slice<AllRoomResponseDto>> getAllRooms(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        Slice<AllRoomResponseDto> rooms = roomService.getAllRooms(pageable);
         return ResponseEntity.ok(rooms);
     }
 

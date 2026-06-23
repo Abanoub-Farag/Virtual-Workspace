@@ -13,11 +13,12 @@ import app.virtual_workspace.rooms.mappers.RoomMapper;
 import app.virtual_workspace.rooms.models.Room;
 import app.virtual_workspace.rooms.repositories.RoomRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +29,10 @@ public class RoomService {
     private final UserAuthService userAuthService;
     private final RoomMapper roomMapper;
 
-    public List<AllRoomResponseDto> getAllRooms(){
-        return roomMapper.toAllRoomResponseDto(roomRepository.findAll());
+    public Slice<AllRoomResponseDto> getAllRooms(Pageable pageable){
+        Slice<Room> rooms = roomRepository.findBy(pageable);
+
+        return rooms.map(roomMapper::toAllRoomResponseDto);
     }
 
     @Transactional
