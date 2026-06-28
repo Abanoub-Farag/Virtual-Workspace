@@ -7,6 +7,8 @@ import app.virtual_workspace.accounts.models.Profile;
 import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.repositories.ProfileRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class ProfileService {
         profileRepository.save(profile);
     }
 
+    @Cacheable(value = "profileCaching", key = "#userId")
     public UserProfileDto getProfile(Long userId) {
         User user = userService.findUserById(userId);
 
@@ -36,6 +39,7 @@ public class ProfileService {
     }
 
     @Transactional
+    @CachePut(value = "profileCaching", key = "@userAuthService.getAuthenticatedUser().getId()")
     public UserProfileDto updateProfile(UpdateUserProfileDto updateDto) {
         User user = userAuthService.getAuthenticatedUser();
 
