@@ -2,10 +2,9 @@ package app.virtual_workspace.rooms.services;
 
 import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.services.UserAuthService;
-import app.virtual_workspace.exceptions.custom.ResourceNotFound;
+import app.virtual_workspace.exceptions.custom.ResourceNotFoundException;
 import app.virtual_workspace.rooms.dtos.favoriteroom.FavoriteRoomResponseDto;
 import app.virtual_workspace.rooms.mappers.FavoriteRoomMapper;
-import app.virtual_workspace.rooms.mappers.RoomMapper;
 import app.virtual_workspace.rooms.models.FavoriteRoom;
 import app.virtual_workspace.rooms.models.Room;
 import app.virtual_workspace.rooms.repositories.FavoriteRoomRepository;
@@ -14,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +39,7 @@ public class FavoriteRoomService {
         if (favoriteRoomExist) return;
 
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new ResourceNotFound("No room found with id: " + roomId));
+                .orElseThrow(() -> new ResourceNotFoundException("No room found with id: " + roomId));
 
         FavoriteRoom favoriteRoom = new FavoriteRoom();
         favoriteRoom.setRoom(room);
@@ -54,7 +51,7 @@ public class FavoriteRoomService {
     public void removeRoomFromFavorite(Long roomId){
         User user = userAuthService.getAuthenticatedUser();
         FavoriteRoom favoriteRoom = favoriteRoomRepository.findFavoriteRoomByUserIdAndRoomId(user.getId(), roomId)
-                .orElseThrow(() -> new ResourceNotFound("This room is not in your favorite list"));
+                .orElseThrow(() -> new ResourceNotFoundException("This room is not in your favorite list"));
 
         favoriteRoomRepository.delete(favoriteRoom);
     }

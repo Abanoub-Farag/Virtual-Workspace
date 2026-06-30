@@ -1,6 +1,6 @@
 package app.virtual_workspace.exceptions;
 
-import app.virtual_workspace.exceptions.custom.ResourceNotFound;
+import app.virtual_workspace.exceptions.custom.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +46,9 @@ public class GlobalExceptionHandler {
 
     // Resource Not Found Exception
 
-    @ExceptionHandler(ResourceNotFound.class)
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
-            ResourceNotFound ex,
+            ResourceNotFoundException ex,
             HttpServletRequest request
     ){
         ErrorResponse response = ErrorResponse.builder()
