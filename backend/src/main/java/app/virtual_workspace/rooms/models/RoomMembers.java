@@ -30,11 +30,11 @@ public class RoomMembers {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private Room room;
 
@@ -48,6 +48,6 @@ public class RoomMembers {
 
     @Column(name = "last_active_at", nullable = false)
     @UpdateTimestamp
-    private LocalDateTime lastActiveAt = LocalDateTime.now();
+    private LocalDateTime lastActiveAt;
 
 }
