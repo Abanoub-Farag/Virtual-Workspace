@@ -53,9 +53,11 @@ public class TaskService {
 
     @Transactional
     public void deleteTask(Long taskId){
-        Task task = taskRepository.findTasksById(taskId);
 
-        taskRepository.delete(task);
+        if (taskRepository.existsById(taskId)){
+            taskRepository.deleteById(taskId);
+        }
+
     }
 
 }
