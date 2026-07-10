@@ -1,6 +1,7 @@
 package app.virtual_workspace.exceptions;
 
 import app.virtual_workspace.exceptions.custom.ResourceNotFoundException;
+import app.virtual_workspace.shared.dtos.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,14 +16,11 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Method Argument Not Valid Exception
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleValidationException(
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ){
-
         List<ErrorResponse.ValidationError> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -32,7 +30,7 @@ public class GlobalExceptionHandler {
                         .build())
                 .toList();
 
-        ErrorResponse response = ErrorResponse.builder()
+        ErrorResponse errorResponse = ErrorResponse.builder()
                 .timeStamp(LocalDateTime.now())
                 .status(ex.getStatusCode().value())
                 .message("Validation failed for one or more fields")
@@ -41,17 +39,22 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
 
+        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Validation Failed for one or more fields")
+                .errors(errorResponse)
+                .build();
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Resource Not Found Exception
-
+    // 2. Resource Not Found Exception (404)
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleResourceNotFoundException(
             ResourceNotFoundException ex,
             HttpServletRequest request
     ){
-        ErrorResponse response = ErrorResponse.builder()
+        ErrorResponse errorResponse = ErrorResponse.builder()
                 .timeStamp(LocalDateTime.now())
                 .status(HttpStatus.NOT_FOUND.value())
                 .error(HttpStatus.NOT_FOUND.getReasonPhrase())
@@ -59,41 +62,56 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
 
+        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .message(ex.getMessage())
+                .errors(errorResponse)
+                .build();
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // Runtime Exception
-
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleRuntimeException(
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleRuntimeException(
             RuntimeException ex,
             HttpServletRequest request
     ){
-        ErrorResponse response = ErrorResponse.builder()
+        ErrorResponse errorResponse = ErrorResponse.builder()
                 .timeStamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message("An Un Expected Internal Server Error Occured")
+                .message("An Unexpected Internal Server Error Occurred")
                 .path(request.getRequestURI())
                 .build();
+
+        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message("Internal server error occurred")
+                .errors(errorResponse)
+                .build();
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    // Insufficient Authentication Exception
-
     @ExceptionHandler(InsufficientAuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleInsufficientAuthenticationException(
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleInsufficientAuthenticationException(
             InsufficientAuthenticationException ex,
             HttpServletRequest request
     ){
-        ErrorResponse response = ErrorResponse.builder()
+        ErrorResponse errorResponse = ErrorResponse.builder()
                 .timeStamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .message("Full authentication is required to access this resource")
                 .path(request.getRequestURI())
                 .build();
+
+        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message("Unauthorized access")
+                .errors(errorResponse)
+                .build();
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
-
 }

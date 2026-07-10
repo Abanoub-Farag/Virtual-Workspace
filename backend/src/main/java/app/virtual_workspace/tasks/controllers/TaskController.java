@@ -4,6 +4,7 @@ import app.virtual_workspace.tasks.dtos.CreateTaskDto;
 import app.virtual_workspace.tasks.dtos.TaskResponseDto;
 import app.virtual_workspace.tasks.dtos.UpdateTaskDto;
 import app.virtual_workspace.tasks.services.TaskService;
+import app.virtual_workspace.shared.dtos.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/tasks")
@@ -32,37 +31,62 @@ public class TaskController {
     private final TaskService taskService;
 
     @GetMapping("")
-    public ResponseEntity<Slice<TaskResponseDto>> getAllTasks(
+    public ResponseEntity<ApiResponse<Slice<TaskResponseDto>>> getAllTasks(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-            ){
-        return ResponseEntity.ok(taskService.getAllTasks(pageable));
+    ){
+        Slice<TaskResponseDto> tasks = taskService.getAllTasks(pageable);
+        
+        ApiResponse<Slice<TaskResponseDto>> response = ApiResponse.<Slice<TaskResponseDto>>builder()
+                .status(HttpStatus.OK.value())
+                .message("Tasks retrieved successfully")
+                .data(tasks)
+                .build();
+                
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("")
-    public ResponseEntity<Void> createTask(
+    public ResponseEntity<ApiResponse<Void>> createTask(
             @Valid @RequestBody CreateTaskDto taskRequest
     ){
         taskService.createTask(taskRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("Task created successfully")
+                .build();
+                
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{taskId}")
     @PreAuthorize("@taskAuthService.isOwner(#taskId)")
-    public ResponseEntity<Void> updateTask(
+    public ResponseEntity<ApiResponse<Void>> updateTask(
             @PathVariable Long taskId,
             @Valid @RequestBody UpdateTaskDto updateTaskDto
     ){
         taskService.updateTask(taskId, updateTaskDto);
-        return ResponseEntity.noContent().build();
+        
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .message("Task updated successfully")
+                .build();
+                
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{taskId}")
     @PreAuthorize("@taskAuthService.isOwner(#taskId)")
-    public ResponseEntity<Void> deleteTask(
+    public ResponseEntity<ApiResponse<Void>> deleteTask(
             @PathVariable Long taskId
     ){
         taskService.deleteTask(taskId);
-        return ResponseEntity.noContent().build();
+        
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .message("Task deleted successfully")
+                .build();
+                
+        return ResponseEntity.ok(response);
     }
-
 }

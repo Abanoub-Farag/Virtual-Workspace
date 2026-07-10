@@ -4,6 +4,7 @@ import app.virtual_workspace.accounts.dtos.auth.AuthResponseDto;
 import app.virtual_workspace.accounts.dtos.auth.LoginDto;
 import app.virtual_workspace.accounts.dtos.auth.RegisterDto;
 import app.virtual_workspace.accounts.services.UserAuthService;
+import app.virtual_workspace.shared.dtos.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,12 +23,26 @@ public class AuthenticationController {
     private final UserAuthService userAuthService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterDto user){
-       return ResponseEntity.status(HttpStatus.CREATED).body(userAuthService.register(user));
+    public ResponseEntity<ApiResponse<AuthResponseDto>> register(@Valid @RequestBody RegisterDto request){
+        AuthResponseDto authResponseDto = userAuthService.register(request);
+        ApiResponse<AuthResponseDto> response = ApiResponse.<AuthResponseDto>builder()
+                                        .status(HttpStatus.CREATED.value())
+                                        .message("User registered successfully")
+                                        .data(authResponseDto)
+                                        .build();
+
+       return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginDto user){
-        return ResponseEntity.ok(userAuthService.login(user));
+    public ResponseEntity<ApiResponse<AuthResponseDto>> login(@Valid @RequestBody LoginDto user){
+        AuthResponseDto authResponseDto = userAuthService.login(user);
+        ApiResponse<AuthResponseDto> response = ApiResponse.<AuthResponseDto>builder()
+                                        .status(HttpStatus.OK.value())
+                                        .message("User logged in successfully")
+                                        .data(authResponseDto)
+                                        .build();
+
+        return ResponseEntity.ok().body(response);
     }
 }

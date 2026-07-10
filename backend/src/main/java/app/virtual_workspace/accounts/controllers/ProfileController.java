@@ -3,12 +3,11 @@ package app.virtual_workspace.accounts.controllers;
 import app.virtual_workspace.accounts.dtos.profile.UpdateUserProfileDto;
 import app.virtual_workspace.accounts.dtos.profile.UserProfileDto;
 import app.virtual_workspace.accounts.services.ProfileService;
-import app.virtual_workspace.accounts.services.UserAuthService;
+import app.virtual_workspace.shared.dtos.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,19 +23,31 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserProfileDto> getProfile(@PathVariable Long userId){
+    public ResponseEntity<ApiResponse<UserProfileDto>> getProfile(@PathVariable Long userId){
         UserProfileDto profile = profileService.getProfile(userId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(profile);
+        ApiResponse<UserProfileDto> response = ApiResponse.<UserProfileDto>builder()
+                                        .status(HttpStatus.OK.value())
+                                        .message("Returned user profile successfully")
+                                        .data(profile)
+                                        .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("")
-    public ResponseEntity<UserProfileDto> updateProfile(
+    public ResponseEntity<ApiResponse<UserProfileDto>> updateProfile(
             @Valid @RequestBody UpdateUserProfileDto updateDto
     ){
         UserProfileDto profile = profileService.updateProfile(updateDto);
 
-        return ResponseEntity.ok(profile);
+        ApiResponse<UserProfileDto> response = ApiResponse.<UserProfileDto>builder()
+                                        .status(HttpStatus.OK.value())
+                                        .message("Update user profile successfully")
+                                        .data(profile)
+                                        .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }
