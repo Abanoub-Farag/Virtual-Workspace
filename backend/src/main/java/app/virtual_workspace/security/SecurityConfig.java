@@ -24,6 +24,7 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final JwtFilter jwtFilter;
+    private final RateLimitingFilter rateLimitingFilter;
 
     private final static String[] PUBLIC_URLS = {
             "/api/v1/auth/login",
@@ -62,7 +63,8 @@ public class SecurityConfig {
                         // .anyRequest().authenticated()
                         .anyRequest().permitAll()
                 )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(rateLimitingFilter, JwtFilter.class);
 
         return http.build();
     }

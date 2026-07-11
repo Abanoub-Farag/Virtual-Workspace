@@ -126,6 +126,14 @@
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
 
+		<!--Bucket rate limiting algorithm-->
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk8-core</artifactId>
+			<version>8.10.1</version>
+			<scope>compile</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
