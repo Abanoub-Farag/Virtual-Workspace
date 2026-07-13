@@ -31,7 +31,7 @@ public class RoomMembersController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("/{roomId}/heartbeat")
+    @PostMapping("/{roomId}/heartbeat")
     public ResponseEntity<ApiResponse<Void>> heartBeat(@PathVariable Long roomId){
         roomMembersService.heartBeat(roomId);
         
