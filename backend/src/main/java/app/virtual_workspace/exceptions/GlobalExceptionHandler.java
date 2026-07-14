@@ -39,13 +39,7 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
 
-        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .message("Validation Failed for one or more fields")
-                .errors(errorResponse)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return buildResponseEntity(HttpStatus.BAD_REQUEST, "Validation Failed for one or more fields", errorResponse);
     }
 
     // 2. Resource Not Found Exception (404)
@@ -62,13 +56,7 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
 
-        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .message(ex.getMessage())
-                .errors(errorResponse)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        return buildResponseEntity(HttpStatus.NOT_FOUND, ex.getMessage(), errorResponse);
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -84,13 +72,7 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
 
-        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .message("Internal server error occurred")
-                .errors(errorResponse)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error occurred", errorResponse);
     }
 
     @ExceptionHandler(InsufficientAuthenticationException.class)
@@ -114,4 +96,19 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
+    private ResponseEntity<ApiResponse<ErrorResponse>> buildResponseEntity(
+            HttpStatus status,
+            String message,
+            ErrorResponse errorResponse
+    ) {
+        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
+                .status(status.value())
+                .message(message)
+                .errors(errorResponse)
+                .build();
+
+        return ResponseEntity.status(status).body(response);
+    }
+
 }
