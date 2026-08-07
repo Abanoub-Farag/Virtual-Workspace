@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -14,9 +16,9 @@ import lombok.Setter;
 public class TaskResponseDto {
 
     private Long id;
-
     private String title;
-
     private boolean isCompleted = false;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 }
