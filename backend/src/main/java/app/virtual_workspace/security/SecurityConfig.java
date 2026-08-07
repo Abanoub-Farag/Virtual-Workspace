@@ -48,7 +48,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-//     Stateless
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
@@ -59,9 +58,8 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        // .requestMatchers(PUBLIC_URLS).permitAll()
-                        // .anyRequest().authenticated()
-                        .anyRequest().permitAll()
+                         .requestMatchers(PUBLIC_URLS).permitAll()
+                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(rateLimitingFilter, JwtFilter.class);
