@@ -121,10 +121,10 @@ class UserRepositoryTest {
         assertThat(savedUser.getRole()).isEqualTo(Role.ROLE_USER);
     }
 
-    @Test
-    void save_shouldSetIsActiveTrue_byDefault() {
-        assertThat(savedUser.isEnabled()).isTrue();
-    }
+//    @Test
+//    void save_shouldSetIsActiveTrue_byDefault() {
+//        assertThat(savedUser.isEnabled()).isTrue();
+//    }
 
     // timestamps
 

@@ -29,7 +29,7 @@ public class ProfileService {
         profileRepository.save(profile);
     }
 
-    @Cacheable(value = "profileCaching", key = "#userId")
+    @Cacheable(value = "profiles", key = "#userId")
     public UserProfileDto getProfile(Long userId) {
         User user = userService.findUserById(userId);
 
@@ -39,7 +39,7 @@ public class ProfileService {
     }
 
     @Transactional
-    @CachePut(value = "profileCaching", key = "@userAuthService.getAuthenticatedUser().getId()")
+    @CachePut(value = "profiles", key = "@userAuthService.getAuthenticatedUser().getId()")
     public UserProfileDto updateProfile(UpdateUserProfileDto updateDto) {
         User user = userAuthService.getAuthenticatedUser();
 

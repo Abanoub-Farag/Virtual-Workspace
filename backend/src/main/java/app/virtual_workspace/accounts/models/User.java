@@ -5,6 +5,7 @@ import app.virtual_workspace.rooms.models.FavoriteRoom;
 import app.virtual_workspace.rooms.models.Room;
 import app.virtual_workspace.rooms.models.RoomMembers;
 import app.virtual_workspace.tasks.models.Task;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,13 +14,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 @Builder
@@ -34,7 +30,7 @@ import java.util.List;
                 @Index(name = "idx_user_names", columnList = "first_name, last_name")
         }
 )
-public class User implements UserDetails {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -95,7 +91,7 @@ public class User implements UserDetails {
     @Override
     public boolean equals(Object o){
         if (this == o) return true;
-        if (! (o instanceof User)) return false;
+        if (!(o instanceof User)) return false;
 
         User user = (User) o;
         return (id != null && id.equals(user.id));
@@ -104,41 +100,5 @@ public class User implements UserDetails {
     @Override
     public int hashCode(){
         return getClass().hashCode();
-    }
-
-    @JsonIgnore
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(this.role.name()));
-    }
-
-    @JsonIgnore
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isEnabled() {
-        return this.isActive;
     }
 }

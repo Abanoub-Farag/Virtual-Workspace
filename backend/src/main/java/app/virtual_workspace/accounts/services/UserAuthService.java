@@ -1,5 +1,6 @@
 package app.virtual_workspace.accounts.services;
 
+import app.virtual_workspace.accounts.dtos.UserPrincipal;
 import app.virtual_workspace.accounts.dtos.auth.AuthResponseDto;
 import app.virtual_workspace.accounts.dtos.auth.LoginDto;
 import app.virtual_workspace.accounts.dtos.auth.RegisterDto;
@@ -40,7 +41,7 @@ public class UserAuthService {
         UserRegisteredEvent event = new UserRegisteredEvent(savedUser.getId());
         applicationEventPublisher.publishEvent(event);
 
-        String token = jwtService.generateToken(savedUser.getUsername());
+        String token = jwtService.generateToken(savedUser.getEmail());
 
         return AuthResponseDto.builder().token(token).build();
     }

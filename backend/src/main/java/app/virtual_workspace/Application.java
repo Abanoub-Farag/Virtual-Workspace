@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @SpringBootApplication
-//@EnableCaching
+@EnableCaching
 @EnableMethodSecurity
 @EnableScheduling
 public class Application {
