@@ -4,24 +4,28 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';
 
+// ─── Response Wrapper ─────────────────────────────────────────────────────────
+
 export interface ApiResponse<T> {
   localDateTime: string;
   status: number;
   message: string;
   data: T;
-  errors: any;
+  errors: Record<string, string> | null;
 }
+
+// ─── Profile Domain Models ────────────────────────────────────────────────────
 
 export interface UserProfileData {
   bio: string;
   gender: 'MALE' | 'FEMALE';
-  dateOfBirth: string;
+  dateOfBirth: string; // YYYY-MM-DD
   email: string;
   firstName: string;
   lastName: string;
   createdAt: string;
   updatedAt: string;
-  // Included fields that map to the visual design but aren't explicitly in the raw backend model
+  // Extended visual fields (not from backend, kept for UI purposes)
   displayName?: string;
   professionalHeadline?: string;
   githubUrl?: string;
@@ -29,6 +33,20 @@ export interface UserProfileData {
   twitterUsername?: string;
   websitePortfolio?: string;
 }
+
+/**
+ * Strongly-typed payload for PUT /api/v1/profile.
+ * Matches the exact fields the backend accepts.
+ */
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  bio: string;
+  gender: 'MALE' | 'FEMALE';
+  dateOfBirth: string; // YYYY-MM-DD
+}
+
+// ─── Profile Service ──────────────────────────────────────────────────────────
 
 @Injectable({
   providedIn: 'root'
@@ -38,22 +56,26 @@ export class ProfileService {
   private readonly authService = inject(AuthService);
   private readonly baseUrl = `${environment.apiUrl}/api/v1/profile`;
 
-  getProfile(userId: number | string): Observable<ApiResponse<UserProfileData>> {
-    const token = this.authService.getToken();
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
-    return this.http.get<ApiResponse<UserProfileData>>(`${this.baseUrl}/${userId}`, { headers });
+  private get authHeaders(): HttpHeaders {
+    return new HttpHeaders({ 'Authorization': `Bearer ${this.authService.getToken()}` });
   }
 
-  // Placeholder for when you implement updates
-  updateProfile(userId: number | string, data: Partial<UserProfileData>): Observable<ApiResponse<UserProfileData>> {
-    const token = this.authService.getToken();
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+  getProfile(userId: number | string): Observable<ApiResponse<UserProfileData>> {
+    return this.http.get<ApiResponse<UserProfileData>>(
+      `${this.baseUrl}/${userId}`,
+      { headers: this.authHeaders }
+    );
+  }
 
-    return this.http.put<ApiResponse<UserProfileData>>(`${this.baseUrl}/${userId}`, data, { headers });
+  /**
+   * Updates the authenticated user's profile.
+   * Endpoint: PUT /api/v1/profile (user resolved from JWT on the backend).
+   */
+  updateProfile(data: UpdateProfileRequest): Observable<ApiResponse<UserProfileData>> {
+    return this.http.put<ApiResponse<UserProfileData>>(
+      this.baseUrl,
+      data,
+      { headers: this.authHeaders }
+    );
   }
 }

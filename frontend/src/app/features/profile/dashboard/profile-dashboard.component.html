@@ -1,94 +1,200 @@
 <div class="layout-container">
   <app-sidebar class="layout-sidebar"></app-sidebar>
-  
+
   <div class="layout-main">
     <app-top-nav></app-top-nav>
 
     <main class="content-area">
       <div class="header-nav">
-        <a routerLink="/rooms" class="back-link">... Back to Rooms</a>
+        <a routerLink="/rooms" class="back-link">← Back to Rooms</a>
         <h1 class="page-title">Profile Dashboard</h1>
       </div>
 
-      <!-- Loading / Error States -->
+      <!-- Loading State -->
       <div class="state-container" *ngIf="isLoading()">
-        <p>Loading profile...</p>
+        <div class="loading-spinner"></div>
+        <p>Loading profile…</p>
       </div>
+
+      <!-- Error State -->
       <div class="state-container error" *ngIf="error()">
         <p>{{ error() }}</p>
       </div>
 
       <!-- Profile Content -->
       <ng-container *ngIf="!isLoading() && !error() && profile() as p">
-        
+
         <!-- Hero Header -->
         <div class="hero-header">
           <div class="avatar-ring">
             <div class="avatar">
-              <!-- Placeholder avatar based on first initial if no image URL -->
               <span class="avatar-text">{{ p.firstName?.charAt(0) || p.email?.charAt(0) || 'U' | uppercase }}</span>
-              <!-- If we had an image: <img src="p.avatarUrl" alt="Avatar"> -->
             </div>
             <div class="status-indicator"></div>
           </div>
-          
           <h2 class="hero-name">{{ p.firstName }} {{ p.lastName }}</h2>
           <p class="hero-status">Online</p>
         </div>
 
         <div class="cards-container">
-          
-          <!-- User Information Card -->
-          <form [formGroup]="userInfoForm" (ngSubmit)="onSaveUserInfo()" class="profile-card">
+
+          <!-- ─── User Information Card ──────────────────────────────────────── -->
+          <form [formGroup]="userInfoForm" (ngSubmit)="onSaveUserInfo()" class="profile-card" novalidate>
             <div class="card-header">
               <h3>User Information</h3>
-              <p class="subtitle">Configure internet account and information.</p>
+              <p class="subtitle">Update your personal details and public profile.</p>
             </div>
-            
+
             <div class="card-body">
+
+              <!-- First Name / Last Name -->
               <div class="form-row">
                 <div class="form-group">
-                  <label for="firstName">First Name</label>
-                  <input id="firstName" type="text" formControlName="firstName" />
+                  <label for="firstName">First Name <span class="required-mark">*</span></label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    formControlName="firstName"
+                    [class.is-invalid]="isInvalid('firstName')"
+                    placeholder="Enter first name"
+                  />
+                  <span class="form-error" *ngIf="isInvalid('firstName')">
+                    <ng-container *ngIf="userInfoForm.get('firstName')?.errors?.['required']">First name is required.</ng-container>
+                    <ng-container *ngIf="getServerError('firstName')">{{ getServerError('firstName') }}</ng-container>
+                  </span>
                 </div>
+
                 <div class="form-group">
-                  <label for="lastName">Last Name</label>
-                  <input id="lastName" type="text" formControlName="lastName" />
+                  <label for="lastName">Last Name <span class="required-mark">*</span></label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    formControlName="lastName"
+                    [class.is-invalid]="isInvalid('lastName')"
+                    placeholder="Enter last name"
+                  />
+                  <span class="form-error" *ngIf="isInvalid('lastName')">
+                    <ng-container *ngIf="userInfoForm.get('lastName')?.errors?.['required']">Last name is required.</ng-container>
+                    <ng-container *ngIf="getServerError('lastName')">{{ getServerError('lastName') }}</ng-container>
+                  </span>
                 </div>
               </div>
 
+              <!-- Display Name / Professional Headline -->
               <div class="form-row">
                 <div class="form-group">
                   <label for="displayName">Display Name</label>
-                  <input id="displayName" type="text" formControlName="displayName" />
+                  <input id="displayName" type="text" formControlName="displayName" placeholder="How others see you" />
                 </div>
                 <div class="form-group">
                   <label for="professionalHeadline">Professional Headline</label>
-                  <input id="professionalHeadline" type="text" formControlName="professionalHeadline" />
+                  <input id="professionalHeadline" type="text" formControlName="professionalHeadline" placeholder="e.g. Full-Stack Developer" />
                 </div>
               </div>
 
+              <!-- Bio -->
               <div class="form-group">
                 <label for="bio">Bio</label>
-                <textarea id="bio" formControlName="bio" rows="2"></textarea>
+                <textarea
+                  id="bio"
+                  formControlName="bio"
+                  rows="3"
+                  placeholder="Tell others a little about yourself…"
+                  [class.is-invalid]="isInvalid('bio')"
+                ></textarea>
+                <span class="form-error" *ngIf="isInvalid('bio') && getServerError('bio')">
+                  {{ getServerError('bio') }}
+                </span>
               </div>
-            </div>
+
+              <!-- Gender / Date of Birth -->
+              <div class="form-row">
+
+                <!-- Gender -->
+                <div class="form-group">
+                  <label>Gender <span class="required-mark">*</span></label>
+                  <div class="radio-group" role="radiogroup" aria-labelledby="gender-label">
+                    <label
+                      class="radio-option"
+                      [class.selected]="userInfoForm.get('gender')?.value === 'MALE'"
+                      [class.is-invalid]="isInvalid('gender')"
+                    >
+                      <input
+                        type="radio"
+                        formControlName="gender"
+                        value="MALE"
+                        id="genderMale"
+                        class="sr-only"
+                      />
+                      <span class="radio-icon">♂</span>
+                      <span>Male</span>
+                    </label>
+
+                    <label
+                      class="radio-option"
+                      [class.selected]="userInfoForm.get('gender')?.value === 'FEMALE'"
+                      [class.is-invalid]="isInvalid('gender')"
+                    >
+                      <input
+                        type="radio"
+                        formControlName="gender"
+                        value="FEMALE"
+                        id="genderFemale"
+                        class="sr-only"
+                      />
+                      <span class="radio-icon">♀</span>
+                      <span>Female</span>
+                    </label>
+                  </div>
+                  <span class="form-error" *ngIf="isInvalid('gender')">
+                    <ng-container *ngIf="userInfoForm.get('gender')?.errors?.['required']">Please select a gender.</ng-container>
+                    <ng-container *ngIf="getServerError('gender')">{{ getServerError('gender') }}</ng-container>
+                  </span>
+                </div>
+
+                <!-- Date of Birth -->
+                <div class="form-group">
+                  <label for="dateOfBirth">Date of Birth <span class="required-mark">*</span></label>
+                  <input
+                    id="dateOfBirth"
+                    type="date"
+                    formControlName="dateOfBirth"
+                    [class.is-invalid]="isInvalid('dateOfBirth')"
+                  />
+                  <span class="form-error" *ngIf="isInvalid('dateOfBirth')">
+                    <ng-container *ngIf="userInfoForm.get('dateOfBirth')?.errors?.['required']">Date of birth is required.</ng-container>
+                    <ng-container *ngIf="userInfoForm.get('dateOfBirth')?.errors?.['dateFormat']">Please use the format YYYY-MM-DD.</ng-container>
+                    <ng-container *ngIf="getServerError('dateOfBirth')">{{ getServerError('dateOfBirth') }}</ng-container>
+                  </span>
+                </div>
+
+              </div>
+
+            </div><!-- /card-body -->
 
             <div class="card-footer">
-              <button type="button" class="btn btn-ghost" (click)="fetchProfile()">Cancel</button>
-              <button type="submit" class="btn btn-primary" [disabled]="isSavingUser() || userInfoForm.invalid">
-                {{ isSavingUser() ? 'Saving...' : 'Save Changes' }}
+              <button type="button" class="btn btn-ghost" (click)="fetchProfile()" [disabled]="isSavingUser()">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                id="saveProfileBtn"
+                class="btn btn-primary"
+                [disabled]="isSavingUser() || userInfoForm.invalid"
+              >
+                <span *ngIf="isSavingUser()" class="spinner" aria-hidden="true"></span>
+                {{ isSavingUser() ? 'Saving…' : 'Save Changes' }}
               </button>
             </div>
           </form>
 
-          <!-- Social Links Card -->
+          <!-- ─── Social Links Card ──────────────────────────────────────────── -->
           <form [formGroup]="socialLinksForm" (ngSubmit)="onSaveSocialLinks()" class="profile-card">
             <div class="card-header">
               <h3>Social Links</h3>
-              <p class="subtitle">Configure common links with social profiles.</p>
+              <p class="subtitle">Configure common links with your social profiles.</p>
             </div>
-            
+
             <div class="card-body">
               <div class="form-row">
                 <div class="form-group">
@@ -126,14 +232,15 @@
             </div>
 
             <div class="card-footer">
-              <button type="button" class="btn btn-ghost" (click)="fetchProfile()">Cancel</button>
+              <button type="button" class="btn btn-ghost" (click)="fetchProfile()" [disabled]="isSavingSocial()">Cancel</button>
               <button type="submit" class="btn btn-primary" [disabled]="isSavingSocial() || socialLinksForm.invalid">
-                {{ isSavingSocial() ? 'Updating...' : 'Update Social Links' }}
+                <span *ngIf="isSavingSocial()" class="spinner" aria-hidden="true"></span>
+                {{ isSavingSocial() ? 'Updating…' : 'Update Social Links' }}
               </button>
             </div>
           </form>
 
-        </div>
+        </div><!-- /cards-container -->
       </ng-container>
 
     </main>
