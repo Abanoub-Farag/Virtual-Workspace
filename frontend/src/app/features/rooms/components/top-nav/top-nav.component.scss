@@ -1,3 +1,5 @@
+@use "sass:color";
+$bg-sidebar: #090a12;
 $bg-main: #0d0e1a;
 $bg-card: #141624;
 $border-color: #21253b;
@@ -127,7 +129,7 @@ $status-active: #ef4444; // Red dot for notification usually
     color: $text-primary;
     
     &:hover {
-      background-color: darken($primary-accent, 10%);
+      background-color: color.scale($primary-accent, $lightness: -10%);
       transform: translateY(-1px);
     }
   }

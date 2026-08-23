@@ -1,4 +1,10 @@
-@import '../../../styles/variables.scss';
+@use "sass:color";
+$bg-main: #0d0e1a;
+$bg-card: #141624;
+$border-color: #21253b;
+$primary-accent: #8a3ffc;
+$text-primary: #ffffff;
+$text-secondary: #9ca3af;
 
 .layout-container {
   display: flex;
@@ -171,7 +177,7 @@
     color: #ffffff;
     
     &:hover:not(:disabled) {
-      background-color: darken($primary-accent, 5%);
+      background-color: color.scale($primary-accent, $lightness: -5%);
     }
 
     &:disabled {

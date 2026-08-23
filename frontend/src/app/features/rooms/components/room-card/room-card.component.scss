@@ -1,3 +1,4 @@
+@use "sass:color";
 $bg-card: #141624;
 $bg-card-hover: #1b1e32;
 $border-color: #21253b;
@@ -139,7 +140,7 @@ $status-idle: #6b7280;
     color: $text-primary;
     
     &:hover {
-      background-color: darken($primary-accent, 10%);
+      background-color: color.scale($primary-accent, $lightness: -10%);
     }
   }
 
@@ -150,7 +151,7 @@ $status-idle: #6b7280;
 
     &:hover {
       background-color: rgba($text-primary, 0.05);
-      border-color: lighten($border-color, 10%);
+      border-color: color.scale($border-color, $lightness: 10%);
     }
   }
 }
