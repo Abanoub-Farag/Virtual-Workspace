@@ -31,14 +31,22 @@ export class SidebarComponent implements OnInit {
   ngOnInit() {
     const user = this.authService.getUser();
     if (user) {
-      if (user.firstName && user.lastName) {
-        this.userName = `${user.firstName} ${user.lastName}`;
-      } else if (user.firstName) {
-        this.userName = user.firstName;
+      const firstName = user.firstName || user.first_name || user.given_name;
+      const lastName = user.lastName || user.last_name || user.family_name;
+      
+      if (firstName && lastName) {
+        this.userName = `${firstName} ${lastName}`;
+      } else if (firstName) {
+        this.userName = firstName;
       } else if (user.name) {
         this.userName = user.name;
       } else if (user.sub) {
-        this.userName = user.sub;
+        // Fallback: format email if it's the only thing available
+        const emailPrefix = user.sub.split('@')[0];
+        this.userName = emailPrefix
+          .split('.')
+          .map((part: string) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(' ');
       }
     }
   }

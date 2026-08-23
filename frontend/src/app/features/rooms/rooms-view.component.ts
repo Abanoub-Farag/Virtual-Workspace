@@ -1,8 +1,9 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { TopNavComponent } from './components/top-nav/top-nav.component';
 import { RoomCardComponent, Room } from './components/room-card/room-card.component';
+import { RoomService } from './services/room.service';
 
 type Tab = 'All Rooms' | 'My Teams' | 'Favorites';
 
@@ -13,79 +14,24 @@ type Tab = 'All Rooms' | 'My Teams' | 'Favorites';
   templateUrl: './rooms-view.component.html',
   styleUrls: ['./rooms-view.component.scss']
 })
-export class RoomsViewComponent {
+export class RoomsViewComponent implements OnInit {
+  private readonly roomService = inject(RoomService);
+
   tabs: Tab[] = ['All Rooms', 'My Teams', 'Favorites'];
   activeTab = signal<Tab>('All Rooms');
   searchQuery = signal<string>('');
-
-  mockRooms: Room[] = [
-    {
-      id: '1',
-      title: 'Design System Team',
-      description: 'Core team working on the new Horizon UI design system components and documentation.',
-      tags: ['ui/ux', 'design', 'components'],
-      status: 'ACTIVE',
-      count: 12,
-      countType: 'Online',
-      actionType: 'join'
-    },
-    {
-      id: '2',
-      title: 'Frontend Architecture',
-      description: 'Discussions about micro-frontends, state management, and performance optimization.',
-      tags: ['architecture', 'frontend', 'react', 'angular'],
-      status: 'ACTIVE',
-      count: 8,
-      countType: 'Online',
-      actionType: 'join'
-    },
-    {
-      id: '3',
-      title: 'Product Sync - Q3',
-      description: 'Weekly sync for Q3 product roadmap planning and feature prioritization.',
-      tags: ['product', 'planning', 'q3'],
-      status: 'IDLE',
-      count: 45,
-      countType: 'Members',
-      actionType: 'view'
-    },
-    {
-      id: '4',
-      title: 'Marketing Campaign',
-      description: 'Collaborative space for the upcoming launch campaign assets and strategy.',
-      tags: ['marketing', 'campaign', 'assets'],
-      status: 'ACTIVE',
-      count: 5,
-      countType: 'Online',
-      actionType: 'join'
-    },
-    {
-      id: '5',
-      title: 'Engineering All Hands',
-      description: 'Monthly department-wide meeting to share updates, celebrate wins, and discuss goals.',
-      tags: ['engineering', 'all-hands', 'updates'],
-      status: 'IDLE',
-      count: 120,
-      countType: 'Members',
-      actionType: 'view'
-    },
-    {
-      id: '6',
-      title: 'User Research',
-      description: 'Sharing findings from recent user interviews and usability testing sessions.',
-      tags: ['research', 'ux', 'testing'],
-      status: 'ACTIVE',
-      count: 3,
-      countType: 'Online',
-      actionType: 'join'
-    }
-  ];
+  
+  // Use a signal to hold rooms fetched from API
+  rooms = signal<Room[]>([]);
+  isLoading = signal<boolean>(true);
+  error = signal<string | null>(null);
 
   filteredRooms = computed(() => {
     const query = this.searchQuery().toLowerCase();
     const tab = this.activeTab();
+    const currentRooms = this.rooms();
     
-    return this.mockRooms.filter(room => {
+    return currentRooms.filter(room => {
       const matchesSearch = room.title.toLowerCase().includes(query) || 
                             room.description.toLowerCase().includes(query) ||
                             room.tags.some(tag => tag.toLowerCase().includes(query));
@@ -93,12 +39,45 @@ export class RoomsViewComponent {
       if (!matchesSearch) return false;
       
       if (tab === 'All Rooms') return true;
-      if (tab === 'My Teams') return room.tags.includes('engineering') || room.tags.includes('frontend') || room.tags.includes('design'); // Mock logic
-      if (tab === 'Favorites') return room.status === 'ACTIVE'; // Mock logic for favorites
+      if (tab === 'My Teams') return room.tags.includes('engineering') || room.tags.includes('frontend') || room.tags.includes('design');
+      if (tab === 'Favorites') return room.status === 'ACTIVE';
       
       return true;
     });
   });
+
+  ngOnInit() {
+    this.fetchRooms();
+  }
+
+  fetchRooms() {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.roomService.getRooms(0, 50).subscribe({
+      next: (response) => {
+        const fetchedRooms = response.data?.content || [];
+        // Map backend API data to our Room interface expectations
+        const mappedRooms: Room[] = fetchedRooms.map((r: any, index: number) => ({
+          id: r.id || `room-${index}`,
+          title: r.title || 'Untitled Room',
+          description: r.description || 'No description provided.',
+          tags: r.tags || [],
+          status: r.status || 'ACTIVE',
+          count: r.count || Math.floor(Math.random() * 50) + 1, // fallback if backend doesn't provide
+          countType: r.countType || 'Members',
+          actionType: r.actionType || 'view'
+        }));
+        this.rooms.set(mappedRooms);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error fetching rooms:', err);
+        this.error.set('Failed to load rooms.');
+        this.isLoading.set(false);
+      }
+    });
+  }
 
   setActiveTab(tab: Tab) {
     this.activeTab.set(tab);

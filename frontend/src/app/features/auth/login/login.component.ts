@@ -102,7 +102,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/rooms']);
         },
         error: (err: AuthError) => {
           this.isLoading.set(false);

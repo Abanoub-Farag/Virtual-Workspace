@@ -24,7 +24,7 @@
         </div>
       </div>
 
-      <div class="rooms-grid">
+      <div class="rooms-grid" *ngIf="!isLoading() && !error()">
         <app-room-card 
           *ngFor="let room of filteredRooms()" 
           [room]="room"
@@ -32,7 +32,15 @@
         </app-room-card>
       </div>
       
-      <div class="empty-state" *ngIf="filteredRooms().length === 0">
+      <div class="empty-state" *ngIf="isLoading()">
+        <p>Loading rooms...</p>
+      </div>
+
+      <div class="empty-state error" *ngIf="error()">
+        <p>{{ error() }}</p>
+      </div>
+
+      <div class="empty-state" *ngIf="!isLoading() && !error() && filteredRooms().length === 0">
         <p>No rooms match your search criteria.</p>
       </div>
     </main>
