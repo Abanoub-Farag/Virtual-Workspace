@@ -48,15 +48,18 @@ public class UserAuthService {
         UserRegisteredEvent event = new UserRegisteredEvent(savedUser.getId());
         applicationEventPublisher.publishEvent(event);
 
-        String token = jwtService.generateToken(savedUser.getEmail());
+        String token = jwtService.generateToken(savedUser.getEmail(), savedUser.getId());
 
         return AuthResponseDto.builder().token(token).build();
     }
 
     public AuthResponseDto login(LoginDto request){
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        
+        User user = userRepository.findUserByEmail(request.getEmail())
+                .orElseThrow(() -> new InsufficientAuthenticationException("User not found"));
 
-        String token = jwtService.generateToken(request.getEmail());
+        String token = jwtService.generateToken(user.getEmail(), user.getId());
         return AuthResponseDto.builder().token(token).build();
     }
 

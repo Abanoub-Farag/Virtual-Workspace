@@ -53,6 +53,7 @@ public class UserAuthServiceTest {
     @Test
     void register_shouldReturnAuthResponseDto_whenUserIsCreated(){
         User user = User.builder()
+                .id(1L)
                 .email("Abanoub@test.com")
                 .firstName("Abanoub")
                 .lastName("test")
@@ -61,7 +62,7 @@ public class UserAuthServiceTest {
         when(authMapper.registerDtoToModel(registerDto)).thenReturn(user);
         when(passwordEncoder.encode(any())).thenReturn("Hashed_Paswword");
         when(userRepository.save(any())).thenReturn(user);
-        when(jwtService.generateToken(any())).thenReturn("fake_jwt_token");
+        when(jwtService.generateToken(any(), any())).thenReturn("fake_jwt_token");
 
         AuthResponseDto result = userAuthService.register(registerDto);
 
@@ -93,8 +94,10 @@ public class UserAuthServiceTest {
     void login_shouldReturnAuthResponseDto_whenCredentialsAreCorrect(){
         LoginDto loginDto = new LoginDto("Abanoub@test.com", "P@ssword123");
         String expectedToken = "fake_jwt_token";
+        User user = User.builder().id(1L).email("Abanoub@test.com").build();
 
-        when(jwtService.generateToken("Abanoub@test.com")).thenReturn(expectedToken);
+        when(userRepository.findUserByEmail("Abanoub@test.com")).thenReturn(java.util.Optional.of(user));
+        when(jwtService.generateToken("Abanoub@test.com", 1L)).thenReturn(expectedToken);
 
         AuthResponseDto result = userAuthService.login(loginDto);
 
@@ -115,7 +118,7 @@ public class UserAuthServiceTest {
         assertThrows(org.springframework.security.core.AuthenticationException.class,
                 () -> userAuthService.login(loginDto));
 
-        verify(jwtService, never()).generateToken(any());
+        verify(jwtService, never()).generateToken(any(), any());
     }
 
 }

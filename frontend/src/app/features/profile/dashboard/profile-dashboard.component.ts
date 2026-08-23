@@ -65,8 +65,7 @@ export class ProfileDashboardComponent implements OnInit {
 
   fetchProfile() {
     const user = this.authService.getUser();
-    // Use 'sub' (email) or 'id' depending on what is stored in the JWT
-    const identifier = user?.id || user?.sub;
+    const identifier = user?.id;
 
     if (!identifier) {
       this.error.set('Could not determine user identity from session.');
