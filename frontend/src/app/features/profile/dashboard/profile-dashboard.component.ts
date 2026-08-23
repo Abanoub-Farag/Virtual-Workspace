@@ -8,7 +8,13 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
-import { ProfileService, UserProfileData, UpdateProfileRequest } from '../services/profile.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ProfileService,
+  UserProfileData,
+  UpdateProfileRequest,
+  parseApiError,
+} from '../services/profile.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { SidebarComponent } from '../../rooms/components/sidebar/sidebar.component';
@@ -22,6 +28,13 @@ function dateFormatValidator(control: AbstractControl): ValidationErrors | null 
   const value: string = control.value;
   if (!value) return null; // handled by required
   return /^\d{4}-\d{2}-\d{2}$/.test(value) ? null : { dateFormat: true };
+}
+
+// ─── Page-level error state ───────────────────────────────────────────────────
+
+interface PageError {
+  title: string;
+  hint: string;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -53,7 +66,9 @@ export class ProfileDashboardComponent implements OnInit {
 
   profile = signal<UserProfileData | null>(null);
   isLoading = signal<boolean>(true);
-  error = signal<string | null>(null);
+
+  /** Structured page-level error for the initial load failure state. */
+  pageError = signal<PageError | null>(null);
 
   isSavingUser = signal<boolean>(false);
   isSavingSocial = signal<boolean>(false);
@@ -90,10 +105,16 @@ export class ProfileDashboardComponent implements OnInit {
     const identifier = user?.id;
 
     if (!identifier) {
-      this.error.set('Could not determine user identity from session.');
+      this.pageError.set({
+        title: 'Session error',
+        hint: 'We could not determine your identity. Please log out and sign in again.',
+      });
       this.isLoading.set(false);
       return;
     }
+
+    this.isLoading.set(true);
+    this.pageError.set(null);
 
     this.profileService.getProfile(identifier).subscribe({
       next: (response) => {
@@ -101,16 +122,29 @@ export class ProfileDashboardComponent implements OnInit {
           this.profile.set(response.data);
           this.patchForms(response.data);
         } else {
-          this.error.set('No profile data received.');
+          this.pageError.set({
+            title: 'No profile data',
+            hint: 'The server returned an empty response. Please try again.',
+          });
         }
         this.isLoading.set(false);
       },
-      error: (err) => {
-        console.error('Error fetching profile:', err);
-        this.error.set('Failed to load profile. Please try again.');
+      error: (err: HttpErrorResponse) => {
+        const parsed = parseApiError(err);
+        this.pageError.set({
+          title: this.loadErrorTitle(err.status),
+          hint: parsed.message,
+        });
         this.isLoading.set(false);
       },
     });
+  }
+
+  private loadErrorTitle(status: number): string {
+    if (!navigator.onLine || status === 0) return 'No connection';
+    if (status === 401 || status === 403) return 'Access denied';
+    if (status === 404) return 'Profile not found';
+    return 'Failed to load profile';
   }
 
   private patchForms(data: UserProfileData): void {
@@ -160,26 +194,24 @@ export class ProfileDashboardComponent implements OnInit {
           this.patchForms(response.data);
         }
 
-        // Show success notification
         this.toastService.success(response.message ?? 'Profile updated successfully.');
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         this.isSavingUser.set(false);
+        const parsed = parseApiError(err);
 
-        // Map backend field-level errors onto form controls
-        const backendErrors: Record<string, string> | null = err?.errors ?? err?.error?.errors ?? null;
-        if (backendErrors && typeof backendErrors === 'object') {
-          Object.entries(backendErrors).forEach(([field, message]) => {
+        // ── 400: Apply field-level errors directly onto form controls ─────────
+        if (err.status === 400 && Object.keys(parsed.fieldErrors).length > 0) {
+          for (const [field, message] of Object.entries(parsed.fieldErrors)) {
             const control = this.userInfoForm.get(field);
             if (control) {
               control.setErrors({ serverError: message });
               control.markAsTouched();
             }
-          });
+          }
         }
 
-        const message: string = err?.message ?? err?.error?.message ?? 'Failed to update profile. Please try again.';
-        this.toastService.error(message);
+        this.toastService.error(parsed.message);
       },
     });
   }

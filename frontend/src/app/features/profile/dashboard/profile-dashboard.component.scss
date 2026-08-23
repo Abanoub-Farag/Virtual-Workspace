@@ -77,6 +77,28 @@ $text-secondary: #9ca3af;
     color: $error-color;
     background-color: rgba($error-color, 0.08);
     border-color: rgba($error-color, 0.2);
+    gap: 0.5rem;
+    padding: 3rem 2.5rem;
+
+    .error-icon {
+      font-size: 2.5rem;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .error-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: $error-color;
+      margin: 0;
+    }
+
+    .error-hint {
+      font-size: 0.875rem;
+      color: $text-secondary;
+      margin: 0 0 0.75rem;
+      max-width: 36ch;
+    }
   }
 }
 

@@ -17,12 +17,15 @@
       </div>
 
       <!-- Error State -->
-      <div class="state-container error" *ngIf="error()">
-        <p>{{ error() }}</p>
+      <div class="state-container error" *ngIf="pageError() as e">
+        <div class="error-icon" aria-hidden="true">⚠</div>
+        <h2 class="error-title">{{ e.title }}</h2>
+        <p class="error-hint">{{ e.hint }}</p>
+        <button class="btn btn-primary" (click)="fetchProfile()">Try Again</button>
       </div>
 
       <!-- Profile Content -->
-      <ng-container *ngIf="!isLoading() && !error() && profile() as p">
+      <ng-container *ngIf="!isLoading() && !pageError() && profile() as p">
 
         <!-- Hero Header -->
         <div class="hero-header">
