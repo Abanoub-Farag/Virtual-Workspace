@@ -18,8 +18,9 @@ import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, AuthError } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 /** Exact pattern from the Spring Boot RegisterDto */
 const PASSWORD_PATTERN =
@@ -38,6 +39,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly toastService = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
 
   /** Shared theme service — single source of truth across all pages. */
@@ -47,6 +49,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   readonly isLoading = signal(false);
   readonly showPassword = signal(false);
   readonly serverError = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
   readonly fieldErrors = signal<Record<string, string>>({});
 
   // ─── Form ──────────────────────────────────────────────────────────────────
@@ -126,6 +129,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
     this.isLoading.set(true);
     this.serverError.set(null);
+    this.successMessage.set(null);
     this.fieldErrors.set({});
 
     const payload = this.registerForm.getRawValue();
@@ -136,15 +140,40 @@ export class RegisterComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.router.navigate(['/dashboard']);
-        },
-        error: (err: { message: string; errors: Record<string, string> }) => {
-          this.isLoading.set(false);
-          this.serverError.set(err.message);
+          this.registerForm.disable();
 
-          if (err.errors && Object.keys(err.errors).length) {
-            this.fieldErrors.set(err.errors);
-            Object.entries(err.errors).forEach(([field, msg]) => {
+          // ── Success feedback ──────────────────────────────────────────────
+          const msg = 'Account created successfully! Redirecting to login…';
+          this.successMessage.set(msg);
+          this.toastService.success(msg, 3500);
+
+          // Redirect to /login after a short delay so the user can read the feedback
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
+        },
+        error: (err: AuthError) => {
+          this.isLoading.set(false);
+
+          // ── Map 409 Conflict → email field inline error ───────────────────
+          if (err.status === 409) {
+            const conflictMsg =
+              err.message ||
+              'An account with this email already exists. Please log in or use a different address.';
+            this.email.setErrors({ serverError: conflictMsg });
+            this.serverError.set(conflictMsg);
+            this.toastService.error(conflictMsg);
+            return;
+          }
+
+          // ── Generic server/network error ──────────────────────────────────
+          this.serverError.set(err.message);
+          this.toastService.error(err.message);
+
+          // ── Per-field server validation errors ────────────────────────────
+          if (err.fieldErrors && Object.keys(err.fieldErrors).length) {
+            this.fieldErrors.set(err.fieldErrors);
+            Object.entries(err.fieldErrors).forEach(([field, msg]) => {
               this.registerForm.get(field)?.setErrors({ serverError: msg });
             });
           }

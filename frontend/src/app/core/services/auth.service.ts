@@ -5,6 +5,21 @@ import { catchError, tap } from 'rxjs/operators';
 import { ApiResponse, AuthData, LoginRequest, RegisterRequest } from '../models/auth.models';
 import { environment } from '../../../environments/environment';
 
+// ─── Auth Error ───────────────────────────────────────────────────────────────
+
+export interface AuthError {
+  message: string;
+  /**
+   * Field-level validation messages keyed by field name.
+   * Used to drive inline form errors on the relevant controls.
+   */
+  fieldErrors: Record<string, string>;
+  /** HTTP status code — lets the caller take status-specific actions. */
+  status: number;
+}
+
+// ─── Auth Service ─────────────────────────────────────────────────────────────
+
 @Injectable({
   providedIn: 'root',
 })
@@ -28,7 +43,7 @@ export class AuthService {
             this.persistToken(res.data.token);
           }
         }),
-        catchError(this.handleError),
+        catchError((err) => this.handleError(err)),
       );
   }
 
@@ -43,7 +58,7 @@ export class AuthService {
             this.persistToken(res.data.token);
           }
         }),
-        catchError(this.handleError),
+        catchError((err) => this.handleError(err)),
       );
   }
 
@@ -68,19 +83,46 @@ export class AuthService {
   // ─── Error handler ─────────────────────────────────────────────────────────
 
   private handleError(err: HttpErrorResponse): Observable<never> {
+    // ── Network / CORS / server unreachable ────────────────────────────────
     if (err.status === 0) {
-      // Network / CORS error
-      return throwError(() => ({
-        message: 'Unable to reach the server. Please check your connection.',
-        errors: {} as Record<string, string>,
+      return throwError((): AuthError => ({
+        status: 0,
+        message:
+          "We're having trouble connecting. Please check your internet connection and try again.",
+        fieldErrors: {},
       }));
     }
 
-    // Backend responded with a structured ApiResponse error body
+    // ── 5xx — Server-side crash / unexpected error ─────────────────────────
+    if (err.status >= 500) {
+      return throwError((): AuthError => ({
+        status: err.status,
+        message:
+          'Oops! Something went wrong on our end. Please try again in a few minutes.',
+        fieldErrors: {},
+      }));
+    }
+
+    // ── 4xx — Structured error body from the backend ───────────────────────
     const body = err.error as Partial<ApiResponse<unknown>>;
-    return throwError(() => ({
-      message: body?.message ?? 'An unexpected error occurred.',
-      errors: body?.errors ?? ({} as Record<string, string>),
+    const serverMessage = body?.message ?? 'An unexpected error occurred.';
+
+    // Extract field-level validation errors, if any
+    const rawErrors = (body?.errors as any)?.errors as
+      | { field: string; message: string }[]
+      | undefined;
+
+    const fieldErrors: Record<string, string> = {};
+    if (Array.isArray(rawErrors)) {
+      rawErrors.forEach(({ field, message }) => {
+        fieldErrors[field] = message;
+      });
+    }
+
+    return throwError((): AuthError => ({
+      status: err.status,
+      message: serverMessage,
+      fieldErrors,
     }));
   }
 }

@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, AuthError } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
@@ -104,12 +104,12 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.isLoading.set(false);
           this.router.navigate(['/dashboard']);
         },
-        error: (err: { message: string; errors: Record<string, string> }) => {
+        error: (err: AuthError) => {
           this.isLoading.set(false);
           this.serverError.set(err.message);
 
-          if (err.errors && Object.keys(err.errors).length) {
-            Object.entries(err.errors).forEach(([field, msg]) => {
+          if (err.fieldErrors && Object.keys(err.fieldErrors).length) {
+            Object.entries(err.fieldErrors).forEach(([field, msg]) => {
               this.loginForm.get(field)?.setErrors({ serverError: msg });
             });
           }

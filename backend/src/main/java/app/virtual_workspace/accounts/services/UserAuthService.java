@@ -8,6 +8,7 @@ import app.virtual_workspace.accounts.events.UserRegisteredEvent;
 import app.virtual_workspace.accounts.mappers.AuthMapper;
 import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.repositories.UserRepository;
+import app.virtual_workspace.exceptions.custom.ResourceAlreadyExistsException;
 import app.virtual_workspace.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,6 +34,12 @@ public class UserAuthService {
 
     @Transactional
     public AuthResponseDto register(RegisterDto request){
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new ResourceAlreadyExistsException(
+                    "An account with this email already exists. Please log in or use a different address."
+            );
+        }
+
         User user = authMapper.registerDtoToModel(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
