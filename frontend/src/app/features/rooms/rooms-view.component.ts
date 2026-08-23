@@ -1,5 +1,6 @@
 import { Component, computed, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { TopNavComponent } from './components/top-nav/top-nav.component';
 import { RoomCardComponent, Room } from './components/room-card/room-card.component';
@@ -16,6 +17,7 @@ type Tab = 'All Rooms' | 'My Teams' | 'Favorites';
 })
 export class RoomsViewComponent implements OnInit {
   private readonly roomService = inject(RoomService);
+  private readonly router = inject(Router);
 
   tabs: Tab[] = ['All Rooms', 'My Teams', 'Favorites'];
   activeTab = signal<Tab>('All Rooms');
@@ -89,5 +91,6 @@ export class RoomsViewComponent implements OnInit {
 
   onRoomAction(roomId: string) {
     console.log('Room action triggered for:', roomId);
+    this.router.navigate(['/rooms', roomId]);
   }
 }
