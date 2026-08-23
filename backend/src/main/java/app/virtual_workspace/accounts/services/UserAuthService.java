@@ -63,11 +63,13 @@ public class UserAuthService {
     public User getAuthenticatedUser(){
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof User)){
+        if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof UserPrincipal)){
             throw new InsufficientAuthenticationException("User not authenticated");
         }
 
-        return (User) authentication.getPrincipal();
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        return userRepository.findUserByEmail(principal.getEmail())
+                .orElseThrow(() -> new InsufficientAuthenticationException("User not found"));
     }
 
     public boolean isOwner(Long userId) {
