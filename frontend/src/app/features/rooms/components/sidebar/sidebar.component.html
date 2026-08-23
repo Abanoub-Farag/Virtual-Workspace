@@ -18,11 +18,13 @@
   </div>
 
   <nav class="sidebar__nav">
-    <a href="javascript:void(0)" 
+    <a [routerLink]="item.route ? item.route : null"
        class="nav-item" 
        *ngFor="let item of navItems" 
+       [routerLinkActive]="item.route ? 'active' : ''"
+       [routerLinkActiveOptions]="{exact: false}"
        [class.active]="item.active">
-      <div class="active-indicator" *ngIf="item.active"></div>
+      <div class="active-indicator"></div>
       <lucide-icon [img]="item.icon" class="nav-icon"></lucide-icon>
       <span class="nav-label">{{ item.label }}</span>
     </a>

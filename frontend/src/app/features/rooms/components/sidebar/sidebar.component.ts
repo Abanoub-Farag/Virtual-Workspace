@@ -1,18 +1,21 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, LayoutDashboard, MonitorPlay, Trophy, Users, Settings } from 'lucide-angular';
+import { LucideAngularModule, LayoutDashboard, MonitorPlay, Trophy, Users, Settings, User as UserIcon } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
+
+import { RouterModule } from '@angular/router';
 
 interface NavItem {
   label: string;
   icon: any;
   active?: boolean;
+  route?: string;
 }
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, RouterModule],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
@@ -21,8 +24,9 @@ export class SidebarComponent implements OnInit {
   userName = 'Guest User';
 
   navItems: NavItem[] = [
+    { label: 'Profile', icon: UserIcon, route: '/profile' },
     { label: 'Dashboard', icon: LayoutDashboard },
-    { label: 'Rooms', icon: MonitorPlay, active: true },
+    { label: 'Rooms', icon: MonitorPlay, route: '/rooms' },
     { label: 'Leaderboard', icon: Trophy },
     { label: 'Communities', icon: Users },
     { label: 'Settings', icon: Settings },
