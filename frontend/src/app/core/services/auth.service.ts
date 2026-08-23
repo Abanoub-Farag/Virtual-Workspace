@@ -11,7 +11,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
 
   /** Base URL – proxy is configured in angular.json (dev) or via env. */
-  private readonly baseUrl = '${environment.apiUrl}/api/v1/auth';
+  private readonly baseUrl = `${environment.apiUrl}/api/v1/auth`;
 
   /** Token key used in localStorage. */
   private readonly TOKEN_KEY = 'pcenter_access_token';
