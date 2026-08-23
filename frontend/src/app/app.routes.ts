@@ -49,6 +49,15 @@ export const routes: Routes = [
     title: 'Room Details – Pcenter',
   },
   {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/profile/dashboard/profile-dashboard.component').then(
+        (m) => m.ProfileDashboardComponent,
+      ),
+    title: 'Profile – Pcenter',
+  },
+  {
     path: '',
     redirectTo: '/register',
     pathMatch: 'full',

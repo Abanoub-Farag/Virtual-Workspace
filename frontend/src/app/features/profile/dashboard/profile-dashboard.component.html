@@ -1,0 +1,141 @@
+<div class="layout-container">
+  <app-sidebar class="layout-sidebar"></app-sidebar>
+  
+  <div class="layout-main">
+    <app-top-nav></app-top-nav>
+
+    <main class="content-area">
+      <div class="header-nav">
+        <a routerLink="/rooms" class="back-link">... Back to Rooms</a>
+        <h1 class="page-title">Profile Dashboard</h1>
+      </div>
+
+      <!-- Loading / Error States -->
+      <div class="state-container" *ngIf="isLoading()">
+        <p>Loading profile...</p>
+      </div>
+      <div class="state-container error" *ngIf="error()">
+        <p>{{ error() }}</p>
+      </div>
+
+      <!-- Profile Content -->
+      <ng-container *ngIf="!isLoading() && !error() && profile() as p">
+        
+        <!-- Hero Header -->
+        <div class="hero-header">
+          <div class="avatar-ring">
+            <div class="avatar">
+              <!-- Placeholder avatar based on first initial if no image URL -->
+              <span class="avatar-text">{{ p.firstName?.charAt(0) || p.email?.charAt(0) || 'U' | uppercase }}</span>
+              <!-- If we had an image: <img src="p.avatarUrl" alt="Avatar"> -->
+            </div>
+            <div class="status-indicator"></div>
+          </div>
+          
+          <h2 class="hero-name">{{ p.firstName }} {{ p.lastName }}</h2>
+          <p class="hero-status">Online</p>
+        </div>
+
+        <div class="cards-container">
+          
+          <!-- User Information Card -->
+          <form [formGroup]="userInfoForm" (ngSubmit)="onSaveUserInfo()" class="profile-card">
+            <div class="card-header">
+              <h3>User Information</h3>
+              <p class="subtitle">Configure internet account and information.</p>
+            </div>
+            
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="firstName">First Name</label>
+                  <input id="firstName" type="text" formControlName="firstName" />
+                </div>
+                <div class="form-group">
+                  <label for="lastName">Last Name</label>
+                  <input id="lastName" type="text" formControlName="lastName" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="displayName">Display Name</label>
+                  <input id="displayName" type="text" formControlName="displayName" />
+                </div>
+                <div class="form-group">
+                  <label for="professionalHeadline">Professional Headline</label>
+                  <input id="professionalHeadline" type="text" formControlName="professionalHeadline" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="bio">Bio</label>
+                <textarea id="bio" formControlName="bio" rows="2"></textarea>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <button type="button" class="btn btn-ghost" (click)="fetchProfile()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="isSavingUser() || userInfoForm.invalid">
+                {{ isSavingUser() ? 'Saving...' : 'Save Changes' }}
+              </button>
+            </div>
+          </form>
+
+          <!-- Social Links Card -->
+          <form [formGroup]="socialLinksForm" (ngSubmit)="onSaveSocialLinks()" class="profile-card">
+            <div class="card-header">
+              <h3>Social Links</h3>
+              <p class="subtitle">Configure common links with social profiles.</p>
+            </div>
+            
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>GitHub URL</label>
+                  <div class="input-with-icon">
+                    <lucide-icon [img]="GithubIcon" class="prefix-icon"></lucide-icon>
+                    <input type="text" formControlName="githubUrl" placeholder="https://github.com/..." />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Twitter / X Username</label>
+                  <div class="input-with-icon">
+                    <lucide-icon [img]="TwitterIcon" class="prefix-icon"></lucide-icon>
+                    <input type="text" formControlName="twitterUsername" placeholder="@username" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>LinkedIn Profile</label>
+                  <div class="input-with-icon">
+                    <lucide-icon [img]="LinkedinIcon" class="prefix-icon"></lucide-icon>
+                    <input type="text" formControlName="linkedinProfile" placeholder="https://linkedin.com/in/..." />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Website Portfolio</label>
+                  <div class="input-with-icon">
+                    <lucide-icon [img]="GlobeIcon" class="prefix-icon"></lucide-icon>
+                    <input type="text" formControlName="websitePortfolio" placeholder="https://..." />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <button type="button" class="btn btn-ghost" (click)="fetchProfile()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="isSavingSocial() || socialLinksForm.invalid">
+                {{ isSavingSocial() ? 'Updating...' : 'Update Social Links' }}
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </ng-container>
+
+    </main>
+  </div>
+</div>
