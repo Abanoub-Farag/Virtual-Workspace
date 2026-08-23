@@ -1,0 +1,91 @@
+/* ─── styles.css ──────────────────────────────────────────────────────────────
+   Global reset + theme tokens.
+   Theme tokens live on html / html.dark so they are always in sync with the
+   class set by the anti-flash script and ThemeService — zero component-level
+   class binding needed, zero flash on route transitions.
+─────────────────────────────────────────────────────────────────────────────*/
+
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Light mode tokens (default) ───────────────────────────────────────────── */
+html {
+  --clr-page-bg:       #f0f4ff;
+  --clr-nav-bg:        rgba(240, 244, 255, 0.9);
+  --clr-nav-border:    rgba(37, 99, 235, 0.1);
+  --clr-card-body:     #ffffff;
+  --clr-input-bg:      #f7f9ff;
+  --clr-input-border:  #d1d9f0;
+  --clr-text-primary:  #0b111e;
+  --clr-text-secondary:#4a5c7a;
+  --clr-text-muted:    #8899bb;
+  --clr-nav-btn:       rgba(11, 17, 30, 0.07);
+  --clr-nav-btn-hover: rgba(11, 17, 30, 0.13);
+  --clr-nav-btn-border:rgba(11, 17, 30, 0.15);
+  --clr-shadow-card:   0 8px 32px rgba(37, 99, 235, 0.12);
+  --clr-action-hover:  rgba(11, 17, 30, 0.06);
+  --clr-help-fab:      #e8edf8;
+  --clr-input-autofill:#f7f9ff;
+
+  /* Shared / static */
+  --clr-blue:          #2563eb;
+  --clr-blue-hover:    #1d4ed8;
+  --clr-accent:        #3b82f6;
+  --clr-error:         #ef4444;
+  --clr-error-bg:      rgba(239, 68, 68, 0.08);
+
+  --radius-card:       18px;
+  --radius-input:      10px;
+  --radius-btn:        10px;
+  --transition-base:   180ms ease;
+
+  /* Background must be set here so the body colour is correct before Angular
+     renders (paired with the anti-flash script in index.html). */
+  background-color: var(--clr-page-bg);
+}
+
+/* ── Dark mode tokens ─────────────────────────────────────────────────────── */
+html.dark {
+  --clr-page-bg:       #0b111e;
+  --clr-nav-bg:        rgba(11, 17, 30, 0.85);
+  --clr-nav-border:    rgba(255, 255, 255, 0.06);
+  --clr-card-body:     #111a2e;
+  --clr-input-bg:      #0d1526;
+  --clr-input-border:  #1e2d4a;
+  --clr-text-primary:  #f0f4ff;
+  --clr-text-secondary:#8899bb;
+  --clr-text-muted:    #4a5c7a;
+  --clr-nav-btn:       rgba(255, 255, 255, 0.07);
+  --clr-nav-btn-hover: rgba(255, 255, 255, 0.13);
+  --clr-nav-btn-border:rgba(255, 255, 255, 0.1);
+  --clr-shadow-card:   0 24px 60px rgba(0, 0, 0, 0.45);
+  --clr-action-hover:  rgba(255, 255, 255, 0.06);
+  --clr-help-fab:      #111a2e;
+  --clr-input-autofill:#0d1526;
+
+  background-color: var(--clr-page-bg);
+}
+
+body {
+  background-color: var(--clr-page-bg);
+  color: var(--clr-text-primary);
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
