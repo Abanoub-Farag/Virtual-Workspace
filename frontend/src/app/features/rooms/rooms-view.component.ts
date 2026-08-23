@@ -87,10 +87,6 @@ export class RoomsViewComponent implements OnInit {
     this.searchQuery.set(query);
   }
 
-  onCreateRoom() {
-    console.log('Create new room triggered');
-  }
-
   onRoomAction(roomId: string) {
     console.log('Room action triggered for:', roomId);
   }

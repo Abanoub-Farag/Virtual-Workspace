@@ -19,9 +19,20 @@
       <span class="notification-dot"></span>
     </button>
 
-    <button class="btn btn--primary" (click)="onCreateRoom()">
+    <button 
+      class="btn btn--primary" 
+      *ngIf="!roomService.userOwnedRoomId()"
+      (click)="onActionClick()">
       <lucide-icon [img]="PlusIcon" class="btn-icon"></lucide-icon>
       Create New Room
+    </button>
+    
+    <button 
+      class="btn btn--primary" 
+      *ngIf="roomService.userOwnedRoomId()"
+      (click)="onActionClick()">
+      <lucide-icon [img]="HomeIcon" class="btn-icon"></lucide-icon>
+      Your Room
     </button>
   </div>
 </header>

@@ -1,0 +1,196 @@
+@import '../../../styles/variables.scss';
+
+.layout-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: $bg-main;
+  color: $text-primary;
+}
+
+.layout-sidebar {
+  flex-shrink: 0;
+}
+
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem 3rem;
+  max-width: 800px; // Contain the form width to look like the design
+}
+
+.form-header {
+  margin-bottom: 2rem;
+
+  .back-link {
+    display: inline-block;
+    color: $primary-accent;
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    transition: opacity 0.2s;
+    
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: $text-primary;
+  }
+
+  .subtitle {
+    color: $text-secondary;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}
+
+.form-card-wrapper {
+  background-color: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.form-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-card-header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid $border-color;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: $text-primary;
+  }
+}
+
+.form-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $text-primary;
+  }
+
+  input, textarea {
+    background-color: $bg-main;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: $text-primary;
+    font-family: inherit;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-accent;
+      box-shadow: 0 0 0 2px rgba($primary-accent, 0.2);
+    }
+
+    &::placeholder {
+      color: #4b5563; // Slightly darker than text-secondary for placeholders
+    }
+
+    &.invalid {
+      border-color: #ef4444; // Red
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .error-msg {
+    font-size: 0.75rem;
+    color: #ef4444;
+  }
+  
+  .server-error {
+    color: #ef4444;
+    background-color: rgba(#ef4444, 0.1);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+  }
+}
+
+.form-card-footer {
+  padding: 1.5rem;
+  border-top: 1px solid $border-color;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+// Button styles (similar to dashboard/login, reusable)
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+
+  &--primary {
+    background-color: $primary-accent;
+    color: #ffffff;
+    
+    &:hover:not(:disabled) {
+      background-color: darken($primary-accent, 5%);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+
+  &--cancel {
+    background-color: transparent;
+    color: $text-primary;
+    
+    &:hover {
+      background-color: rgba(#ffffff, 0.05);
+    }
+  }
+
+  .btn-icon {
+    width: 16px;
+    height: 16px;
+  }
+}

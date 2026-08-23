@@ -1,7 +1,9 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Search, Bell, Plus } from 'lucide-angular';
+import { LucideAngularModule, Search, Bell, Plus, Home } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { RoomService } from '../../services/room.service';
 
 @Component({
   selector: 'app-top-nav',
@@ -11,14 +13,17 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./top-nav.component.scss']
 })
 export class TopNavComponent {
-  @Output() searchChange = new EventEmitter<string>();
-  @Output() createRoom = new EventEmitter<void>();
+  private readonly router = inject(Router);
+  public readonly roomService = inject(RoomService);
 
+  @Output() searchChange = new EventEmitter<string>();
+  
   searchQuery = '';
 
   readonly SearchIcon = Search;
   readonly BellIcon = Bell;
   readonly PlusIcon = Plus;
+  readonly HomeIcon = Home; // Dedicated room icon
 
   onSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
@@ -26,7 +31,14 @@ export class TopNavComponent {
     this.searchChange.emit(value);
   }
 
-  onCreateRoom() {
-    this.createRoom.emit();
+  onActionClick() {
+    const roomId = this.roomService.userOwnedRoomId();
+    if (roomId) {
+      // Navigate to the specific room if they own one
+      this.router.navigate(['/rooms', roomId]);
+    } else {
+      // Navigate to create room form
+      this.router.navigate(['/rooms/create']);
+    }
   }
 }
