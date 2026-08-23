@@ -1,103 +1,32 @@
-# Virtual Workspace API
+# Virtual Workspace 🚀
 
-A modular, high-performance backend application built with **Java 21**, **Spring Boot 3/4**, and **PostgreSQL**. It provides a secure API for managing users, virtual rooms, and tasks, utilizing **JWT** for stateless authentication, **Redis** for caching, and **Bucket4j** for API rate limiting.
+Welcome to **Virtual Workspace** – the modern, centralized hub designed for seamless collaboration and productivity. 
 
----
+## 🌟 The Vision
 
-## 🏗 Architecture & Modules
+In a world where remote work, digital collaboration, and distributed teams are the norm, **Virtual Workspace** bridges the gap by providing a cohesive, real-time environment. It is more than just a chat app or a task manager; it's a virtual space where your presence matters, your tasks are organized, and your favorite spaces are just a click away.
 
-- **Accounts:** User registration, stateless JWT authentication, and automated event-driven profile generation (`ApplicationEventPublisher`).
-- **Rooms:** Creation, retrieval (using optimized `Slice` pagination), and updating of virtual workspaces. Includes a "Favorites" feature to bookmark rooms.
-- **Room Members:** Real-time presence tracking. Users can join rooms and maintain active status through a heartbeat mechanism, with a background `@Scheduled` task automatically disconnecting inactive users.
-- **Tasks:** Full CRUD operations for task management tied to individual users.
-- **Security:** Stateless custom JWT filter chain, BCrypt password hashing, and strict method-level security (`@PreAuthorize`) for ownership verification.
-- **Exception Handling:** Global error handling (`@RestControllerAdvice`) returning structured JSON error responses across all modules.
+Whether you're a remote team coordinating on a massive project, a study group sharing resources, or friends hanging out in a digital lounge, Virtual Workspace is built to feel intuitive, fast, and secure.
 
----
+## 🎯 Target Audience
 
-## 🛠 Tech Stack & Tools
+- **Remote & Hybrid Teams**: Keep track of team members in specific virtual "rooms", assign tasks, and maintain a high level of synchronicity.
+- **Student Groups & Communities**: Create dedicated spaces for different subjects or interests, track shared tasks, and favorite the rooms you visit most often.
+- **Freelancers & Agencies**: Manage different client workspaces efficiently in one unified platform.
 
-- **Framework**: Java 21 & Spring Boot
-- **Database**: PostgreSQL (Production) & H2 (Testing)
-- **Migrations**: Flyway (`spring-boot-starter-flyway`)
-- **Security & Auth**: Spring Security & JWT (`jjwt`)
-- **Caching & Rate Limiting**: Redis (`spring-boot-starter-data-redis`) & Bucket4j
-- **DTO Mapping**: MapStruct
-- **API Documentation**: Swagger / OpenAPI 3 (`springdoc-openapi-starter-webmvc-ui`)
-- **Boilerplate Reduction**: Lombok
+## ✨ Key Features
 
----
+- **Personalized Profiles**: Set up your digital identity.
+- **Virtual Rooms**: Create or join dynamic rooms. Mark your most-visited rooms as favorites for quick access.
+- **Real-Time Presence**: See who is currently active in a room with a robust heartbeat and presence system.
+- **Task Management**: Keep track of what needs to be done, directly tied to your workflow.
+- **Beautiful, Vibe-Coded UI**: An interface that doesn't just work—it feels *good* to use.
 
-## 🌐 API Endpoints
+## 📂 Project Structure
 
-*Base URL:* `/api/v1`
+This project is structured as a full-stack application, split into two main domains:
 
-### 🔐 Authentication (`/auth`)
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/auth/register` | Register new user. |
-| `POST` | `/auth/login` | Authenticate and retrieve JWT. |
-
-### 👤 Profiles (`/profile`) - *Requires JWT*
-| Method | Endpoint | Description | Access |
-|---|---|---|---|
-| `GET` | `/profile/{userId}` | Get user profile. | Any authenticated user. |
-| `PUT` | `/profile` | Update own profile. | Profile owner only. |
-
-### 🏠 Rooms (`/rooms`) - *Requires JWT*
-| Method | Endpoint | Description | Access |
-|---|---|---|---|
-| `GET` | `/rooms` | Get all rooms (Paginated `Slice`). | Any authenticated user. |
-| `POST`| `/rooms` | Create a new room. | Any authenticated user. |
-| `GET` | `/rooms/{roomId}`| Get specific room details. | Any authenticated user. |
-| `PUT` | `/rooms/{roomId}`| Update a room. | Room owner only. |
-| `DELETE`|`/rooms/{roomId}`| Delete a room. | Room owner only. |
-
-### 👥 Room Members (`/rooms`) - *Requires JWT*
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/rooms/{roomId}/join` | Join a specific room. |
-| `PUT` | `/rooms/{roomId}/heartbeat`| Send active status heartbeat. |
-
-### ⭐ Favorite Rooms (`/rooms/favorites`) - *Requires JWT*
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/rooms/favorites` | Get all favorite rooms for the authenticated user. |
-| `POST` | `/rooms/favorites/{roomId}` | Add a room to user's favorites. |
-| `DELETE`| `/rooms/favorites/{roomId}` | Remove a room from user's favorites. |
-
-### ✅ Tasks (`/tasks`) - *Requires JWT*
-| Method | Endpoint | Description | Access |
-|---|---|---|---|
-| `GET` | `/tasks` | Get all tasks. | Any authenticated user. |
-| `POST`| `/tasks` | Create a new task. | Any authenticated user. |
-| `PUT` | `/tasks/{taskId}` | Update a task. | Task owner only. |
-| `DELETE`| `/tasks/{taskId}` | Delete a task. | Task owner only. |
-
----
-
-## ⚙️ Setup & Run
-
-1. **Prerequisites:**
-   - Java 21+ installed.
-   - PostgreSQL running on default port (`5432`).
-   - Redis running locally or accessible.
-
-2. **Database Setup:** 
-   Update `backend/src/main/resources/application.properties` with your PostgreSQL credentials:
-   ```properties
-   spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
-   spring.datasource.username=postgres
-   spring.datasource.password=postgres
-   ```
-   *(Note: Flyway will automatically execute migrations to set up the schemas on startup).*
-
-3. **Run Application:**
-   Navigate to the backend directory and run:
-   ```bash
-   ./mvnw spring-boot:run
-   ```
-
-4. **API Documentation:**
-   Once running, access the Swagger UI at:
-   `http://localhost:8080/swagger-ui.html`
+- **[`/backend`](./backend)**: The powerhouse. An enterprise-grade, highly scalable API built to handle everything from secure authentication to real-time presence caching. 
+  👉 [Read the Backend Documentation](./backend/README.md)
+- **[`/frontend`](./frontend)**: The face of the application. A stunning, SSR-enabled web application focused on delivering a premium, "vibe-coded" user experience. 
+  👉 [Read the Frontend Documentation](./frontend/README.md)
