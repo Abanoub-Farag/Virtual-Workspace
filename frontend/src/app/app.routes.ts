@@ -1,8 +1,11 @@
 import { Routes } from '@angular/router';
+import { guestGuard } from './core/guards/guest.guard';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: 'register',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/register/register.component').then(
         (m) => m.RegisterComponent,
@@ -11,6 +14,7 @@ export const routes: Routes = [
   },
   {
     path: 'login',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/login/login.component').then(
         (m) => m.LoginComponent,
@@ -19,6 +23,7 @@ export const routes: Routes = [
   },
   {
     path: 'rooms',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/rooms/rooms-view.component').then(
         (m) => m.RoomsViewComponent,
@@ -30,6 +35,11 @@ export const routes: Routes = [
     redirectTo: '/register',
     pathMatch: 'full',
   },
+  {
+    // Catch-all route to prevent accessing undefined URLs
+    path: '**',
+    redirectTo: '/rooms',
+  }
 ];
 
 
