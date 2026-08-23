@@ -18,6 +18,14 @@ export const routes: Routes = [
     title: 'Log In – Pcenter',
   },
   {
+    path: 'rooms',
+    loadComponent: () =>
+      import('./features/rooms/rooms-view.component').then(
+        (m) => m.RoomsViewComponent,
+      ),
+    title: 'Rooms – Pcenter',
+  },
+  {
     path: '',
     redirectTo: '/register',
     pathMatch: 'full',

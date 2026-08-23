@@ -1,0 +1,30 @@
+<aside class="sidebar">
+  <div class="sidebar__brand">
+    <div class="brand-logo">
+      <span>PC</span>
+    </div>
+    <span class="brand-title">PCenter</span>
+  </div>
+
+  <div class="sidebar__profile">
+    <div class="profile-avatar">
+      <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="Alex Morgan" />
+      <span class="status-indicator"></span>
+    </div>
+    <div class="profile-info">
+      <span class="profile-name">{{ userName }}</span>
+      <span class="profile-status">Online</span>
+    </div>
+  </div>
+
+  <nav class="sidebar__nav">
+    <a href="javascript:void(0)" 
+       class="nav-item" 
+       *ngFor="let item of navItems" 
+       [class.active]="item.active">
+      <div class="active-indicator" *ngIf="item.active"></div>
+      <lucide-icon [img]="item.icon" class="nav-icon"></lucide-icon>
+      <span class="nav-label">{{ item.label }}</span>
+    </a>
+  </nav>
+</aside>

@@ -1,0 +1,40 @@
+<div class="layout-container">
+  <app-sidebar class="layout-sidebar"></app-sidebar>
+  
+  <div class="layout-main">
+    <app-top-nav 
+      (searchChange)="onSearchChange($event)"
+      (createRoom)="onCreateRoom()">
+    </app-top-nav>
+
+    <main class="content-area">
+      <div class="hero-section">
+        <h2>Join a room and be productive!</h2>
+      </div>
+
+      <div class="filter-section">
+        <div class="tabs">
+          <button 
+            *ngFor="let tab of tabs" 
+            class="tab-btn" 
+            [class.active]="activeTab() === tab"
+            (click)="setActiveTab(tab)">
+            {{ tab }}
+          </button>
+        </div>
+      </div>
+
+      <div class="rooms-grid">
+        <app-room-card 
+          *ngFor="let room of filteredRooms()" 
+          [room]="room"
+          (onAction)="onRoomAction($event)">
+        </app-room-card>
+      </div>
+      
+      <div class="empty-state" *ngIf="filteredRooms().length === 0">
+        <p>No rooms match your search criteria.</p>
+      </div>
+    </main>
+  </div>
+</div>

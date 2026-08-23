@@ -1,0 +1,27 @@
+<header class="top-nav">
+  <div class="top-nav__title">
+    <h1>My Rooms</h1>
+  </div>
+
+  <div class="top-nav__actions">
+    <div class="search-container">
+      <lucide-icon [img]="SearchIcon" class="search-icon"></lucide-icon>
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Search for rooms or users..." 
+        [value]="searchQuery"
+        (input)="onSearch($event)" />
+    </div>
+
+    <button class="notification-btn">
+      <lucide-icon [img]="BellIcon" class="bell-icon"></lucide-icon>
+      <span class="notification-dot"></span>
+    </button>
+
+    <button class="btn btn--primary" (click)="onCreateRoom()">
+      <lucide-icon [img]="PlusIcon" class="btn-icon"></lucide-icon>
+      Create New Room
+    </button>
+  </div>
+</header>

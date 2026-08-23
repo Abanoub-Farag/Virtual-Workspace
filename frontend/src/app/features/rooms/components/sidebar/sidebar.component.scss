@@ -1,0 +1,149 @@
+$bg-sidebar: #090a12;
+$border-color: #21253b;
+$primary-accent: #8a3ffc;
+$text-primary: #ffffff;
+$text-secondary: #9ca3af;
+$status-active: #10b981;
+
+.sidebar {
+  width: 260px;
+  background-color: $bg-sidebar;
+  border-right: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px;
+    margin-bottom: 40px;
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      background-color: $primary-accent;
+      color: $text-primary;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .brand-title {
+      color: $text-primary;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  &__profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    margin: 0 12px 32px;
+    background-color: rgba(#ffffff, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba($border-color, 0.5);
+
+    .profile-avatar {
+      position: relative;
+      width: 40px;
+      height: 40px;
+
+      img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .status-indicator {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 12px;
+        height: 12px;
+        background-color: $status-active;
+        border: 2px solid $bg-sidebar;
+        border-radius: 50%;
+      }
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+
+      .profile-name {
+        color: $text-primary;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+
+      .profile-status {
+        color: $status-active;
+        font-size: 0.75rem;
+      }
+    }
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      text-decoration: none;
+      color: $text-secondary;
+      position: relative;
+      transition: all 0.2s ease;
+
+      .nav-icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      .nav-label {
+        font-size: 0.95rem;
+        font-weight: 500;
+      }
+
+      &:hover {
+        color: $text-primary;
+        background-color: rgba(#ffffff, 0.02);
+      }
+
+      &.active {
+        color: $text-primary;
+        background-color: rgba($primary-accent, 0.1);
+        
+        .nav-icon {
+          color: $primary-accent;
+        }
+
+        .active-indicator {
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 4px;
+          background-color: $primary-accent;
+          border-top-right-radius: 4px;
+          border-bottom-right-radius: 4px;
+        }
+      }
+    }
+  }
+}

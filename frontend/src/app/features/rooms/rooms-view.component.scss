@@ -1,0 +1,95 @@
+$bg-main: #0d0e1a;
+$border-color: #21253b;
+$primary-accent: #8a3ffc;
+$text-primary: #ffffff;
+$text-secondary: #9ca3af;
+
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: $bg-main;
+}
+
+.layout-sidebar {
+  flex-shrink: 0;
+}
+
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; // Prevent flex item from overflowing
+}
+
+.content-area {
+  padding: 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.hero-section {
+  h2 {
+    color: $text-primary;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+.filter-section {
+  .tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid rgba($border-color, 0.5);
+    padding-bottom: 1px;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: $text-secondary;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $text-primary;
+    }
+
+    &.active {
+      color: $primary-accent;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: $primary-accent;
+        border-radius: 2px 2px 0 0;
+      }
+    }
+  }
+}
+
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: $text-secondary;
+  font-size: 1.1rem;
+  background-color: rgba(#ffffff, 0.02);
+  border-radius: 12px;
+  border: 1px dashed $border-color;
+}
