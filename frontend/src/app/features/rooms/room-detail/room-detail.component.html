@@ -1,0 +1,27 @@
+<div class="room-detail-container">
+  <div class="nav-header">
+    <a routerLink="/rooms" class="back-link">... Back to Rooms</a>
+  </div>
+
+  <div class="content-state" *ngIf="isLoading()">
+    <p>Loading room details...</p>
+  </div>
+
+  <div class="content-state error" *ngIf="error()">
+    <p>{{ error() }}</p>
+  </div>
+
+  <div class="room-content" *ngIf="room() as r">
+    <div class="room-card">
+      <h1 class="room-title">{{ r.title }}</h1>
+      <p class="room-id">Room ID: {{ r.id }}</p>
+      
+      <div class="divider"></div>
+      
+      <div class="room-description-block">
+        <h3>Description</h3>
+        <p class="room-desc">{{ r.description || 'No description provided for this room.' }}</p>
+      </div>
+    </div>
+  </div>
+</div>

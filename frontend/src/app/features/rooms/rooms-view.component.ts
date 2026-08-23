@@ -59,7 +59,7 @@ export class RoomsViewComponent implements OnInit {
         const fetchedRooms = response.data?.content || [];
         // Map backend API data to our Room interface expectations
         const mappedRooms: Room[] = fetchedRooms.map((r: any, index: number) => ({
-          id: r.id || `room-${index}`,
+          id: r.id ? r.id.toString() : `room-${index}`,
           title: r.title || 'Untitled Room',
           description: r.description || 'No description provided.',
           tags: r.tags || [],

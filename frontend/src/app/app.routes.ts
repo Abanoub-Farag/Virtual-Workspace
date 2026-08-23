@@ -40,6 +40,15 @@ export const routes: Routes = [
     title: 'Create Room – Pcenter',
   },
   {
+    path: 'rooms/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/rooms/room-detail/room-detail.component').then(
+        (m) => m.RoomDetailComponent,
+      ),
+    title: 'Room Details – Pcenter',
+  },
+  {
     path: '',
     redirectTo: '/register',
     pathMatch: 'full',

@@ -21,7 +21,7 @@
 
     <button 
       class="btn btn--primary" 
-      *ngIf="!roomService.userOwnedRoomId()"
+      *ngIf="!roomService.userRoomId()"
       (click)="onActionClick()">
       <lucide-icon [img]="PlusIcon" class="btn-icon"></lucide-icon>
       Create New Room
@@ -29,7 +29,7 @@
     
     <button 
       class="btn btn--primary" 
-      *ngIf="roomService.userOwnedRoomId()"
+      *ngIf="roomService.userRoomId()"
       (click)="onActionClick()">
       <lucide-icon [img]="HomeIcon" class="btn-icon"></lucide-icon>
       Your Room

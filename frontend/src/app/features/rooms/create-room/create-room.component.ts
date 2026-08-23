@@ -45,10 +45,15 @@ export class CreateRoomComponent {
 
     this.roomService.createRoom(payload).subscribe({
       next: (response) => {
-        const newRoomId = response.data?.id || 'newly-created'; // Fallback id if backend doesn't return
-        this.roomService.userOwnedRoomId.set(newRoomId);
-        this.isSubmitting.set(false);
-        this.router.navigate(['/rooms']); // Or navigate to ['/rooms', newRoomId]
+        const newRoomId = response.data?.id; 
+        if (newRoomId) {
+          this.roomService.userRoomId.set(newRoomId);
+          this.isSubmitting.set(false);
+          this.router.navigate(['/rooms', newRoomId]);
+        } else {
+          this.isSubmitting.set(false);
+          this.router.navigate(['/rooms']);
+        }
       },
       error: (err) => {
         console.error('Error creating room', err);

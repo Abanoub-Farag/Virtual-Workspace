@@ -4,31 +4,35 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';
 
-export interface RoomResponse {
-  id?: string;
+export interface ApiResponse<T> {
+  localDateTime: string;
+  status: number;
+  message: string;
+  data: T;
+  errors: any;
+}
+
+export interface RoomData {
+  id: number;
   title: string;
   description: string;
-  // Other fields might exist in the backend response
+  // To satisfy our components which might look for these:
+  tags?: string[];
+  status?: string;
+  count?: number;
+  countType?: string;
+  actionType?: string;
   [key: string]: any;
 }
 
 export interface PageableResponse {
-  content: RoomResponse[];
+  content: RoomData[];
   [key: string]: any; // To cover pageable info
 }
 
-export interface ApiRoomsResponse {
-  localDateTime: string;
-  status: number;
-  message: string;
-  data: PageableResponse;
-}
-
-export interface ApiSingleRoomResponse {
-  localDateTime: string;
-  status: number;
-  message: string;
-  data: RoomResponse;
+export interface CreateRoomDto {
+  title: string;
+  description: string;
 }
 
 @Injectable({
@@ -39,16 +43,16 @@ export class RoomService {
   private readonly authService = inject(AuthService);
   private readonly baseUrl = `${environment.apiUrl}/api/v1/rooms`;
 
-  // State to track if the current user has created a room in this session
-  userOwnedRoomId = signal<string | null>(null);
+  // State to track if the current user owns an active room
+  userRoomId = signal<number | null>(null);
 
-  getRooms(page: number = 0, size: number = 20): Observable<ApiRoomsResponse> {
+  getRooms(page: number = 0, size: number = 20): Observable<ApiResponse<PageableResponse>> {
     const token = this.authService.getToken();
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
 
-    return this.http.get<ApiRoomsResponse>(this.baseUrl, {
+    return this.http.get<ApiResponse<PageableResponse>>(this.baseUrl, {
       headers,
       params: {
         page: page.toString(),
@@ -57,12 +61,21 @@ export class RoomService {
     });
   }
 
-  createRoom(payload: { title: string; description?: string }): Observable<ApiSingleRoomResponse> {
+  createRoom(dto: CreateRoomDto): Observable<ApiResponse<RoomData>> {
     const token = this.authService.getToken();
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
 
-    return this.http.post<ApiSingleRoomResponse>(this.baseUrl, payload, { headers });
+    return this.http.post<ApiResponse<RoomData>>(this.baseUrl, dto, { headers });
+  }
+
+  getRoomById(id: number): Observable<ApiResponse<RoomData>> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<ApiResponse<RoomData>>(`${this.baseUrl}/${id}`, { headers });
   }
 }

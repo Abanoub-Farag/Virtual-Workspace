@@ -32,7 +32,7 @@ export class TopNavComponent {
   }
 
   onActionClick() {
-    const roomId = this.roomService.userOwnedRoomId();
+    const roomId = this.roomService.userRoomId();
     if (roomId) {
       // Navigate to the specific room if they own one
       this.router.navigate(['/rooms', roomId]);
