@@ -103,6 +103,16 @@ export class AuthService {
       }));
     }
 
+    // ── 401 — Bad credentials (wrong email / password) ─────────────────────
+    if (err.status === 401) {
+      return throwError((): AuthError => ({
+        status: 401,
+        message:
+          'No account was found for this email address. Please verify your details or create a new account.',
+        fieldErrors: {},
+      }));
+    }
+
     // ── 4xx — Structured error body from the backend ───────────────────────
     const body = err.error as Partial<ApiResponse<unknown>>;
     const serverMessage = body?.message ?? 'An unexpected error occurred.';

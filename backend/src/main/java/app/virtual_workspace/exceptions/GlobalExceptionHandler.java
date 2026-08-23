@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -133,7 +135,49 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
-    // ── 6. Unhandled Runtime Exceptions (500) ────────────────────────────────
+    // ── 6. Bad Credentials — wrong email / password (401) ────────────────────
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleBadCredentialsException(
+            BadCredentialsException ex,
+            HttpServletRequest request
+    ){
+        String message = "The email or password you entered is incorrect. Please double-check and try again.";
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .message(message)
+                .path(request.getRequestURI())
+                .build();
+
+        return buildResponseEntity(HttpStatus.UNAUTHORIZED, message, errorResponse);
+    }
+
+    // ── 7. Broader AuthenticationException fallback (401) ────────────────────
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleAuthenticationException(
+            AuthenticationException ex,
+            HttpServletRequest request
+    ){
+        log.warn("Authentication failure at [{}]: {}", request.getRequestURI(), ex.getMessage());
+
+        String message = "Authentication failed. Please check your credentials and try again.";
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .message(message)
+                .path(request.getRequestURI())
+                .build();
+
+        return buildResponseEntity(HttpStatus.UNAUTHORIZED, message, errorResponse);
+    }
+
+    // ── 8. Unhandled Runtime Exceptions (500) ────────────────────────────────
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleRuntimeException(
