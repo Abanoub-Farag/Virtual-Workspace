@@ -100,68 +100,7 @@
                 </span>
               </div>
 
-              <!-- Gender / Date of Birth -->
-              <div class="form-row">
-
-                <!-- Gender -->
-                <div class="form-group">
-                  <label>Gender <span class="required-mark">*</span></label>
-                  <div class="radio-group" role="radiogroup" aria-labelledby="gender-label">
-                    <label
-                      class="radio-option"
-                      [class.selected]="userInfoForm.get('gender')?.value === 'MALE'"
-                      [class.is-invalid]="isInvalid('gender')"
-                    >
-                      <input
-                        type="radio"
-                        formControlName="gender"
-                        value="MALE"
-                        id="genderMale"
-                        class="sr-only"
-                      />
-                      <span class="radio-icon">♂</span>
-                      <span>Male</span>
-                    </label>
-
-                    <label
-                      class="radio-option"
-                      [class.selected]="userInfoForm.get('gender')?.value === 'FEMALE'"
-                      [class.is-invalid]="isInvalid('gender')"
-                    >
-                      <input
-                        type="radio"
-                        formControlName="gender"
-                        value="FEMALE"
-                        id="genderFemale"
-                        class="sr-only"
-                      />
-                      <span class="radio-icon">♀</span>
-                      <span>Female</span>
-                    </label>
-                  </div>
-                  <span class="form-error" *ngIf="isInvalid('gender')">
-                    <ng-container *ngIf="userInfoForm.get('gender')?.errors?.['required']">Please select a gender.</ng-container>
-                    <ng-container *ngIf="getServerError('gender')">{{ getServerError('gender') }}</ng-container>
-                  </span>
-                </div>
-
-                <!-- Date of Birth -->
-                <div class="form-group">
-                  <label for="dateOfBirth">Date of Birth <span class="required-mark">*</span></label>
-                  <input
-                    id="dateOfBirth"
-                    type="date"
-                    formControlName="dateOfBirth"
-                    [class.is-invalid]="isInvalid('dateOfBirth')"
-                  />
-                  <span class="form-error" *ngIf="isInvalid('dateOfBirth')">
-                    <ng-container *ngIf="userInfoForm.get('dateOfBirth')?.errors?.['required']">Date of birth is required.</ng-container>
-                    <ng-container *ngIf="userInfoForm.get('dateOfBirth')?.errors?.['dateFormat']">Please use the format YYYY-MM-DD.</ng-container>
-                    <ng-container *ngIf="getServerError('dateOfBirth')">{{ getServerError('dateOfBirth') }}</ng-container>
-                  </span>
-                </div>
-
-              </div>
+              <!-- Gender / Date of Birth Removed -->
 
             </div><!-- /card-body -->
 
@@ -173,7 +112,7 @@
                 type="submit"
                 id="saveProfileBtn"
                 class="btn btn-primary"
-                [disabled]="isSavingUser() || userInfoForm.invalid || !userInfoForm.dirty"
+                [disabled]="isSavingUser() || userInfoForm.invalid || !isFormDirty"
               >
                 <span *ngIf="isSavingUser()" class="spinner" aria-hidden="true"></span>
                 {{ isSavingUser() ? 'Saving…' : 'Save Changes' }}

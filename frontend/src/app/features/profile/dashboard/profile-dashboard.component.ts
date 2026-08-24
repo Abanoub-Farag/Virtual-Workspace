@@ -24,13 +24,6 @@ import { LucideAngularModule, User as UserIcon } from 'lucide-angular';
 
 // ─── Custom Validators ────────────────────────────────────────────────────────
 
-/** Ensures the value matches the YYYY-MM-DD format. */
-function dateFormatValidator(control: AbstractControl): ValidationErrors | null {
-  const value: string = control.value;
-  if (!value) return null; // handled by required
-  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? null : { dateFormat: true };
-}
-
 // ─── Page-level error state ───────────────────────────────────────────────────
 
 interface PageError {
@@ -70,7 +63,18 @@ export class ProfileDashboardComponent implements OnInit {
 
   isSavingUser = signal<boolean>(false);
 
+  initialFormValues = signal<any>(null);
+
   userInfoForm!: FormGroup;
+
+  get isFormDirty(): boolean {
+    const current = this.userInfoForm.getRawValue();
+    const initial = this.initialFormValues();
+    if (!initial) return false;
+    
+    // Deep equality check for shallow properties
+    return Object.keys(current).some(key => current[key] !== initial[key]);
+  }
 
   constructor() {
     this.userInfoForm = this.fb.group({
@@ -78,8 +82,6 @@ export class ProfileDashboardComponent implements OnInit {
       lastName:    ['', Validators.required],
       email:       [{ value: '', disabled: true }],
       bio:         [''],
-      gender:      ['', Validators.required],
-      dateOfBirth: ['', [Validators.required, dateFormatValidator]],
     });
   }
 
@@ -140,9 +142,9 @@ export class ProfileDashboardComponent implements OnInit {
       lastName:    data.lastName ?? '',
       email:       data.email ?? '',
       bio:         data.bio ?? '',
-      gender:      data.gender ?? '',
-      dateOfBirth: data.dateOfBirth ?? '',
     });
+    
+    this.initialFormValues.set(this.userInfoForm.getRawValue());
   }
 
   onSaveUserInfo(): void {
@@ -158,8 +160,6 @@ export class ProfileDashboardComponent implements OnInit {
       firstName:   raw.firstName,
       lastName:    raw.lastName,
       bio:         raw.bio ?? '',
-      gender:      raw.gender as 'MALE' | 'FEMALE',
-      dateOfBirth: raw.dateOfBirth,
     };
 
     this.profileService.updateProfile(payload).subscribe({
