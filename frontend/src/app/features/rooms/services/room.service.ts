@@ -1,15 +1,19 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';
 
-export interface ApiResponse<T> {
+export interface ApiErrorDetail {
+  [key: string]: string | string[] | any;
+}
+
+export interface ApiResponse<T = any> {
   localDateTime: string;
   status: number;
   message: string;
   data: T;
-  errors: any;
+  errors: ApiErrorDetail | string[] | string | null;
 }
 
 export interface RoomData {
@@ -80,8 +84,8 @@ export class RoomService {
   }
 
   joinRoom(roomId: number): Observable<ApiResponse<any>> {
-    if (!roomId || !Number.isInteger(roomId) || roomId <= 0) {
-      throw new Error('Invalid roomId provided');
+    if (!roomId || typeof roomId !== 'number' || !Number.isInteger(roomId) || roomId <= 0) {
+      return throwError(() => new Error('Invalid room ID: must be a positive 64-bit integer.'));
     }
     const token = this.authService.getToken();
     const headers = new HttpHeaders({

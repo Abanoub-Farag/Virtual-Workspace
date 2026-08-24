@@ -1,34 +1,122 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, Input, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { RoomService } from '../../services/room.service';
+import { RoomService, ApiResponse } from '../../services/room.service';
 
-type RequestState = 'idle' | 'loading' | 'success' | 'error';
+export type RequestState = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-room-join',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './room-join.component.html',
   styles: [`
-    .join-container { margin: 16px 0; }
-    .join-btn { padding: 8px 16px; cursor: pointer; border-radius: 8px; border: 1px solid #232145; background: #1A1933; color: white; }
-    .join-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .alert { padding: 12px; margin-top: 12px; border-radius: 8px; font-size: 0.875rem; }
-    .alert-success { background: rgba(16, 185, 129, 0.1); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.2); }
-    .alert-error { background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+    .join-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 480px;
+      margin: 16px 0;
+      font-family: inherit;
+    }
+    .input-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .room-input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #2D2B52;
+      background: #121124;
+      color: #E2E8F0;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .room-input:focus {
+      border-color: #6366F1;
+    }
+    .join-btn {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 1px solid #4F46E5;
+      background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .join-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+    .join-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .alert-success {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+    .alert-error {
+      background: rgba(239, 68, 68, 0.12);
+      color: #F87171;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+    }
   `]
 })
 export class RoomJoinComponent {
   private readonly roomService = inject(RoomService);
-  
+
+  @Input() roomId?: number | string | null;
+
   joinState = signal<RequestState>('idle');
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
+  manualRoomId = signal<string>('');
 
-  joinRoom(roomId: number): void {
-    if (!Number.isInteger(roomId) || roomId <= 0) {
-      this.handleErrorState('Invalid room identifier provided.');
+  joinRoom(explicitId?: number | string | null): void {
+    if (this.joinState() === 'loading') {
+      return; // Prevent duplicate submission
+    }
+
+    const targetId = explicitId ?? this.roomId ?? this.manualRoomId();
+    const validation = this.validateRoomId(targetId);
+
+    if (!validation.valid || validation.parsedId === undefined) {
+      this.joinState.set('error');
+      this.errorMessage.set(validation.error || 'Invalid Room ID.');
+      this.successMessage.set(null);
       return;
     }
 
@@ -36,45 +124,90 @@ export class RoomJoinComponent {
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    this.roomService.joinRoom(roomId).subscribe({
-      next: (res) => {
+    this.roomService.joinRoom(validation.parsedId).subscribe({
+      next: (response: ApiResponse<any>) => {
         this.joinState.set('success');
-        this.successMessage.set(res.message || 'Successfully joined the room.');
+        this.successMessage.set(response.message || `Successfully joined room #${validation.parsedId}.`);
       },
-      error: (err: HttpErrorResponse) => {
+      error: (err: HttpErrorResponse | Error) => {
         this.joinState.set('error');
-        this.handleErrorState(this.extractErrorMessage(err));
+        this.errorMessage.set(this.extractErrorMessage(err));
       }
     });
   }
 
-  private extractErrorMessage(err: HttpErrorResponse): string {
-    if (err.error instanceof ErrorEvent || err.status === 0) {
-      return 'Network error: The server is unreachable or offline. Please check your connection.';
+  private validateRoomId(id: number | string | null | undefined): { valid: boolean; parsedId?: number; error?: string } {
+    if (id === null || id === undefined || String(id).trim() === '') {
+      return { valid: false, error: 'Room ID is required.' };
     }
 
-    const payloadMessage = err.error?.message;
-    const payloadErrors = err.error?.errors;
-
-    if (payloadErrors && Object.keys(payloadErrors).length > 0) {
-      return Object.entries(payloadErrors)
-        .map(([field, msg]) => `${field}: ${msg}`)
-        .join(', ');
+    const trimmedStr = String(id).trim();
+    if (!/^\d+$/.test(trimmedStr)) {
+      return { valid: false, error: 'Room ID must be a valid positive integer.' };
     }
 
-    switch (err.status) {
-      case 400: return payloadMessage || 'Bad Request: The provided data is invalid.';
-      case 401: return payloadMessage || 'Unauthorized: Please log in to join.';
-      case 403: return payloadMessage || 'Forbidden: You do not have permission to join this room.';
-      case 404: return payloadMessage || 'Room Not Found: The specified room does not exist.';
-      case 409: return payloadMessage || 'Conflict: You are already in this room.';
-      case 500: return payloadMessage || 'Server Error: An unexpected error occurred on the server.';
-      case 504: return 'Timeout: The server took too long to respond.';
-      default: return payloadMessage || `Unexpected Error (${err.status}): Please try again later.`;
+    const parsedId = Number(trimmedStr);
+    if (!Number.isInteger(parsedId) || parsedId <= 0) {
+      return { valid: false, error: 'Room ID must be a positive integer greater than 0.' };
     }
+
+    if (parsedId > Number.MAX_SAFE_INTEGER) {
+      return { valid: false, error: 'Room ID exceeds maximum allowable numerical limit.' };
+    }
+
+    return { valid: true, parsedId };
   }
 
-  private handleErrorState(msg: string): void {
-    this.errorMessage.set(msg);
+  private extractErrorMessage(err: HttpErrorResponse | Error | any): string {
+    if (err instanceof Error && !(err instanceof HttpErrorResponse)) {
+      return err.message;
+    }
+
+    if (err instanceof HttpErrorResponse) {
+      if (err.status === 0 || err.error instanceof ErrorEvent) {
+        return 'Network Error: Unable to reach the server. Please check your internet connection.';
+      }
+
+      const payload = err.error;
+      const apiMessage = payload?.message;
+      const apiErrors = payload?.errors;
+
+      if (apiErrors) {
+        if (typeof apiErrors === 'string') {
+          return apiErrors;
+        }
+        if (Array.isArray(apiErrors) && apiErrors.length > 0) {
+          return apiErrors.join(', ');
+        }
+        if (typeof apiErrors === 'object' && Object.keys(apiErrors).length > 0) {
+          return Object.entries(apiErrors)
+            .map(([field, msg]) => Array.isArray(msg) ? `${field}: ${msg.join(', ')}` : `${field}: ${msg}`)
+            .join('; ');
+        }
+      }
+
+      switch (err.status) {
+        case 400:
+          return apiMessage || 'Bad Request: The provided room ID or data is invalid.';
+        case 401:
+          return apiMessage || 'Unauthorized: Please log in to join this room.';
+        case 403:
+          return apiMessage || 'Forbidden: You do not have permission to join this room.';
+        case 404:
+          return apiMessage || 'Room Not Found: The requested room does not exist.';
+        case 409:
+          return apiMessage || 'Conflict: You are already a member of this room.';
+        case 500:
+          return apiMessage || 'Server Error: An internal server error occurred while joining.';
+        case 503:
+          return apiMessage || 'Service Unavailable: Room server is currently unavailable.';
+        case 504:
+          return apiMessage || 'Gateway Timeout: The server timed out processing your request.';
+        default:
+          return apiMessage || `Error (${err.status}): Failed to join room.`;
+      }
+    }
+
+    return 'An unexpected error occurred while attempting to join the room.';
   }
 }
