@@ -1,4 +1,6 @@
 // ── Design Tokens ────────────────────────────────────────────────────────────
+@use "sass:color";
+
 $bg-root:         #0B0B14;
 $bg-card:         #131226;
 $bg-card-alt:     #16152B;
@@ -563,7 +565,7 @@ $circumference:   565.49; // 2π × 90
 
   &:hover {
     border-color: $border;
-    background-color: darken($bg-elevated, 2%);
+    background-color: color.adjust($bg-elevated, $lightness: -2%);
   }
 
   &--done {
