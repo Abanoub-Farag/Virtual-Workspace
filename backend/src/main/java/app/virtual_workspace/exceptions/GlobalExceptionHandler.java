@@ -3,6 +3,8 @@ package app.virtual_workspace.exceptions;
 import app.virtual_workspace.exceptions.custom.ResourceAlreadyExistsException;
 import app.virtual_workspace.exceptions.custom.ResourceNotFoundException;
 import app.virtual_workspace.shared.dtos.ApiResponse;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,7 +179,51 @@ public class GlobalExceptionHandler {
         return buildResponseEntity(HttpStatus.UNAUTHORIZED, message, errorResponse);
     }
 
-    // ── 8. Unhandled Runtime Exceptions (500) ────────────────────────────────
+    // ── 8. JWT — Expired Token (401) ──────────────────────────────────────────
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleExpiredJwtException(
+            ExpiredJwtException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("Expired JWT at [{}]", request.getRequestURI());
+
+        String message = "Your session has expired. Please log in again.";
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .message(message)
+                .path(request.getRequestURI())
+                .build();
+
+        return buildResponseEntity(HttpStatus.UNAUTHORIZED, message, errorResponse);
+    }
+
+    // ── 9. JWT — Invalid / Malformed / Signature mismatch (401) ─────────────
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleJwtException(
+            JwtException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("Invalid JWT at [{}]: {}", request.getRequestURI(), ex.getMessage());
+
+        String message = "Invalid or malformed authentication token. Please log in again.";
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .message(message)
+                .path(request.getRequestURI())
+                .build();
+
+        return buildResponseEntity(HttpStatus.UNAUTHORIZED, message, errorResponse);
+    }
+
+    // ── 10. Unhandled Runtime Exceptions (500) ───────────────────────────────
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleRuntimeException(
