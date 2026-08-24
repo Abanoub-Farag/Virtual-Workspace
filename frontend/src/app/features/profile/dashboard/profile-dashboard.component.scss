@@ -291,9 +291,23 @@ $text-secondary: #9ca3af;
     }
   }
 
-  // Date input – fix browser dark-mode colour override
-  input[type="date"] {
+  // Date & select inputs – fix browser dark-mode colour override
+  input[type="date"],
+  select {
     color-scheme: dark;
+  }
+
+  select {
+    cursor: pointer;
+
+    option {
+      background-color: $bg-card;
+      color: $text-primary;
+
+      &:disabled {
+        color: $text-secondary;
+      }
+    }
   }
 
   textarea {

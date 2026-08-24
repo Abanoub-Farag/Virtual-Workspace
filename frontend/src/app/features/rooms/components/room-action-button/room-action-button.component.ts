@@ -24,6 +24,12 @@ export class RoomActionButtonComponent {
     return user?.roomsId && user.roomsId.length > 0 ? user.roomsId[0] : null;
   });
 
+  // Check if current route is inside a specific room or room creation view
+  readonly isAlreadyInRoom = computed<boolean>(() => {
+    const url = this.router.url;
+    return url.startsWith('/rooms/') && url !== '/rooms';
+  });
+
   onActionClick(): void {
     const roomId = this.userRoomId();
     if (roomId !== null) {

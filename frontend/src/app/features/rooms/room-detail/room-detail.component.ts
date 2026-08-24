@@ -32,7 +32,6 @@ import {
 } from 'lucide-angular';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { RoomTimerComponent } from '../components/room-timer/room-timer.component';
-import { RoomJoinComponent } from '../components/room-join/room-join.component';
 import { RoomService, RoomData } from '../services/room.service';
 import { TaskService, TaskData } from '../services/task.service';
 
@@ -46,7 +45,6 @@ import { TaskService, TaskData } from '../services/task.service';
     LucideAngularModule,
     SidebarComponent,
     RoomTimerComponent,
-    RoomJoinComponent,
   ],
   templateUrl: './room-detail.component.html',
   styleUrls: ['./room-detail.component.scss'],

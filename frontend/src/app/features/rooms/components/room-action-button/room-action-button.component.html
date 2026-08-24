@@ -1,4 +1,4 @@
-<div class="room-action-container">
+<div class="room-action-container" *ngIf="!isAlreadyInRoom()">
   <!-- Loading Skeleton State -->
   <button 
     *ngIf="authService.isLoadingUser()" 

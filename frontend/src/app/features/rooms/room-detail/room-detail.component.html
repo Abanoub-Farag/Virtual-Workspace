@@ -31,7 +31,6 @@
           [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'">
           <lucide-icon [img]="HeartIcon" class="btn-icon"></lucide-icon>
         </button>
-        <app-room-join [roomId]="room()?.id"></app-room-join>
         <button class="icon-btn notification-btn" id="notification-btn" aria-label="Notifications">
           <lucide-icon [img]="BellIcon" class="btn-icon"></lucide-icon>
           <span class="notification-dot"></span>
