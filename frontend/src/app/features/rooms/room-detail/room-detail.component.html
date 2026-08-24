@@ -22,6 +22,7 @@
         </div>
       </div>
       <div class="header-right">
+        <app-room-join [roomId]="room()?.id"></app-room-join>
         <button class="icon-btn notification-btn" id="notification-btn" aria-label="Notifications">
           <lucide-icon [img]="BellIcon" class="btn-icon"></lucide-icon>
           <span class="notification-dot"></span>

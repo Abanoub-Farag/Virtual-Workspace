@@ -29,6 +29,7 @@ import {
 } from 'lucide-angular';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { RoomTimerComponent } from '../components/room-timer/room-timer.component';
+import { RoomJoinComponent } from '../components/room-join/room-join.component';
 import { RoomService, RoomData } from '../services/room.service';
 import { TaskService, TaskData } from '../services/task.service';
 
@@ -42,6 +43,7 @@ import { TaskService, TaskData } from '../services/task.service';
     LucideAngularModule,
     SidebarComponent,
     RoomTimerComponent,
+    RoomJoinComponent,
   ],
   templateUrl: './room-detail.component.html',
   styleUrls: ['./room-detail.component.scss'],
@@ -87,6 +89,7 @@ export class RoomDetailComponent implements OnInit {
     if (idParam) {
       const id = parseInt(idParam, 10);
       if (!isNaN(id)) {
+        this.joinRoom(id);
         this.fetchRoom(id);
         this.fetchTasks();
       } else {
@@ -94,6 +97,17 @@ export class RoomDetailComponent implements OnInit {
         this.isLoading.set(false);
       }
     }
+  }
+
+  joinRoom(id: number) {
+    this.roomService.joinRoom(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (res) => {
+        console.log(`Successfully joined room ${id}:`, res);
+      },
+      error: (err) => {
+        console.error(`Error joining room ${id}:`, err);
+      }
+    });
   }
 
   fetchRoom(id: number) {

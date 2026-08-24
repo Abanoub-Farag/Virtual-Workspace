@@ -88,7 +88,20 @@ export class RoomsViewComponent implements OnInit {
   }
 
   onRoomAction(roomId: string) {
-    console.log('Room action triggered for:', roomId);
-    this.router.navigate(['/rooms', roomId]);
+    const numericId = parseInt(roomId, 10);
+    if (!isNaN(numericId) && numericId > 0) {
+      this.roomService.joinRoom(numericId).subscribe({
+        next: (res) => {
+          console.log(`Joined room ${numericId} successfully:`, res);
+          this.router.navigate(['/rooms', roomId]);
+        },
+        error: (err) => {
+          console.error(`Failed to join room ${numericId}:`, err);
+          this.router.navigate(['/rooms', roomId]);
+        }
+      });
+    } else {
+      this.router.navigate(['/rooms', roomId]);
+    }
   }
 }
