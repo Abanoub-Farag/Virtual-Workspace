@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideAngularModule, LogIn, Plus } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
+import { getUserRoomId } from '../../../../core/models/auth.models';
 
 @Component({
   selector: 'app-room-action-button',
@@ -20,9 +21,9 @@ export class RoomActionButtonComponent {
 
   // Computed helper for room ownership check based on global UserData state
   readonly userRoomId = computed<number | null>(() => {
-    const user = this.authService.currentUser();
-    return user?.roomsId && user.roomsId.length > 0 ? user.roomsId[0] : null;
+    return getUserRoomId(this.authService.currentUser());
   });
+
 
   // Check if current route is inside a specific room or room creation view
   readonly isAlreadyInRoom = computed<boolean>(() => {

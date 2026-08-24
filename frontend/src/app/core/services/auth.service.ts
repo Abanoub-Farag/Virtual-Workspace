@@ -103,18 +103,19 @@ export class AuthService {
   }
 
   /**
-   * Helper to manually synchronize roomsId array when a new room is created.
+   * Helper to manually synchronize room ID when a new room is created.
    */
   addRoomId(roomId: number): void {
     const current = this.currentUser();
     if (current) {
-      const rooms = current.roomsId ? [...current.roomsId] : [];
-      if (!rooms.includes(roomId)) {
-        rooms.unshift(roomId);
-        this.currentUser.set({ ...current, roomsId: rooms });
-      }
+      this.currentUser.set({
+        ...current,
+        roomsId: roomId,
+        roomId: roomId
+      });
     }
   }
+
 
   // ─── Register ──────────────────────────────────────────────────────────────
 

@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';
+import { getUserRoomId } from '../../../core/models/auth.models';
 
 export interface ApiErrorDetail {
   [key: string]: string | string[] | any;
@@ -70,9 +71,9 @@ export class RoomService {
 
   // State to track if the current user owns an active room derived from global user state
   userRoomId = computed<number | null>(() => {
-    const user = this.authService.currentUser();
-    return user?.roomsId && user.roomsId.length > 0 ? user.roomsId[0] : null;
+    return getUserRoomId(this.authService.currentUser());
   });
+
 
 
   getRooms(page: number = 0, size: number = 20): Observable<ApiResponse<PageableResponse>> {
