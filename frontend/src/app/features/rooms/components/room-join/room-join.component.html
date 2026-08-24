@@ -1,0 +1,21 @@
+<div class="join-container">
+  
+  <button 
+    class="join-btn" 
+    [disabled]="joinState() === 'loading'"
+    (click)="joinRoom(123)">
+    <span *ngIf="joinState() === 'idle'">Join Room</span>
+    <span *ngIf="joinState() === 'loading'">Joining...</span>
+    <span *ngIf="joinState() === 'success'">Joined!</span>
+    <span *ngIf="joinState() === 'error'">Retry Join</span>
+  </button>
+
+  <div *ngIf="joinState() === 'success'" class="alert alert-success" role="alert">
+    {{ successMessage() }}
+  </div>
+
+  <div *ngIf="joinState() === 'error'" class="alert alert-error" role="alert">
+    {{ errorMessage() }}
+  </div>
+
+</div>

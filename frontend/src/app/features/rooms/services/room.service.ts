@@ -78,4 +78,15 @@ export class RoomService {
 
     return this.http.get<ApiResponse<RoomData>>(`${this.baseUrl}/${id}`, { headers });
   }
+
+  joinRoom(roomId: number): Observable<ApiResponse<any>> {
+    if (!roomId || !Number.isInteger(roomId) || roomId <= 0) {
+      throw new Error('Invalid roomId provided');
+    }
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/${roomId}/join`, {}, { headers });
+  }
 }
