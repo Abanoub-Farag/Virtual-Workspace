@@ -29,10 +29,38 @@
       </div>
     </header>
 
-    <!-- ── Body: 2-column layout (timer | right panels) ────────────────── -->
+    <!-- ── Body: 3-column layout (people | timer | tasks) ────────────────── -->
     <div class="session-body">
 
-      <!-- ═══ LEFT / CENTER: Pomodoro Timer ═══════════════════════════════ -->
+      <!-- ═══ LEFT COLUMN: Online Participants ═══════════════════════════════ -->
+      <section class="split-panel participants-panel" aria-label="Online Participants">
+        <div class="panel-header">
+          <span class="panel-title">ONLINE NOW ({{ participants.length }})</span>
+        </div>
+
+        <ul class="participant-list" role="list">
+          <li
+            *ngFor="let p of participants"
+            class="participant-card"
+            [id]="'participant-' + p.id"
+          >
+            <div class="participant-avatar-wrap">
+              <img [src]="p.avatar" [alt]="p.name" class="participant-avatar" />
+              <span class="online-dot" *ngIf="p.online"></span>
+            </div>
+            <div class="participant-info">
+              <span class="participant-name">{{ p.name }}</span>
+              <span
+                class="participant-role"
+                [class.role--host]="p.role === 'Host'"
+                [class.role--member]="p.role === 'Member'"
+              >{{ p.role }}</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- ═══ CENTER COLUMN: Pomodoro Timer ═══════════════════════════════ -->
       <section class="timer-panel" aria-label="Pomodoro Timer">
         <div class="timer-badge">
           <lucide-icon [img]="ClockIcon" class="timer-badge-icon"></lucide-icon>
@@ -117,86 +145,54 @@
         </div>
       </section>
 
-      <!-- ═══ RIGHT COLUMN: Participants + Tasks stacked ════════════════ -->
-      <div class="right-column">
-
-        <!-- ── Online Now ─────────────────────────────────────────────── -->
-        <section class="split-panel participants-panel" aria-label="Online Participants">
-          <div class="panel-header">
-            <span class="panel-title">ONLINE NOW ({{ participants.length }})</span>
+      <!-- ═══ RIGHT COLUMN: Session Tasks ════════════════════════════════ -->
+      <section class="split-panel tasks-panel" aria-label="Session Tasks">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <lucide-icon [img]="CheckSquareIcon" class="panel-icon"></lucide-icon>
+            <span class="panel-title">SESSION TASKS</span>
           </div>
+          <button class="add-task-btn" id="add-task-btn" aria-label="Add task" (click)="addTask()">
+            <lucide-icon [img]="PlusIcon" class="add-icon"></lucide-icon>
+          </button>
+        </div>
 
-          <ul class="participant-list" role="list">
-            <li
-              *ngFor="let p of participants"
-              class="participant-card"
-              [id]="'participant-' + p.id"
+        <div class="task-input-wrap">
+          <input
+            type="text"
+            class="task-input"
+            id="new-task-input"
+            placeholder="Add a new task..."
+            [value]="newTaskText()"
+            (input)="onNewTaskInput($event)"
+            (keydown)="onNewTaskKeydown($event)"
+            autocomplete="off"
+          />
+        </div>
+
+        <ul class="task-list" role="list">
+          <li
+            *ngFor="let task of tasks()"
+            class="task-card"
+            [class.task-card--done]="task.done"
+            [id]="'task-' + task.id"
+          >
+            <button
+              class="task-toggle"
+              [attr.aria-label]="task.done ? 'Mark task incomplete' : 'Mark task complete'"
+              (click)="toggleTask(task.id)"
             >
-              <div class="participant-avatar-wrap">
-                <img [src]="p.avatar" [alt]="p.name" class="participant-avatar" />
-                <span class="online-dot" *ngIf="p.online"></span>
-              </div>
-              <div class="participant-info">
-                <span class="participant-name">{{ p.name }}</span>
-                <span
-                  class="participant-role"
-                  [class.role--host]="p.role === 'Host'"
-                  [class.role--member]="p.role === 'Member'"
-                >{{ p.role }}</span>
-              </div>
-            </li>
-          </ul>
-        </section>
-
-        <!-- ── Session Tasks ────────────────────────────────────────────── -->
-        <section class="split-panel tasks-panel" aria-label="Session Tasks">
-          <div class="panel-header">
-            <div class="panel-header-left">
-              <lucide-icon [img]="CheckSquareIcon" class="panel-icon"></lucide-icon>
-              <span class="panel-title">SESSION TASKS</span>
-            </div>
-            <button class="add-task-btn" id="add-task-btn" aria-label="Add task" (click)="addTask()">
-              <lucide-icon [img]="PlusIcon" class="add-icon"></lucide-icon>
+              <lucide-icon
+                [img]="task.done ? CheckCircle2Icon : CircleIcon"
+                class="task-check-icon"
+                [class.task-check-icon--done]="task.done"
+              ></lucide-icon>
             </button>
-          </div>
+            <span class="task-text" [class.task-text--done]="task.done">{{ task.text }}</span>
+          </li>
+        </ul>
+      </section>
 
-          <div class="task-input-wrap">
-            <input
-              type="text"
-              class="task-input"
-              id="new-task-input"
-              placeholder="Add a new task..."
-              [value]="newTaskText()"
-              (input)="onNewTaskInput($event)"
-              (keydown)="onNewTaskKeydown($event)"
-              autocomplete="off"
-            />
-          </div>
-
-          <ul class="task-list" role="list">
-            <li
-              *ngFor="let task of tasks()"
-              class="task-card"
-              [class.task-card--done]="task.done"
-              [id]="'task-' + task.id"
-            >
-              <button
-                class="task-toggle"
-                [attr.aria-label]="task.done ? 'Mark task incomplete' : 'Mark task complete'"
-                (click)="toggleTask(task.id)"
-              >
-                <lucide-icon
-                  [img]="task.done ? CheckCircle2Icon : CircleIcon"
-                  class="task-check-icon"
-                  [class.task-check-icon--done]="task.done"
-                ></lucide-icon>
-              </button>
-              <span class="task-text" [class.task-text--done]="task.done">{{ task.text }}</span>
-            </li>
-          </ul>
-        </section>
-
-      </div><!-- /right-column -->
     </div><!-- /session-body -->
 
 

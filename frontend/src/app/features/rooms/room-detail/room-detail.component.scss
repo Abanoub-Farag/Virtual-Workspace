@@ -182,7 +182,7 @@ $circumference:   565.49; // 2π × 90
 .session-body {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 280px 1fr 340px;
   gap: 24px;
   padding: 32px 36px;
   align-items: start;
@@ -358,12 +358,7 @@ $circumference:   565.49; // 2π × 90
   }
 }
 
-// ── Right Column (participants + tasks stacked) ─────────────────────────────
-.right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+// ── Shared Split Panel ─────────────────────────────
 
 .split-panel {
   background-color: $bg-card;
