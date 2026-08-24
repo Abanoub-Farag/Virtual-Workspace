@@ -29,10 +29,10 @@
       </div>
     </header>
 
-    <!-- ── Body: timer + split columns ─────────────────────────────────── -->
+    <!-- ── Body: 2-column layout (timer | right panels) ────────────────── -->
     <div class="session-body">
 
-      <!-- ═══ CENTER PANEL: Pomodoro Timer ════════════════════════════════ -->
+      <!-- ═══ LEFT / CENTER: Pomodoro Timer ═══════════════════════════════ -->
       <section class="timer-panel" aria-label="Pomodoro Timer">
         <div class="timer-badge">
           <lucide-icon [img]="ClockIcon" class="timer-badge-icon"></lucide-icon>
@@ -117,10 +117,10 @@
         </div>
       </section>
 
-      <!-- ═══ SPLIT COLUMNS ════════════════════════════════════════════════ -->
-      <div class="split-columns">
+      <!-- ═══ RIGHT COLUMN: Participants + Tasks stacked ════════════════ -->
+      <div class="right-column">
 
-        <!-- ── Left: Participants ──────────────────────────────────────── -->
+        <!-- ── Online Now ─────────────────────────────────────────────── -->
         <section class="split-panel participants-panel" aria-label="Online Participants">
           <div class="panel-header">
             <span class="panel-title">ONLINE NOW ({{ participants.length }})</span>
@@ -133,11 +133,7 @@
               [id]="'participant-' + p.id"
             >
               <div class="participant-avatar-wrap">
-                <img
-                  [src]="p.avatar"
-                  [alt]="p.name"
-                  class="participant-avatar"
-                />
+                <img [src]="p.avatar" [alt]="p.name" class="participant-avatar" />
                 <span class="online-dot" *ngIf="p.online"></span>
               </div>
               <div class="participant-info">
@@ -152,7 +148,7 @@
           </ul>
         </section>
 
-        <!-- ── Right: Tasks ────────────────────────────────────────────── -->
+        <!-- ── Session Tasks ────────────────────────────────────────────── -->
         <section class="split-panel tasks-panel" aria-label="Session Tasks">
           <div class="panel-header">
             <div class="panel-header-left">
@@ -200,8 +196,9 @@
           </ul>
         </section>
 
-      </div><!-- /split-columns -->
+      </div><!-- /right-column -->
     </div><!-- /session-body -->
+
 
   </div><!-- /session-main -->
 
