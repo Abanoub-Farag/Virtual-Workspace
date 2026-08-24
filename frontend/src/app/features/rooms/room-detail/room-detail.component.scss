@@ -528,9 +528,9 @@ $circumference:   565.49; // 2π × 90
   justify-content: center;
   width: 32px;
   height: 32px;
+  flex-shrink: 0;
   padding: 0;
   margin: 0;
-  line-height: 0;
   background-color: $accent-subtle;
   border: 1px solid rgba($accent-light, 0.3);
   border-radius: 8px;
@@ -539,8 +539,11 @@ $circumference:   565.49; // 2π × 90
   transition: all 0.2s ease;
 
   .add-icon {
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   &:hover {
