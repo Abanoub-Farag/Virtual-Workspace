@@ -52,9 +52,12 @@ export class RoomService {
 
   getRooms(page: number = 0, size: number = 20): Observable<ApiResponse<PageableResponse>> {
     const token = this.authService.getToken();
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+    let headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
     });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
 
     return this.http.get<ApiResponse<PageableResponse>>(this.baseUrl, {
       headers,
@@ -67,30 +70,43 @@ export class RoomService {
 
   createRoom(dto: CreateRoomDto): Observable<ApiResponse<RoomData>> {
     const token = this.authService.getToken();
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true'
     });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
 
     return this.http.post<ApiResponse<RoomData>>(this.baseUrl, dto, { headers });
   }
 
-  getRoomById(id: number): Observable<ApiResponse<RoomData>> {
+  getRoomById(id: number | string): Observable<ApiResponse<RoomData>> {
+    const numericId = typeof id === 'number' ? id : parseInt(String(id), 10);
     const token = this.authService.getToken();
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+    let headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
     });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
 
-    return this.http.get<ApiResponse<RoomData>>(`${this.baseUrl}/${id}`, { headers });
+    return this.http.get<ApiResponse<RoomData>>(`${this.baseUrl}/${numericId}`, { headers });
   }
 
-  joinRoom(roomId: number): Observable<ApiResponse<any>> {
-    if (!roomId || typeof roomId !== 'number' || !Number.isInteger(roomId) || roomId <= 0) {
+  joinRoom(roomId: number | string): Observable<ApiResponse<any>> {
+    const numericId = typeof roomId === 'number' ? roomId : parseInt(String(roomId), 10);
+    if (!numericId || isNaN(numericId) || !Number.isInteger(numericId) || numericId <= 0) {
       return throwError(() => new Error('Invalid room ID: must be a positive 64-bit integer.'));
     }
     const token = this.authService.getToken();
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true'
     });
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/${roomId}/join`, {}, { headers });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/${numericId}/join`, {}, { headers });
   }
 }
