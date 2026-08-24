@@ -29,12 +29,9 @@ import {
   Trash2,
 } from 'lucide-angular';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
+import { RoomTimerComponent } from '../components/room-timer/room-timer.component';
 import { RoomService, RoomData } from '../services/room.service';
 import { TaskService, TaskData } from '../services/task.service';
-
-const TIMER_DURATION = 25 * 60; // 25 minutes in seconds
-const RING_RADIUS = 90;
-const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS; // ≈ 565.49
 
 @Component({
   selector: 'app-room-detail',
@@ -45,6 +42,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS; // ≈ 565.49
     FormsModule,
     LucideAngularModule,
     SidebarComponent,
+    RoomTimerComponent,
   ],
   templateUrl: './room-detail.component.html',
   styleUrls: ['./room-detail.component.scss'],
@@ -76,30 +74,6 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
 
-  // ── Timer ─────────────────────────────────────────────────────────────────
-  // State is isolated in Signals. In Angular OnPush, updating these signals only triggers
-  // view updates where they are consumed, natively preventing full parent re-renders.
-  timeLeft = signal<number>(TIMER_DURATION);
-  isRunning = signal<boolean>(false);
-  private intervalId: ReturnType<typeof setInterval> | null = null;
-
-  readonly minutesDisplay = computed(() =>
-    Math.floor(this.timeLeft() / 60)
-      .toString()
-      .padStart(2, '0'),
-  );
-
-  readonly secondsDisplay = computed(() =>
-    (this.timeLeft() % 60).toString().padStart(2, '0'),
-  );
-
-  readonly ringProgress = computed(() => {
-    const progress = this.timeLeft() / TIMER_DURATION;
-    return CIRCUMFERENCE * (1 - progress);
-  });
-
-  readonly circumference = CIRCUMFERENCE;
-
   // ── Tasks ─────────────────────────────────────────────────────────────────
   tasks = signal<TaskData[]>([]);
   isTasksLoading = signal<boolean>(true);
@@ -121,10 +95,6 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
         this.isLoading.set(false);
       }
     }
-  }
-
-  ngOnDestroy() {
-    this.clearInterval();
   }
 
   fetchRoom(id: number) {
@@ -159,46 +129,6 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
         this.isTasksLoading.set(false);
       }
     });
-  }
-
-  // ── Timer controls ────────────────────────────────────────────────────────
-  toggleTimer() {
-    if (this.isRunning()) {
-      this.pauseTimer();
-    } else {
-      this.startTimer();
-    }
-  }
-
-  private startTimer() {
-    if (this.timeLeft() === 0) return;
-    this.isRunning.set(true);
-    this.intervalId = setInterval(() => {
-      const current = this.timeLeft();
-      if (current <= 1) {
-        this.timeLeft.set(0);
-        this.pauseTimer();
-      } else {
-        this.timeLeft.set(current - 1);
-      }
-    }, 1000);
-  }
-
-  private pauseTimer() {
-    this.isRunning.set(false);
-    this.clearInterval();
-  }
-
-  resetTimer() {
-    this.pauseTimer();
-    this.timeLeft.set(TIMER_DURATION);
-  }
-
-  private clearInterval() {
-    if (this.intervalId !== null) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
   }
 
   // ── Task controls ─────────────────────────────────────────────────────────
