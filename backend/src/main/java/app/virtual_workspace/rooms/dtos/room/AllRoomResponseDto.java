@@ -12,6 +12,8 @@ import lombok.ToString;
 @Setter
 @ToString
 public class AllRoomResponseDto {
+    private Long id;
+
     private String title;
 
     private String description;

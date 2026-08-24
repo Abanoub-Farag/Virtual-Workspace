@@ -59,17 +59,18 @@ export class RoomsViewComponent implements OnInit {
     this.roomService.getRooms(0, 50).subscribe({
       next: (response) => {
         const fetchedRooms = response.data?.content || [];
-        // Map backend API data to our Room interface expectations
-        const mappedRooms: Room[] = fetchedRooms.map((r: any, index: number) => ({
-          id: r.id ? r.id.toString() : `room-${index}`,
-          title: r.title || 'Untitled Room',
-          description: r.description || 'No description provided.',
-          tags: r.tags || [],
-          status: r.status || 'ACTIVE',
-          count: r.count || Math.floor(Math.random() * 50) + 1, // fallback if backend doesn't provide
-          countType: r.countType || 'Members',
-          actionType: r.actionType || 'view'
-        }));
+        const mappedRooms: Room[] = fetchedRooms
+          .filter((r: any) => r.id != null)   // skip rooms with no real ID
+          .map((r: any) => ({
+            id: r.id.toString(),
+            title: r.title || 'Untitled Room',
+            description: r.description || 'No description provided.',
+            tags: r.tags || [],
+            status: r.status || 'ACTIVE',
+            count: r.count ?? Math.floor(Math.random() * 50) + 1,
+            countType: r.countType || 'Members',
+            actionType: r.actionType || 'view'
+          }));
         this.rooms.set(mappedRooms);
         this.isLoading.set(false);
       },
