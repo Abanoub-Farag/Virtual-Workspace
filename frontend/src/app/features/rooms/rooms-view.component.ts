@@ -42,7 +42,7 @@ export class RoomsViewComponent implements OnInit {
       
       if (tab === 'All Rooms') return true;
       if (tab === 'My Teams') return room.tags.includes('engineering') || room.tags.includes('frontend') || room.tags.includes('design');
-      if (tab === 'Favorites') return room.status === 'ACTIVE';
+      if (tab === 'Favorites') return true; // Temporary fallback as status is removed
       
       return true;
     });
@@ -66,9 +66,6 @@ export class RoomsViewComponent implements OnInit {
             title: r.title || 'Untitled Room',
             description: r.description || 'No description provided.',
             tags: r.tags || [],
-            status: r.status || 'ACTIVE',
-            count: r.count ?? Math.floor(Math.random() * 50) + 1,
-            countType: r.countType || 'Members',
             actionType: r.actionType || 'view'
           }));
         this.rooms.set(mappedRooms);

@@ -1,9 +1,6 @@
 <div class="room-card" [class.hover-effect]="true">
   <div class="room-card__header">
     <h3 class="room-card__title">{{ room.title }}</h3>
-    <span class="badge" [ngClass]="room.status === 'ACTIVE' ? 'badge--active' : 'badge--idle'">
-      {{ room.status | titlecase }}
-    </span>
   </div>
 
   <div class="room-card__body">
@@ -14,10 +11,6 @@
   </div>
 
   <div class="room-card__footer">
-    <div class="room-card__count">
-      <lucide-icon [img]="room.countType === 'Online' ? UserIcon : UsersIcon" class="icon"></lucide-icon>
-      <span>{{ room.count }} {{ room.countType }}</span>
-    </div>
     <button 
       class="btn" 
       [ngClass]="room.actionType === 'join' ? 'btn--primary' : 'btn--outline'"
