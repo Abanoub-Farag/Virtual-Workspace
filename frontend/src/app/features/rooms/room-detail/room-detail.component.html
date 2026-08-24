@@ -188,21 +188,21 @@
           <li
             *ngFor="let task of tasks()"
             class="task-card"
-            [class.task-card--done]="task.completed"
+            [class.task-card--done]="task.isCompleted"
             [id]="'task-' + task.id"
           >
             <button
               class="task-toggle"
-              [attr.aria-label]="task.completed ? 'Mark task incomplete' : 'Mark task complete'"
+              [attr.aria-label]="task.isCompleted ? 'Mark task incomplete' : 'Mark task complete'"
               (click)="toggleTask(task)"
             >
               <lucide-icon
-                [img]="task.completed ? CheckCircle2Icon : CircleIcon"
+                [img]="task.isCompleted ? CheckCircle2Icon : CircleIcon"
                 class="task-check-icon"
-                [class.task-check-icon--done]="task.completed"
+                [class.task-check-icon--done]="task.isCompleted"
               ></lucide-icon>
             </button>
-            <span class="task-text" [class.task-text--done]="task.completed">{{ task.title }}</span>
+            <span class="task-text" [class.task-text--done]="task.isCompleted">{{ task.title }}</span>
             <button
               class="task-delete"
               aria-label="Delete task"

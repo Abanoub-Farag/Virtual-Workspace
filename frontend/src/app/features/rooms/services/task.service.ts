@@ -7,7 +7,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export interface TaskData {
   id: number;
   title: string;
-  completed: boolean;
+  isCompleted: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -45,11 +45,11 @@ export class TaskService {
     });
   }
 
-  createTask(data: { title: string; completed: boolean }): Observable<any> {
+  createTask(data: { title: string; isCompleted: boolean }): Observable<any> {
     return this.http.post<any>(this.baseUrl, data, { headers: this.authHeaders });
   }
 
-  updateTask(taskId: number, data: { title: string; completed: boolean }): Observable<any> {
+  updateTask(taskId: number, data: { title: string; isCompleted: boolean }): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/${taskId}`, data, { headers: this.authHeaders });
   }
 

@@ -197,17 +197,17 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
 
   // ── Task controls ─────────────────────────────────────────────────────────
   toggleTask(task: TaskData) {
-    const updatedStatus = !task.completed;
+    const updatedStatus = !task.isCompleted;
     // Optimistic update
     this.tasks.update((tasks) =>
-      tasks.map((t) => (t.id === task.id ? { ...t, completed: updatedStatus } : t)),
+      tasks.map((t) => (t.id === task.id ? { ...t, isCompleted: updatedStatus } : t)),
     );
-    this.taskService.updateTask(task.id, { title: task.title, completed: updatedStatus }).subscribe({
+    this.taskService.updateTask(task.id, { title: task.title, isCompleted: updatedStatus }).subscribe({
       error: (err) => {
         console.error('Failed to update task', err);
         // Revert on error
         this.tasks.update((tasks) =>
-          tasks.map((t) => (t.id === task.id ? { ...t, completed: task.completed } : t)),
+          tasks.map((t) => (t.id === task.id ? { ...t, isCompleted: task.isCompleted } : t)),
         );
       }
     });
@@ -218,7 +218,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     if (!text) return;
     this.newTaskText.set('');
     
-    this.taskService.createTask({ title: text, completed: false }).subscribe({
+    this.taskService.createTask({ title: text, isCompleted: false }).subscribe({
       next: () => {
         this.fetchTasks(); // Refetch to get the ID and correct state
       },
