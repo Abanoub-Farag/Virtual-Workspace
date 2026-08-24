@@ -15,17 +15,29 @@ $status-active: #10b981;
   height: 100vh;
   position: sticky;
   top: 0;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s ease;
+  overflow-x: hidden;
 
   &__brand {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 0 24px;
-    margin-bottom: 40px;
+    justify-content: space-between;
+    padding: 0 20px 0 24px;
+    margin-bottom: 36px;
+    transition: padding 0.25s ease;
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
 
     .brand-logo {
       width: 32px;
       height: 32px;
+      flex-shrink: 0;
       background-color: $primary-accent;
       color: $text-primary;
       display: flex;
@@ -41,6 +53,33 @@ $status-active: #10b981;
       font-size: 1.25rem;
       font-weight: 700;
       letter-spacing: 0.5px;
+      transition: opacity 0.2s ease;
+    }
+
+    .collapse-btn {
+      background: rgba(#ffffff, 0.05);
+      border: 1px solid rgba($border-color, 0.8);
+      color: $text-secondary;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba($primary-accent, 0.2);
+        color: $text-primary;
+        border-color: rgba($primary-accent, 0.5);
+      }
+
+      .collapse-icon {
+        width: 16px;
+        height: 16px;
+      }
     }
   }
 
@@ -53,11 +92,13 @@ $status-active: #10b981;
     background-color: rgba(#ffffff, 0.03);
     border-radius: 12px;
     border: 1px solid rgba($border-color, 0.5);
+    transition: padding 0.25s ease, margin 0.25s ease, background-color 0.25s ease;
 
     .profile-avatar {
       position: relative;
       width: 40px;
       height: 40px;
+      flex-shrink: 0;
 
       .avatar-initials {
         width: 100%;
@@ -88,11 +129,15 @@ $status-active: #10b981;
     .profile-info {
       display: flex;
       flex-direction: column;
+      overflow: hidden;
+      white-space: nowrap;
 
       .profile-name {
         color: $text-primary;
         font-size: 0.875rem;
         font-weight: 600;
+        text-overflow: ellipsis;
+        overflow: hidden;
       }
 
       .profile-status {
@@ -116,10 +161,12 @@ $status-active: #10b981;
       color: $text-secondary;
       position: relative;
       transition: all 0.2s ease;
+      white-space: nowrap;
 
       .nav-icon {
         width: 20px;
         height: 20px;
+        flex-shrink: 0;
       }
 
       .nav-label {
@@ -149,6 +196,43 @@ $status-active: #10b981;
           background-color: $primary-accent;
           border-top-right-radius: 4px;
           border-bottom-right-radius: 4px;
+        }
+      }
+    }
+  }
+
+  // ─── Collapsed State (Icons only mode) ──────────────────────────────────────
+  &.collapsed {
+    width: 76px;
+
+    .sidebar__brand {
+      padding: 0 16px;
+      justify-content: center;
+
+      .brand-title {
+        display: none;
+      }
+    }
+
+    .sidebar__profile {
+      padding: 10px 0;
+      margin: 0 12px 28px;
+      justify-content: center;
+      border-color: transparent;
+      background-color: transparent;
+
+      .profile-info {
+        display: none;
+      }
+    }
+
+    .sidebar__nav {
+      .nav-item {
+        padding: 12px 0;
+        justify-content: center;
+
+        .nav-label {
+          display: none;
         }
       }
     }

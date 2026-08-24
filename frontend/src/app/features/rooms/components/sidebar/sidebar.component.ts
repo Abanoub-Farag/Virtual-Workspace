@@ -1,8 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, LayoutDashboard, MonitorPlay, Trophy, Users, Settings, User as UserIcon } from 'lucide-angular';
+import { 
+  LucideAngularModule, 
+  LayoutDashboard, 
+  MonitorPlay, 
+  Trophy, 
+  Users, 
+  Settings, 
+  User as UserIcon,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
-
 import { RouterModule } from '@angular/router';
 
 interface NavItem {
@@ -22,6 +31,11 @@ interface NavItem {
 export class SidebarComponent implements OnInit {
   private authService = inject(AuthService);
   userName = 'Guest User';
+
+  readonly ChevronLeftIcon = ChevronLeft;
+  readonly ChevronRightIcon = ChevronRight;
+
+  isCollapsed = signal<boolean>(this.loadInitialState());
 
   get userInitials(): string {
     if (!this.userName || this.userName === 'Guest User') return 'U';
@@ -53,7 +67,6 @@ export class SidebarComponent implements OnInit {
       } else if (user.name) {
         this.userName = user.name;
       } else if (user.sub) {
-        // Fallback: format email if it's the only thing available
         const emailPrefix = user.sub.split('@')[0];
         this.userName = emailPrefix
           .split('.')
@@ -61,5 +74,19 @@ export class SidebarComponent implements OnInit {
           .join(' ');
       }
     }
+  }
+
+  toggleCollapse(): void {
+    this.isCollapsed.update(v => !v);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('pcenter_sidebar_collapsed', String(this.isCollapsed()));
+    }
+  }
+
+  private loadInitialState(): boolean {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem('pcenter_sidebar_collapsed') === 'true';
+    }
+    return false;
   }
 }
