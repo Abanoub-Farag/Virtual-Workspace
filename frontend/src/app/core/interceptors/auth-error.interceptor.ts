@@ -1,7 +1,7 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, throwError } from 'rxjs';
+import { EMPTY, catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 /**
@@ -40,9 +40,13 @@ export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
         // 3. Navigate imperatively (replaceUrl avoids a broken back-stack entry)
         router.navigateByUrl(loginUrl, { replaceUrl: true });
+
+        // 4. Return EMPTY so component-level error handlers don't fire and
+        //    flash stale error messages while the redirect is in progress.
+        return EMPTY;
       }
 
-      // Re-throw so individual components/services can still handle other errors
+      // Non-401 errors propagate normally to component-level handlers
       return throwError(() => err);
     }),
   );

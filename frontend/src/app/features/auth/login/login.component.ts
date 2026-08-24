@@ -13,7 +13,7 @@ import {
   ReactiveFormsModule,
   AbstractControl,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -34,6 +34,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroy$ = new Subject<void>();
 
   /** Shared theme service — single source of truth across all pages. */
@@ -102,7 +103,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.router.navigate(['/rooms']);
+          const redirect = this.route.snapshot.queryParamMap.get('redirect');
+          const target =
+            redirect && redirect !== '/login' ? redirect : '/rooms';
+          this.router.navigateByUrl(target, { replaceUrl: true });
         },
         error: (err: AuthError) => {
           this.isLoading.set(false);

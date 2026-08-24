@@ -90,6 +90,19 @@ export class AuthService {
     return !!this.getToken();
   }
 
+  /**
+   * Returns true if the stored JWT has expired (or cannot be decoded).
+   * Reads the `exp` claim from the token payload without a network call.
+   */
+  isTokenExpired(): boolean {
+    const user = this.getUser();
+    if (!user || typeof user['exp'] !== 'number') {
+      return true; // treat undecipherable tokens as expired
+    }
+    // exp is in seconds; Date.now() is in milliseconds
+    return user['exp'] * 1000 < Date.now();
+  }
+
   getUser(): any | null {
     const token = this.getToken();
     if (!token) return null;
