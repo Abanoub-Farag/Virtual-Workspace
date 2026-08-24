@@ -5,7 +5,10 @@ import {
   inject,
   signal,
   computed,
+  ChangeDetectionStrategy,
+  DestroyRef
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +32,6 @@ import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { RoomService, RoomData } from '../services/room.service';
 import { TaskService, TaskData } from '../services/task.service';
 
-
 const TIMER_DURATION = 25 * 60; // 25 minutes in seconds
 const RING_RADIUS = 90;
 const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS; // ≈ 565.49
@@ -46,11 +48,13 @@ const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS; // ≈ 565.49
   ],
   templateUrl: './room-detail.component.html',
   styleUrls: ['./room-detail.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RoomDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly roomService = inject(RoomService);
   private readonly taskService = inject(TaskService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // ── Lucide Icons ──────────────────────────────────────────────────────────
   readonly ArrowLeftIcon = ArrowLeft;
@@ -73,6 +77,8 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   error = signal<string | null>(null);
 
   // ── Timer ─────────────────────────────────────────────────────────────────
+  // State is isolated in Signals. In Angular OnPush, updating these signals only triggers
+  // view updates where they are consumed, natively preventing full parent re-renders.
   timeLeft = signal<number>(TIMER_DURATION);
   isRunning = signal<boolean>(false);
   private intervalId: ReturnType<typeof setInterval> | null = null;
@@ -122,7 +128,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   }
 
   fetchRoom(id: number) {
-    this.roomService.getRoomById(id).subscribe({
+    this.roomService.getRoomById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         if (response.data) {
           this.room.set(response.data);
@@ -142,7 +148,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   fetchTasks() {
     this.isTasksLoading.set(true);
     this.tasksError.set(null);
-    this.taskService.getTasks().subscribe({
+    this.taskService.getTasks().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.tasks.set(response.data?.content || []);
         this.isTasksLoading.set(false);
@@ -202,15 +208,17 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     this.tasks.update((tasks) =>
       tasks.map((t) => (t.id === task.id ? { ...t, isCompleted: updatedStatus } : t)),
     );
-    this.taskService.updateTask(task.id, { title: task.title, isCompleted: updatedStatus }).subscribe({
-      error: (err) => {
-        console.error('Failed to update task', err);
-        // Revert on error
-        this.tasks.update((tasks) =>
-          tasks.map((t) => (t.id === task.id ? { ...t, isCompleted: task.isCompleted } : t)),
-        );
-      }
-    });
+    this.taskService.updateTask(task.id, { title: task.title, isCompleted: updatedStatus })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: (err) => {
+          console.error('Failed to update task', err);
+          // Revert on error
+          this.tasks.update((tasks) =>
+            tasks.map((t) => (t.id === task.id ? { ...t, isCompleted: task.isCompleted } : t)),
+          );
+        }
+      });
   }
 
   addTask() {
@@ -218,25 +226,29 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
     if (!text) return;
     this.newTaskText.set('');
     
-    this.taskService.createTask({ title: text, isCompleted: false }).subscribe({
-      next: () => {
-        this.fetchTasks(); // Refetch to get the ID and correct state
-      },
-      error: (err) => {
-        console.error('Failed to create task', err);
-      }
-    });
+    this.taskService.createTask({ title: text, isCompleted: false })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.fetchTasks(); // Refetch to get the ID and correct state
+        },
+        error: (err) => {
+          console.error('Failed to create task', err);
+        }
+      });
   }
 
   deleteTask(taskId: number) {
-    this.taskService.deleteTask(taskId).subscribe({
-      next: () => {
-        this.tasks.update((tasks) => tasks.filter(t => t.id !== taskId));
-      },
-      error: (err) => {
-        console.error('Failed to delete task', err);
-      }
-    });
+    this.taskService.deleteTask(taskId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.tasks.update((tasks) => tasks.filter(t => t.id !== taskId));
+        },
+        error: (err) => {
+          console.error('Failed to delete task', err);
+        }
+      });
   }
 
   onNewTaskKeydown(event: KeyboardEvent) {
