@@ -1,7 +1,6 @@
 import {
   Component,
   OnInit,
-  OnDestroy,
   inject,
   signal,
   computed,
@@ -48,7 +47,7 @@ import { TaskService, TaskData } from '../services/task.service';
   styleUrls: ['./room-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RoomDetailComponent implements OnInit, OnDestroy {
+export class RoomDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly roomService = inject(RoomService);
   private readonly taskService = inject(TaskService);
