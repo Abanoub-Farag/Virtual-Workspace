@@ -15,9 +15,9 @@
           <h1 class="header-room-title">
             {{ room()?.title || 'Design Critiques Session' }}
           </h1>
-          <span class="live-badge">
+          <span class="live-badge" [class.retrying]="heartbeatStatus() === 'retrying'" [class.failed]="heartbeatStatus() === 'failed'">
             <span class="live-dot"></span>
-            LIVE
+            {{ heartbeatStatus() === 'retrying' ? 'RECONNECTING...' : (heartbeatStatus() === 'failed' ? 'DISCONNECTED' : 'LIVE') }}
           </span>
         </div>
       </div>
