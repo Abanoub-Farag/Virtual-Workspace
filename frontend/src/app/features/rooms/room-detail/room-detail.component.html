@@ -1,27 +1,213 @@
-<div class="room-detail-container">
-  <div class="nav-header">
-    <a routerLink="/rooms" class="back-link">... Back to Rooms</a>
-  </div>
+<div class="session-layout">
+  <!-- ═══════════════════════════ LEFT SIDEBAR ═══════════════════════════ -->
+  <app-sidebar class="session-sidebar"></app-sidebar>
 
-  <div class="content-state" *ngIf="isLoading()">
-    <p>Loading room details...</p>
-  </div>
+  <!-- ═══════════════════════════ MAIN CONTENT ══════════════════════════ -->
+  <div class="session-main">
 
-  <div class="content-state error" *ngIf="error()">
-    <p>{{ error() }}</p>
-  </div>
-
-  <div class="room-content" *ngIf="room() as r">
-    <div class="room-card">
-      <h1 class="room-title">{{ r.title }}</h1>
-      <p class="room-id">Room ID: {{ r.id }}</p>
-      
-      <div class="divider"></div>
-      
-      <div class="room-description-block">
-        <h3>Description</h3>
-        <p class="room-desc">{{ r.description || 'No description provided for this room.' }}</p>
+    <!-- ── Top Header Bar ───────────────────────────────────────────────── -->
+    <header class="session-header">
+      <div class="header-left">
+        <a routerLink="/rooms" class="back-btn" id="back-to-rooms-btn">
+          <lucide-icon [img]="ArrowLeftIcon" class="back-icon"></lucide-icon>
+        </a>
+        <div class="header-room-info">
+          <h1 class="header-room-title">
+            {{ room()?.title || 'Design Critiques Session' }}
+          </h1>
+          <span class="live-badge">
+            <span class="live-dot"></span>
+            LIVE
+          </span>
+        </div>
       </div>
-    </div>
-  </div>
+      <div class="header-right">
+        <button class="icon-btn notification-btn" id="notification-btn" aria-label="Notifications">
+          <lucide-icon [img]="BellIcon" class="btn-icon"></lucide-icon>
+          <span class="notification-dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── Body: timer + split columns ─────────────────────────────────── -->
+    <div class="session-body">
+
+      <!-- ═══ CENTER PANEL: Pomodoro Timer ════════════════════════════════ -->
+      <section class="timer-panel" aria-label="Pomodoro Timer">
+        <div class="timer-badge">
+          <lucide-icon [img]="ClockIcon" class="timer-badge-icon"></lucide-icon>
+          <span>POMODORO FOCUS</span>
+        </div>
+
+        <div class="ring-wrapper" aria-live="polite" [attr.aria-label]="minutesDisplay() + ':' + secondsDisplay() + ' remaining'">
+          <svg class="progress-ring" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Glow filter -->
+            <defs>
+              <filter id="ring-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#7C3AED" />
+                <stop offset="100%" style="stop-color:#8B5CF6" />
+              </linearGradient>
+            </defs>
+
+            <!-- Track ring -->
+            <circle
+              class="ring-track"
+              cx="100" cy="100" r="90"
+              fill="none"
+              stroke-width="6"
+            />
+
+            <!-- Progress ring -->
+            <circle
+              class="ring-progress"
+              cx="100" cy="100" r="90"
+              fill="none"
+              stroke="url(#ring-gradient)"
+              stroke-width="6"
+              stroke-linecap="round"
+              filter="url(#ring-glow)"
+              [style.strokeDasharray]="circumference"
+              [style.strokeDashoffset]="ringProgress()"
+              transform="rotate(-90 100 100)"
+            />
+          </svg>
+
+          <div class="ring-content">
+            <span class="timer-display">{{ minutesDisplay() }}:{{ secondsDisplay() }}</span>
+            <span class="timer-label">REMAINING</span>
+          </div>
+        </div>
+
+        <div class="timer-controls">
+          <button
+            class="ctrl-btn ctrl-btn--secondary"
+            id="timer-reset-btn"
+            aria-label="Reset timer"
+            (click)="resetTimer()"
+          >
+            <lucide-icon [img]="RotateCcwIcon" class="ctrl-icon"></lucide-icon>
+          </button>
+
+          <button
+            class="ctrl-btn ctrl-btn--primary"
+            id="timer-toggle-btn"
+            [attr.aria-label]="isRunning() ? 'Pause timer' : 'Start timer'"
+            (click)="toggleTimer()"
+          >
+            <lucide-icon
+              [img]="isRunning() ? PauseIcon : PlayIcon"
+              class="ctrl-icon ctrl-icon--lg"
+            ></lucide-icon>
+          </button>
+
+          <button
+            class="ctrl-btn ctrl-btn--secondary"
+            id="timer-settings-btn"
+            aria-label="Timer settings"
+          >
+            <lucide-icon [img]="SettingsIcon" class="ctrl-icon"></lucide-icon>
+          </button>
+        </div>
+      </section>
+
+      <!-- ═══ SPLIT COLUMNS ════════════════════════════════════════════════ -->
+      <div class="split-columns">
+
+        <!-- ── Left: Participants ──────────────────────────────────────── -->
+        <section class="split-panel participants-panel" aria-label="Online Participants">
+          <div class="panel-header">
+            <span class="panel-title">ONLINE NOW ({{ participants.length }})</span>
+          </div>
+
+          <ul class="participant-list" role="list">
+            <li
+              *ngFor="let p of participants"
+              class="participant-card"
+              [id]="'participant-' + p.id"
+            >
+              <div class="participant-avatar-wrap">
+                <img
+                  [src]="p.avatar"
+                  [alt]="p.name"
+                  class="participant-avatar"
+                />
+                <span class="online-dot" *ngIf="p.online"></span>
+              </div>
+              <div class="participant-info">
+                <span class="participant-name">{{ p.name }}</span>
+                <span
+                  class="participant-role"
+                  [class.role--host]="p.role === 'Host'"
+                  [class.role--member]="p.role === 'Member'"
+                >{{ p.role }}</span>
+              </div>
+            </li>
+          </ul>
+        </section>
+
+        <!-- ── Right: Tasks ────────────────────────────────────────────── -->
+        <section class="split-panel tasks-panel" aria-label="Session Tasks">
+          <div class="panel-header">
+            <div class="panel-header-left">
+              <lucide-icon [img]="CheckSquareIcon" class="panel-icon"></lucide-icon>
+              <span class="panel-title">SESSION TASKS</span>
+            </div>
+            <button class="add-task-btn" id="add-task-btn" aria-label="Add task" (click)="addTask()">
+              <lucide-icon [img]="PlusIcon" class="add-icon"></lucide-icon>
+            </button>
+          </div>
+
+          <div class="task-input-wrap">
+            <input
+              type="text"
+              class="task-input"
+              id="new-task-input"
+              placeholder="Add a new task..."
+              [value]="newTaskText()"
+              (input)="onNewTaskInput($event)"
+              (keydown)="onNewTaskKeydown($event)"
+              autocomplete="off"
+            />
+          </div>
+
+          <ul class="task-list" role="list">
+            <li
+              *ngFor="let task of tasks()"
+              class="task-card"
+              [class.task-card--done]="task.done"
+              [id]="'task-' + task.id"
+            >
+              <button
+                class="task-toggle"
+                [attr.aria-label]="task.done ? 'Mark task incomplete' : 'Mark task complete'"
+                (click)="toggleTask(task.id)"
+              >
+                <lucide-icon
+                  [img]="task.done ? CheckCircle2Icon : CircleIcon"
+                  class="task-check-icon"
+                  [class.task-check-icon--done]="task.done"
+                ></lucide-icon>
+              </button>
+              <span class="task-text" [class.task-text--done]="task.done">{{ task.text }}</span>
+            </li>
+          </ul>
+        </section>
+
+      </div><!-- /split-columns -->
+    </div><!-- /session-body -->
+
+  </div><!-- /session-main -->
+
+  <!-- ═══ Floating Help Button ════════════════════════════════════════════ -->
+  <button class="fab-help" id="help-fab-btn" aria-label="Help">
+    <lucide-icon [img]="HelpCircleIcon" class="fab-icon"></lucide-icon>
+  </button>
+
 </div>

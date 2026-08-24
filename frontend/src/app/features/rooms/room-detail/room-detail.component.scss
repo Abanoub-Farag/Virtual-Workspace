@@ -1,102 +1,668 @@
-$bg-main: #0d0e1a;
-$bg-card: #141624;
-$border-color: #21253b;
-$primary-accent: #8a3ffc;
-$text-primary: #ffffff;
-$text-secondary: #9ca3af;
+// ── Design Tokens ────────────────────────────────────────────────────────────
+$bg-root:         #0B0B14;
+$bg-card:         #131226;
+$bg-card-alt:     #16152B;
+$bg-elevated:     #1A1933;
+$border:          #232145;
+$border-muted:    rgba(#232145, 0.6);
+$accent:          #7C3AED;
+$accent-light:    #8B5CF6;
+$accent-glow:     rgba(#7C3AED, 0.35);
+$accent-subtle:   rgba(#7C3AED, 0.12);
+$text-primary:    #FFFFFF;
+$text-muted:      #94A3B8;
+$text-dim:        #6D6B8D;
+$green-live:      #10B981;
+$green-live-bg:   rgba(#10B981, 0.12);
+$ring-track:      rgba(#8B5CF6, 0.15);
+$circumference:   565.49; // 2π × 90
 
-.room-detail-container {
+// ── Reset helpers ─────────────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// ── Root layout ───────────────────────────────────────────────────────────────
+.session-layout {
+  display: flex;
   min-height: 100vh;
-  background-color: $bg-main;
+  background-color: $bg-root;
+  position: relative;
+  font-family: 'Inter', 'Outfit', system-ui, sans-serif;
+}
+
+.session-sidebar {
+  flex-shrink: 0;
+}
+
+.session-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+// ── Top Header ────────────────────────────────────────────────────────────────
+.session-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 36px;
+  background-color: $bg-card;
+  border-bottom: 1px solid $border;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(12px);
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background-color: $bg-elevated;
+  border: 1px solid $border;
+  border-radius: 10px;
+  color: $text-muted;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  .back-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background-color: $accent-subtle;
+    border-color: $accent;
+    color: $accent-light;
+    transform: translateX(-2px);
+  }
+}
+
+.header-room-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-room-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
   color: $text-primary;
-  padding: 3rem;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 380px;
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background-color: $green-live-bg;
+  border: 1px solid rgba($green-live, 0.3);
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: $green-live;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    background-color: $green-live;
+    border-radius: 50%;
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 10px;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.2s ease;
+
+  .btn-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background-color: $accent-subtle;
+    border-color: $accent;
+    color: $text-primary;
+  }
+}
+
+.notification-btn {
+  position: relative;
+
+  .notification-dot {
+    position: absolute;
+    top: 7px;
+    right: 8px;
+    width: 7px;
+    height: 7px;
+    background-color: #EF4444;
+    border: 2px solid $bg-card;
+    border-radius: 50%;
+  }
+}
+
+// ── Session Body ──────────────────────────────────────────────────────────────
+.session-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 36px;
+  gap: 28px;
+  overflow-y: auto;
+}
+
+// ── Pomodoro Timer Panel ──────────────────────────────────────────────────────
+.timer-panel {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
+  gap: 24px;
+  padding: 36px 24px;
+  background-color: $bg-card;
+  border: 1px solid $border;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
 
-.nav-header {
-  width: 100%;
-  max-width: 800px;
-  margin-bottom: 2rem;
-
-  .back-link {
-    display: inline-block;
-    color: $primary-accent;
-    text-decoration: none;
-    font-size: 0.875rem;
-    transition: opacity 0.2s;
-    
-    &:hover {
-      opacity: 0.8;
-    }
+  // Ambient glow from bottom-center
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    height: 140px;
+    background: radial-gradient(ellipse, rgba($accent, 0.18) 0%, transparent 70%);
+    pointer-events: none;
   }
 }
 
-.content-state {
-  width: 100%;
-  max-width: 800px;
-  text-align: center;
-  padding: 3rem;
-  background-color: $bg-card;
-  border-radius: 12px;
-  border: 1px dashed $border-color;
-  color: $text-secondary;
+.timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background-color: $accent-subtle;
+  border: 1px solid rgba($accent-light, 0.3);
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: $accent-light;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 
-  &.error {
-    color: #ef4444;
-    border-color: rgba(#ef4444, 0.3);
-    background-color: rgba(#ef4444, 0.05);
+  .timer-badge-icon {
+    width: 14px;
+    height: 14px;
   }
 }
 
-.room-content {
-  width: 100%;
-  max-width: 800px;
+// ── SVG Ring ──────────────────────────────────────────────────────────────────
+.ring-wrapper {
+  position: relative;
+  width: 224px;
+  height: 224px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.room-card {
-  background-color: $bg-card;
-  border: 1px solid $border-color;
-  border-radius: 12px;
-  padding: 2.5rem;
+.progress-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+
+  .ring-track {
+    stroke: $ring-track;
+  }
+
+  .ring-progress {
+    transition: stroke-dashoffset 1s linear;
+  }
+}
+
+.ring-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  align-items: center;
+  gap: 4px;
+}
 
-  .room-title {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: 700;
+.timer-display {
+  font-size: 3.2rem;
+  font-weight: 800;
+  color: $text-primary;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-shadow: 0 0 30px rgba($accent-light, 0.4);
+}
+
+.timer-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: $text-dim;
+  text-transform: uppercase;
+}
+
+// ── Timer Controls ────────────────────────────────────────────────────────────
+.timer-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  outline: none;
+
+  .ctrl-icon {
+    width: 18px;
+    height: 18px;
   }
 
-  .room-id {
-    margin: 0;
-    color: $primary-accent;
+  .ctrl-icon--lg {
+    width: 22px;
+    height: 22px;
+  }
+
+  &--secondary {
+    width: 48px;
+    height: 48px;
+    background-color: $bg-elevated;
+    border: 1px solid $border;
+    color: $text-muted;
+
+    &:hover {
+      background-color: $accent-subtle;
+      border-color: $accent;
+      color: $accent-light;
+      transform: scale(1.06);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  &--primary {
+    width: 68px;
+    height: 68px;
+    background: linear-gradient(135deg, $accent, $accent-light);
+    color: #fff;
+    box-shadow:
+      0 0 0 0 $accent-glow,
+      0 8px 32px $accent-glow;
+    animation: glow-pulse 2.4s ease-in-out infinite;
+
+    &:hover {
+      transform: scale(1.07);
+      box-shadow:
+        0 0 0 8px rgba($accent, 0.2),
+        0 8px 40px rgba($accent, 0.55);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+// ── Split Columns ─────────────────────────────────────────────────────────────
+.split-columns {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.split-panel {
+  background-color: $bg-card;
+  border: 1px solid $border;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid $border-muted;
+
+  .panel-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-icon {
+    width: 15px;
+    height: 15px;
+    color: $accent-light;
+  }
+}
+
+.panel-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $text-dim;
+}
+
+// ── Participants ──────────────────────────────────────────────────────────────
+.participant-list {
+  list-style: none;
+  margin: 0;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.participant-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  cursor: default;
+
+  &:hover {
+    background-color: $bg-elevated;
+    border-color: $border-muted;
+  }
+}
+
+.participant-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+
+  .participant-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid $border;
+  }
+
+  .online-dot {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 10px;
+    height: 10px;
+    background-color: $green-live;
+    border: 2px solid $bg-card;
+    border-radius: 50%;
+  }
+}
+
+.participant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.participant-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $text-primary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.participant-role {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  width: fit-content;
+
+  &.role--host {
+    background-color: $accent-subtle;
+    color: $accent-light;
+    border: 1px solid rgba($accent-light, 0.25);
+  }
+
+  &.role--member {
+    background-color: rgba($text-dim, 0.12);
+    color: $text-dim;
+    border: 1px solid rgba($text-dim, 0.2);
+  }
+}
+
+// ── Tasks ─────────────────────────────────────────────────────────────────────
+.task-input-wrap {
+  padding: 14px 16px;
+  border-bottom: 1px solid $border-muted;
+
+  .task-input {
+    width: 100%;
+    background-color: $bg-elevated;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: $text-primary;
     font-size: 0.875rem;
-    font-weight: 600;
-  }
+    transition: all 0.2s ease;
+    outline: none;
+    font-family: inherit;
 
-  .divider {
-    height: 1px;
-    background-color: $border-color;
-    margin: 1rem 0;
-  }
-
-  .room-description-block {
-    h3 {
-      margin: 0 0 0.5rem 0;
-      font-size: 1rem;
-      font-weight: 500;
-      color: $text-secondary;
+    &::placeholder {
+      color: $text-dim;
     }
 
-    .room-desc {
-      margin: 0;
-      line-height: 1.6;
-      font-size: 1rem;
-      color: $text-primary;
+    &:focus {
+      border-color: $accent;
+      box-shadow: 0 0 0 3px rgba($accent, 0.18);
     }
   }
+}
+
+.add-task-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: $accent-subtle;
+  border: 1px solid rgba($accent-light, 0.3);
+  border-radius: 8px;
+  color: $accent-light;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  .add-icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  &:hover {
+    background-color: $accent;
+    border-color: $accent;
+    color: #fff;
+    transform: scale(1.06);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.task-list {
+  list-style: none;
+  margin: 0;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background-color: $bg-elevated;
+  border: 1px solid $border-muted;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: $border;
+    background-color: darken($bg-elevated, 2%);
+  }
+
+  &--done {
+    opacity: 0.55;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+}
+
+.task-toggle {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: $text-dim;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: color 0.2s ease, transform 0.15s ease;
+
+  .task-check-icon {
+    width: 18px;
+    height: 18px;
+
+    &--done {
+      color: $green-live;
+    }
+  }
+
+  &:hover {
+    color: $accent-light;
+    transform: scale(1.1);
+  }
+}
+
+.task-text {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: $text-primary;
+  line-height: 1.5;
+  flex: 1;
+  word-break: break-word;
+  transition: all 0.2s ease;
+
+  &--done {
+    text-decoration: line-through;
+    color: $text-dim;
+  }
+}
+
+// ── Floating Help Button ──────────────────────────────────────────────────────
+.fab-help {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 100;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $accent, $accent-light);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 24px $accent-glow;
+  transition: all 0.25s ease;
+
+  .fab-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  &:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 8px 32px rgba($accent, 0.55);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// ── Keyframe Animations ───────────────────────────────────────────────────────
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 $accent-glow, 0 8px 32px $accent-glow; }
+  50%       { box-shadow: 0 0 0 10px rgba($accent, 0.12), 0 8px 40px rgba($accent, 0.5); }
 }
