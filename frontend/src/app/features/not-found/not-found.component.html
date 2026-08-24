@@ -1,0 +1,63 @@
+<div class="nf-container">
+  <!-- Ambient background glow blobs -->
+  <div class="nf-glow nf-glow-1"></div>
+  <div class="nf-glow nf-glow-2"></div>
+
+  <!-- Header / Top Bar -->
+  <header class="nf-header">
+    <div class="nf-brand" routerLink="/rooms">
+      <div class="nf-logo-badge">
+        <lucide-icon [img]="SparklesIcon" class="nf-logo-icon"></lucide-icon>
+      </div>
+      <span class="nf-brand-name">Productivity Center</span>
+    </div>
+
+    <button 
+      class="nf-theme-btn" 
+      (click)="themeService.toggle()" 
+      [attr.aria-label]="themeService.isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+      title="Toggle theme">
+      <lucide-icon [img]="themeService.isDarkMode() ? SunIcon : MoonIcon" class="nf-theme-icon"></lucide-icon>
+    </button>
+  </header>
+
+  <!-- Main Card Content -->
+  <main class="nf-main">
+    <div class="nf-card">
+      <div class="nf-illustration-box">
+        <div class="nf-compass-ring">
+          <lucide-icon [img]="CompassIcon" class="nf-compass-icon"></lucide-icon>
+        </div>
+        <div class="nf-code-badge">404</div>
+      </div>
+
+      <h1 class="nf-title">Page Not Found</h1>
+      <p class="nf-description">
+        Oops! The page or study room you are looking for doesn't exist, has been removed, or the link is invalid.
+      </p>
+
+      <div class="nf-actions">
+        <button class="nf-btn nf-btn-secondary" (click)="goBack()">
+          <lucide-icon [img]="ArrowLeftIcon" class="btn-icon"></lucide-icon>
+          <span>Go Back</span>
+        </button>
+
+        <a routerLink="/rooms" class="nf-btn nf-btn-primary">
+          <lucide-icon [img]="HomeIcon" class="btn-icon"></lucide-icon>
+          <span>Explore Rooms</span>
+        </a>
+      </div>
+
+      <div class="nf-quick-links">
+        <span class="quick-links-title">Quick Links</span>
+        <div class="quick-links-list">
+          <a routerLink="/rooms" class="quick-link">All Rooms</a>
+          <span class="dot">•</span>
+          <a routerLink="/rooms/create" class="quick-link">Create Room</a>
+          <span class="dot">•</span>
+          <a routerLink="/profile" class="quick-link">Profile</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

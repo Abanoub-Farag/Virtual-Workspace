@@ -58,14 +58,22 @@ export const routes: Routes = [
     title: 'Profile – Pcenter',
   },
   {
+    path: '404',
+    loadComponent: () =>
+      import('./features/not-found/not-found.component').then(
+        (m) => m.NotFoundComponent,
+      ),
+    title: '404 - Page Not Found – Pcenter',
+  },
+  {
     path: '',
     redirectTo: '/register',
     pathMatch: 'full',
   },
   {
-    // Catch-all route to prevent accessing undefined URLs
+    // Catch-all route to redirect any non-existent route to 404 page
     path: '**',
-    redirectTo: '/rooms',
+    redirectTo: '/404',
   }
 ];
 

@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { timer, switchMap, retry, catchError, of } from 'rxjs';
@@ -54,6 +54,7 @@ import { TaskService, TaskData } from '../services/task.service';
 })
 export class RoomDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly roomService = inject(RoomService);
   private readonly taskService = inject(TaskService);
   private readonly destroyRef = inject(DestroyRef);
@@ -99,16 +100,17 @@ export class RoomDetailComponent implements OnInit {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       const id = parseInt(idParam, 10);
-      if (!isNaN(id)) {
+      if (!isNaN(id) && id > 0) {
         this.joinRoom(id);
         this.fetchRoom(id);
         this.fetchTasks();
         this.startHeartbeat(id);
         this.checkIfFavorite(id);
       } else {
-        this.error.set('Invalid Room ID');
-        this.isLoading.set(false);
+        this.router.navigate(['/404'], { replaceUrl: true });
       }
+    } else {
+      this.router.navigate(['/404'], { replaceUrl: true });
     }
   }
 
@@ -243,15 +245,19 @@ export class RoomDetailComponent implements OnInit {
       next: (response) => {
         if (response.data) {
           this.room.set(response.data);
+          this.isLoading.set(false);
         } else {
-          this.error.set('Room data not found.');
+          this.router.navigate(['/404'], { replaceUrl: true });
         }
-        this.isLoading.set(false);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         console.error(err);
-        this.error.set('Failed to load room details.');
-        this.isLoading.set(false);
+        if (err?.status === 404) {
+          this.router.navigate(['/404'], { replaceUrl: true });
+        } else {
+          this.error.set('Failed to load room details.');
+          this.isLoading.set(false);
+        }
       },
     });
   }
