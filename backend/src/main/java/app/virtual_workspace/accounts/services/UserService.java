@@ -5,10 +5,11 @@ import app.virtual_workspace.accounts.models.Profile;
 import app.virtual_workspace.accounts.models.User;
 import app.virtual_workspace.accounts.repositories.UserRepository;
 import app.virtual_workspace.exceptions.custom.ResourceNotFoundException;
+import app.virtual_workspace.rooms.models.Room;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,11 @@ public class UserService {
 
     public UserDataDto userData(Long userId){
         User user = findUserById(userId);
-        List<Long> rooms = List.of(user.getRoom().getId());
+
+        Long roomId = Optional.ofNullable(user.getRoom())
+                .map(Room::getId)
+                .orElse(null);
+
         Profile profile = user.getProfile();
 
         return UserDataDto.builder()
@@ -40,7 +45,7 @@ public class UserService {
                 .bio(profile.getBio())
                 .gender(profile.getGender())
                 .dateOfBirth(profile.getDateOfBirth())
-                .roomsId(rooms)
+                .roomsId(roomId)
                 .build();
     }
 

@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +22,6 @@ public class UserDataDto {
     private String bio;
     private Gender gender;
     private LocalDate dateOfBirth;
-    private List<Long> roomsId;
+    private Long roomsId;
 
 }
