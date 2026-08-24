@@ -34,6 +34,27 @@ export interface PageableResponse {
   [key: string]: any; // To cover pageable info
 }
 
+export interface FavoriteRoomItem {
+  roomId: number;
+  title: string;
+  description: string;
+  addedAt: string;
+  [key: string]: any;
+}
+
+export interface FavoritePageResponse {
+  content: FavoriteRoomItem[];
+  numberOfElements: number;
+  first: boolean;
+  last: boolean;
+  size: number;
+  number?: number;
+  totalPages?: number;
+  totalElements?: number;
+  pageable?: any;
+  [key: string]: any;
+}
+
 export interface CreateRoomDto {
   title: string;
   description: string;
@@ -66,6 +87,59 @@ export class RoomService {
         size: size.toString()
       }
     });
+  }
+
+  getFavorites(page: number = 0, size: number = 20, sort?: string): Observable<ApiResponse<FavoritePageResponse>> {
+    const token = this.authService.getToken();
+    let headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    const params: any = {
+      page: page.toString(),
+      size: size.toString()
+    };
+    if (sort) {
+      params.sort = sort;
+    }
+
+    return this.http.get<ApiResponse<FavoritePageResponse>>(`${this.baseUrl}/favorites`, { headers, params });
+  }
+
+  addToFavorites(roomId: number | string): Observable<ApiResponse<any>> {
+    const numericId = typeof roomId === 'number' ? roomId : parseInt(String(roomId), 10);
+    if (!numericId || isNaN(numericId) || !Number.isInteger(numericId) || numericId <= 0) {
+      return throwError(() => new Error('Invalid room ID: must be a positive 64-bit integer.'));
+    }
+    const token = this.authService.getToken();
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true'
+    });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/favorites/${numericId}`, {}, { headers });
+  }
+
+  removeFromFavorites(roomId: number | string): Observable<ApiResponse<any>> {
+    const numericId = typeof roomId === 'number' ? roomId : parseInt(String(roomId), 10);
+    if (!numericId || isNaN(numericId) || !Number.isInteger(numericId) || numericId <= 0) {
+      return throwError(() => new Error('Invalid room ID: must be a positive 64-bit integer.'));
+    }
+    const token = this.authService.getToken();
+    let headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/favorites/${numericId}`, { headers });
   }
 
   createRoom(dto: CreateRoomDto): Observable<ApiResponse<RoomData>> {

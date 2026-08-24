@@ -117,6 +117,48 @@ $status-idle: #6b7280;
   border-radius: 4px;
 }
 
+.favorite-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  color: #6B7280;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+  }
+
+  &.active {
+    color: #EF4444;
+
+    .favorite-icon {
+      fill: #EF4444;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .favorite-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.added-at {
+  font-size: 0.75rem;
+  color: $text-secondary;
+  margin-top: 4px;
+}
+
 .btn {
   display: flex;
   align-items: center;

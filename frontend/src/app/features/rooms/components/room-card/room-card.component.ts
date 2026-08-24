@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, ArrowRight, Eye } from 'lucide-angular';
+import { LucideAngularModule, ArrowRight, Eye, Heart } from 'lucide-angular';
 
 export interface Room {
   id: string;
@@ -8,6 +8,9 @@ export interface Room {
   description: string;
   tags: string[];
   actionType: 'join' | 'view';
+  isFavorite?: boolean;
+  addedAt?: string;
+  isPendingFavorite?: boolean;
 }
 
 @Component({
@@ -20,12 +23,20 @@ export interface Room {
 export class RoomCardComponent {
   @Input() room!: Room;
   @Output() onAction = new EventEmitter<string>();
+  @Output() onToggleFavorite = new EventEmitter<Room>();
   
   // Expose icons for template
   readonly ArrowRightIcon = ArrowRight;
   readonly EyeIcon = Eye;
+  readonly HeartIcon = Heart;
 
   handleAction() {
     this.onAction.emit(this.room.id);
+  }
+
+  toggleFavorite(event: Event) {
+    event.stopPropagation();
+    if (this.room.isPendingFavorite) return;
+    this.onToggleFavorite.emit(this.room);
   }
 }

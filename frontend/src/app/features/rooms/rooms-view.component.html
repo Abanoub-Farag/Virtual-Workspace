@@ -27,8 +27,27 @@
         <app-room-card 
           *ngFor="let room of filteredRooms()" 
           [room]="room"
-          (onAction)="onRoomAction($event)">
+          (onAction)="onRoomAction($event)"
+          (onToggleFavorite)="onToggleFavorite($event)">
         </app-room-card>
+      </div>
+
+      <div class="pagination-controls" *ngIf="activeTab() === 'Favorites' && !isLoading() && !error() && filteredRooms().length > 0">
+        <button 
+          type="button"
+          class="page-btn" 
+          [disabled]="favIsFirst()" 
+          (click)="fetchFavorites(favPage() - 1)">
+          Previous
+        </button>
+        <span class="page-info">Page {{ favPage() + 1 }} of {{ favTotalPages() }}</span>
+        <button 
+          type="button"
+          class="page-btn" 
+          [disabled]="favIsLast()" 
+          (click)="fetchFavorites(favPage() + 1)">
+          Next
+        </button>
       </div>
       
       <div class="empty-state" *ngIf="isLoading()">
@@ -40,7 +59,8 @@
       </div>
 
       <div class="empty-state" *ngIf="!isLoading() && !error() && filteredRooms().length === 0">
-        <p>No rooms match your search criteria.</p>
+        <p *ngIf="activeTab() === 'Favorites'">No favorite rooms added yet. Click the heart icon on any room to add it to your favorites!</p>
+        <p *ngIf="activeTab() !== 'Favorites'">No rooms match your search criteria.</p>
       </div>
     </main>
   </div>

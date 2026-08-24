@@ -165,6 +165,18 @@ $circumference:   565.49; // 2π × 90
   }
 }
 
+.favorite-btn {
+  &.active {
+    color: #EF4444;
+    border-color: rgba(239, 68, 68, 0.4);
+    background-color: rgba(239, 68, 68, 0.1);
+
+    .btn-icon {
+      fill: #EF4444;
+    }
+  }
+}
+
 .notification-btn {
   position: relative;
   display: flex;

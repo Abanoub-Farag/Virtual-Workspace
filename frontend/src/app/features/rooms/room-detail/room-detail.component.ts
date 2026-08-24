@@ -28,6 +28,7 @@ import {
   HelpCircle,
   ClipboardList,
   Trash2,
+  Heart,
 } from 'lucide-angular';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { RoomTimerComponent } from '../components/room-timer/room-timer.component';
@@ -71,11 +72,15 @@ export class RoomDetailComponent implements OnInit {
   readonly HelpCircleIcon = HelpCircle;
   readonly CheckSquareIcon = ClipboardList;
   readonly Trash2Icon = Trash2;
+  readonly HeartIcon = Heart;
 
   // ── Room data ─────────────────────────────────────────────────────────────
   room = signal<RoomData | null>(null);
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
+
+  isFavorite = signal<boolean>(false);
+  isPendingFavorite = signal<boolean>(false);
 
   // ── Heartbeat State ───────────────────────────────────────────────────────
   heartbeatStatus = signal<'active' | 'retrying' | 'failed'>('active');
@@ -99,11 +104,51 @@ export class RoomDetailComponent implements OnInit {
         this.fetchRoom(id);
         this.fetchTasks();
         this.startHeartbeat(id);
+        this.checkIfFavorite(id);
       } else {
         this.error.set('Invalid Room ID');
         this.isLoading.set(false);
       }
     }
+  }
+
+  checkIfFavorite(roomId: number) {
+    this.roomService.getFavorites(0, 100).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (res) => {
+        const items = res.data?.content || [];
+        const isFav = items.some(item => item.roomId === roomId);
+        this.isFavorite.set(isFav);
+      },
+      error: (err) => console.error('Failed checking favorite state:', err)
+    });
+  }
+
+  toggleFavorite() {
+    const currentRoom = this.room();
+    if (!currentRoom || this.isPendingFavorite()) return;
+
+    const roomId = currentRoom.id;
+    const isCurrentlyFav = this.isFavorite();
+    const targetState = !isCurrentlyFav;
+
+    this.isFavorite.set(targetState);
+    this.isPendingFavorite.set(true);
+
+    const request$ = targetState 
+      ? this.roomService.addToFavorites(roomId) 
+      : this.roomService.removeFromFavorites(roomId);
+
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.isPendingFavorite.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.isFavorite.set(isCurrentlyFav);
+        this.isPendingFavorite.set(false);
+        const msg = err.error?.message || 'Failed to update favorite status.';
+        alert(msg);
+      }
+    });
   }
 
   joinRoom(id: number) {

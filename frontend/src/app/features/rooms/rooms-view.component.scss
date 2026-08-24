@@ -92,4 +92,45 @@ $text-secondary: #9ca3af;
   background-color: rgba(#ffffff, 0.02);
   border-radius: 12px;
   border: 1px dashed $border-color;
+
+  &.error {
+    color: #F87171;
+    border-color: rgba(239, 68, 68, 0.3);
+    background-color: rgba(239, 68, 68, 0.05);
+  }
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+
+  .page-btn {
+    padding: 8px 16px;
+    background: #141624;
+    border: 1px solid #21253B;
+    border-radius: 8px;
+    color: #FFFFFF;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: $primary-accent;
+      border-color: $primary-accent;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .page-info {
+    color: $text-secondary;
+    font-size: 0.875rem;
+  }
 }
