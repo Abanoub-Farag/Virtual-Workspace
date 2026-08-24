@@ -1,0 +1,35 @@
+import { Component, inject, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { LucideAngularModule, LogIn, Plus } from 'lucide-angular';
+import { AuthService } from '../../../../core/services/auth.service';
+
+@Component({
+  selector: 'app-room-action-button',
+  standalone: true,
+  imports: [CommonModule, LucideAngularModule],
+  templateUrl: './room-action-button.component.html',
+  styleUrls: ['./room-action-button.component.scss']
+})
+export class RoomActionButtonComponent {
+  private readonly router = inject(Router);
+  public readonly authService = inject(AuthService);
+
+  readonly LogInIcon = LogIn;
+  readonly PlusIcon = Plus;
+
+  // Computed helper for room ownership check based on global UserData state
+  readonly userRoomId = computed<number | null>(() => {
+    const user = this.authService.currentUser();
+    return user?.roomsId && user.roomsId.length > 0 ? user.roomsId[0] : null;
+  });
+
+  onActionClick(): void {
+    const roomId = this.userRoomId();
+    if (roomId !== null) {
+      this.router.navigate(['/rooms', roomId]);
+    } else {
+      this.router.navigate(['/rooms/create']);
+    }
+  }
+}

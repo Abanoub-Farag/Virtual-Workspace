@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -68,8 +68,12 @@ export class RoomService {
   private readonly authService = inject(AuthService);
   private readonly baseUrl = `${environment.apiUrl}/api/v1/rooms`;
 
-  // State to track if the current user owns an active room
-  userRoomId = signal<number | null>(null);
+  // State to track if the current user owns an active room derived from global user state
+  userRoomId = computed<number | null>(() => {
+    const user = this.authService.currentUser();
+    return user?.roomsId && user.roomsId.length > 0 ? user.roomsId[0] : null;
+  });
+
 
   getRooms(page: number = 0, size: number = 20): Observable<ApiResponse<PageableResponse>> {
     const token = this.authService.getToken();

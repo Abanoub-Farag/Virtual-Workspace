@@ -4,15 +4,17 @@ import { LucideAngularModule, Search, Bell, Plus, Home } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RoomService } from '../../services/room.service';
+import { RoomActionButtonComponent } from '../room-action-button/room-action-button.component';
 
 @Component({
   selector: 'app-top-nav',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, FormsModule],
+  imports: [CommonModule, LucideAngularModule, FormsModule, RoomActionButtonComponent],
   templateUrl: './top-nav.component.html',
   styleUrls: ['./top-nav.component.scss']
 })
 export class TopNavComponent {
+
   private readonly router = inject(Router);
   public readonly roomService = inject(RoomService);
 

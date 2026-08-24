@@ -1,0 +1,65 @@
+@use "sass:color";
+
+$primary-accent: #8a3ffc;
+$text-primary: #ffffff;
+$bg-skeleton: rgba(#ffffff, 0.1);
+
+.room-action-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+
+  .btn-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  &--primary {
+    background-color: $primary-accent;
+    color: $text-primary;
+    
+    &:hover:not(:disabled) {
+      background-color: color.scale($primary-accent, $lightness: -10%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($primary-accent, 0.3);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+
+  &--loading {
+    opacity: 0.75;
+    cursor: not-allowed;
+    background-color: rgba($primary-accent, 0.6);
+  }
+}
+
+.skeleton-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba($text-primary, 0.3);
+  border-top-color: $text-primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

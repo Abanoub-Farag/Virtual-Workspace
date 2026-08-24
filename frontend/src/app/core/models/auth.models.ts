@@ -18,6 +18,19 @@ export interface AuthData {
   expiresIn?: number;
 }
 
+export interface UserData {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  createdAt: string;
+  updatedAt: string;
+  bio?: string;
+  gender?: string;
+  dateOfBirth?: string;
+  roomsId: number[];
+}
+
 /**
  * Generic API wrapper matching the Spring Boot ApiResponse<T> contract.
  */
@@ -28,3 +41,4 @@ export interface ApiResponse<T> {
   data?: T;
   errors?: Record<string, string>;
 }
+

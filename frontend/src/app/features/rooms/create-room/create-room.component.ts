@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { TopNavComponent } from '../components/top-nav/top-nav.component';
 import { RoomService } from '../services/room.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { LucideAngularModule, Plus } from 'lucide-angular';
 
 @Component({
@@ -18,6 +19,7 @@ export class CreateRoomComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly roomService = inject(RoomService);
+  private readonly authService = inject(AuthService);
 
   readonly PlusIcon = Plus;
   
@@ -47,7 +49,7 @@ export class CreateRoomComponent {
       next: (response) => {
         const newRoomId = response.data?.id; 
         if (newRoomId) {
-          this.roomService.userRoomId.set(newRoomId);
+          this.authService.addRoomId(newRoomId);
           this.isSubmitting.set(false);
           this.router.navigate(['/rooms', newRoomId]);
         } else {
@@ -55,6 +57,7 @@ export class CreateRoomComponent {
           this.router.navigate(['/rooms']);
         }
       },
+
       error: (err) => {
         console.error('Error creating room', err);
         this.error.set('Failed to create the room. Please try again.');
