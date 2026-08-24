@@ -83,17 +83,7 @@
                 </div>
               </div>
 
-              <!-- Display Name / Professional Headline -->
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="displayName">Display Name</label>
-                  <input id="displayName" type="text" formControlName="displayName" placeholder="How others see you" />
-                </div>
-                <div class="form-group">
-                  <label for="professionalHeadline">Professional Headline</label>
-                  <input id="professionalHeadline" type="text" formControlName="professionalHeadline" placeholder="e.g. Full-Stack Developer" />
-                </div>
-              </div>
+              <!-- Display Name / Professional Headline Removed -->
 
               <!-- Bio -->
               <div class="form-group">
@@ -183,7 +173,7 @@
                 type="submit"
                 id="saveProfileBtn"
                 class="btn btn-primary"
-                [disabled]="isSavingUser() || userInfoForm.invalid"
+                [disabled]="isSavingUser() || userInfoForm.invalid || !userInfoForm.dirty"
               >
                 <span *ngIf="isSavingUser()" class="spinner" aria-hidden="true"></span>
                 {{ isSavingUser() ? 'Saving…' : 'Save Changes' }}
@@ -191,57 +181,7 @@
             </div>
           </form>
 
-          <!-- ─── Social Links Card ──────────────────────────────────────────── -->
-          <form [formGroup]="socialLinksForm" (ngSubmit)="onSaveSocialLinks()" class="profile-card">
-            <div class="card-header">
-              <h3>Social Links</h3>
-              <p class="subtitle">Configure common links with your social profiles.</p>
-            </div>
-
-            <div class="card-body">
-              <div class="form-row">
-                <div class="form-group">
-                  <label>GitHub URL</label>
-                  <div class="input-with-icon">
-                    <lucide-icon [img]="GithubIcon" class="prefix-icon"></lucide-icon>
-                    <input type="text" formControlName="githubUrl" placeholder="https://github.com/..." />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label>Twitter / X Username</label>
-                  <div class="input-with-icon">
-                    <lucide-icon [img]="TwitterIcon" class="prefix-icon"></lucide-icon>
-                    <input type="text" formControlName="twitterUsername" placeholder="@username" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label>LinkedIn Profile</label>
-                  <div class="input-with-icon">
-                    <lucide-icon [img]="LinkedinIcon" class="prefix-icon"></lucide-icon>
-                    <input type="text" formControlName="linkedinProfile" placeholder="https://linkedin.com/in/..." />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label>Website Portfolio</label>
-                  <div class="input-with-icon">
-                    <lucide-icon [img]="GlobeIcon" class="prefix-icon"></lucide-icon>
-                    <input type="text" formControlName="websitePortfolio" placeholder="https://..." />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-footer">
-              <button type="button" class="btn btn-ghost" (click)="fetchProfile()" [disabled]="isSavingSocial()">Cancel</button>
-              <button type="submit" class="btn btn-primary" [disabled]="isSavingSocial() || socialLinksForm.invalid">
-                <span *ngIf="isSavingSocial()" class="spinner" aria-hidden="true"></span>
-                {{ isSavingSocial() ? 'Updating…' : 'Update Social Links' }}
-              </button>
-            </div>
-          </form>
+          <!-- Social Links Card Removed -->
 
         </div><!-- /cards-container -->
       </ng-container>

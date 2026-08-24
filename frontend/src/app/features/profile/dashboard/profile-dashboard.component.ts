@@ -8,6 +8,7 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ProfileService,
@@ -19,7 +20,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { SidebarComponent } from '../../rooms/components/sidebar/sidebar.component';
 import { TopNavComponent } from '../../rooms/components/top-nav/top-nav.component';
-import { LucideAngularModule, Github, Linkedin, Twitter, Globe, User as UserIcon } from 'lucide-angular';
+import { LucideAngularModule, User as UserIcon } from 'lucide-angular';
 
 // ─── Custom Validators ────────────────────────────────────────────────────────
 
@@ -45,6 +46,7 @@ interface PageError {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
     SidebarComponent,
     TopNavComponent,
     LucideAngularModule,
@@ -58,10 +60,6 @@ export class ProfileDashboardComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
 
-  readonly GithubIcon = Github;
-  readonly LinkedinIcon = Linkedin;
-  readonly TwitterIcon = Twitter;
-  readonly GlobeIcon = Globe;
   readonly UserIcon = UserIcon;
 
   profile = signal<UserProfileData | null>(null);
@@ -71,28 +69,17 @@ export class ProfileDashboardComponent implements OnInit {
   pageError = signal<PageError | null>(null);
 
   isSavingUser = signal<boolean>(false);
-  isSavingSocial = signal<boolean>(false);
 
   userInfoForm!: FormGroup;
-  socialLinksForm!: FormGroup;
 
   constructor() {
     this.userInfoForm = this.fb.group({
       firstName:   ['', Validators.required],
       lastName:    ['', Validators.required],
-      displayName: [''],
-      professionalHeadline: [''],
       email:       [{ value: '', disabled: true }],
       bio:         [''],
       gender:      ['', Validators.required],
       dateOfBirth: ['', [Validators.required, dateFormatValidator]],
-    });
-
-    this.socialLinksForm = this.fb.group({
-      githubUrl:        [''],
-      linkedinProfile:  [''],
-      twitterUsername:  [''],
-      websitePortfolio: [''],
     });
   }
 
@@ -151,19 +138,10 @@ export class ProfileDashboardComponent implements OnInit {
     this.userInfoForm.patchValue({
       firstName:   data.firstName ?? '',
       lastName:    data.lastName ?? '',
-      displayName: data.displayName ?? `${data.firstName ?? ''} ${data.lastName ?? ''}`.trim(),
-      professionalHeadline: data.professionalHeadline ?? '',
       email:       data.email ?? '',
       bio:         data.bio ?? '',
       gender:      data.gender ?? '',
       dateOfBirth: data.dateOfBirth ?? '',
-    });
-
-    this.socialLinksForm.patchValue({
-      githubUrl:        data.githubUrl ?? '',
-      linkedinProfile:  data.linkedinProfile ?? '',
-      twitterUsername:  data.twitterUsername ?? '',
-      websitePortfolio: data.websitePortfolio ?? '',
     });
   }
 
@@ -214,24 +192,6 @@ export class ProfileDashboardComponent implements OnInit {
         this.toastService.error(parsed.message);
       },
     });
-  }
-
-  onSaveSocialLinks(): void {
-    if (this.socialLinksForm.invalid) {
-      this.socialLinksForm.markAllAsTouched();
-      return;
-    }
-
-    this.isSavingSocial.set(true);
-    const updatedData = this.socialLinksForm.value;
-
-    setTimeout(() => {
-      this.isSavingSocial.set(false);
-      const current = this.profile();
-      if (current) {
-        this.profile.set({ ...current, ...updatedData });
-      }
-    }, 500);
   }
 
   // ─── Template helpers ───────────────────────────────────────────────────────
