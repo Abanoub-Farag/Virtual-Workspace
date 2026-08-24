@@ -35,12 +35,12 @@
       <!-- ═══ LEFT COLUMN: Online Participants ═══════════════════════════════ -->
       <section class="split-panel participants-panel" aria-label="Online Participants">
         <div class="panel-header">
-          <span class="panel-title">ONLINE NOW ({{ participants.length }})</span>
+          <span class="panel-title">ONLINE NOW ({{ participants().length }})</span>
         </div>
 
-        <ul class="participant-list" role="list">
+        <ul class="participant-list" role="list" *ngIf="participants().length > 0; else emptyParticipants">
           <li
-            *ngFor="let p of participants"
+            *ngFor="let p of participants()"
             class="participant-card"
             [id]="'participant-' + p.id"
           >
@@ -58,6 +58,11 @@
             </div>
           </li>
         </ul>
+        <ng-template #emptyParticipants>
+          <div class="empty-state">
+            <p>No participants online yet.</p>
+          </div>
+        </ng-template>
       </section>
 
       <!-- ═══ CENTER COLUMN: Pomodoro Timer ═══════════════════════════════ -->
@@ -170,27 +175,46 @@
           />
         </div>
 
-        <ul class="task-list" role="list">
+        <div class="state-container" *ngIf="isTasksLoading()">
+          <div class="loading-spinner"></div>
+          <p>Loading tasks…</p>
+        </div>
+        <div class="state-container error" *ngIf="tasksError()">
+          <p class="error-hint">{{ tasksError() }}</p>
+          <button class="btn btn-primary" (click)="fetchTasks()">Try Again</button>
+        </div>
+
+        <ul class="task-list" role="list" *ngIf="!isTasksLoading() && !tasksError() && tasks().length > 0">
           <li
             *ngFor="let task of tasks()"
             class="task-card"
-            [class.task-card--done]="task.done"
+            [class.task-card--done]="task.completed"
             [id]="'task-' + task.id"
           >
             <button
               class="task-toggle"
-              [attr.aria-label]="task.done ? 'Mark task incomplete' : 'Mark task complete'"
-              (click)="toggleTask(task.id)"
+              [attr.aria-label]="task.completed ? 'Mark task incomplete' : 'Mark task complete'"
+              (click)="toggleTask(task)"
             >
               <lucide-icon
-                [img]="task.done ? CheckCircle2Icon : CircleIcon"
+                [img]="task.completed ? CheckCircle2Icon : CircleIcon"
                 class="task-check-icon"
-                [class.task-check-icon--done]="task.done"
+                [class.task-check-icon--done]="task.completed"
               ></lucide-icon>
             </button>
-            <span class="task-text" [class.task-text--done]="task.done">{{ task.text }}</span>
+            <span class="task-text" [class.task-text--done]="task.completed">{{ task.title }}</span>
+            <button
+              class="task-delete"
+              aria-label="Delete task"
+              (click)="deleteTask(task.id)"
+            >
+              <lucide-icon [img]="Trash2Icon" class="task-delete-icon"></lucide-icon>
+            </button>
           </li>
         </ul>
+        <div class="empty-state" *ngIf="!isTasksLoading() && !tasksError() && tasks().length === 0">
+          <p>No tasks yet.</p>
+        </div>
       </section>
 
     </div><!-- /session-body -->

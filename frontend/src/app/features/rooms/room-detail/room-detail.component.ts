@@ -23,23 +23,12 @@ import {
   Circle,
   HelpCircle,
   ClipboardList,
+  Trash2,
 } from 'lucide-angular';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { RoomService, RoomData } from '../services/room.service';
+import { TaskService, TaskData } from '../services/task.service';
 
-interface Task {
-  id: number;
-  text: string;
-  done: boolean;
-}
-
-interface Participant {
-  id: number;
-  name: string;
-  role: 'Host' | 'Member';
-  avatar: string;
-  online: boolean;
-}
 
 const TIMER_DURATION = 25 * 60; // 25 minutes in seconds
 const RING_RADIUS = 90;
@@ -61,6 +50,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS; // ≈ 565.49
 export class RoomDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly roomService = inject(RoomService);
+  private readonly taskService = inject(TaskService);
 
   // ── Lucide Icons ──────────────────────────────────────────────────────────
   readonly ArrowLeftIcon = ArrowLeft;
@@ -75,6 +65,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   readonly CircleIcon = Circle;
   readonly HelpCircleIcon = HelpCircle;
   readonly CheckSquareIcon = ClipboardList;
+  readonly Trash2Icon = Trash2;
 
   // ── Room data ─────────────────────────────────────────────────────────────
   room = signal<RoomData | null>(null);
@@ -104,37 +95,13 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   readonly circumference = CIRCUMFERENCE;
 
   // ── Tasks ─────────────────────────────────────────────────────────────────
-  tasks = signal<Task[]>([
-    { id: 1, text: 'Review Q3 marketing assets for brand compliance', done: true },
-    { id: 2, text: 'Update primary component library with new tokens', done: false },
-    { id: 3, text: 'Draft weekly sync notes for the team', done: false },
-  ]);
+  tasks = signal<TaskData[]>([]);
+  isTasksLoading = signal<boolean>(true);
+  tasksError = signal<string | null>(null);
   newTaskText = signal<string>('');
 
   // ── Participants ──────────────────────────────────────────────────────────
-  participants: Participant[] = [
-    {
-      id: 1,
-      name: 'Alex Morgan',
-      role: 'Host',
-      avatar: 'https://i.pravatar.cc/150?u=alex',
-      online: true,
-    },
-    {
-      id: 2,
-      name: 'Jordan Lee',
-      role: 'Member',
-      avatar: 'https://i.pravatar.cc/150?u=jordan',
-      online: true,
-    },
-    {
-      id: 3,
-      name: 'Sam Rivera',
-      role: 'Member',
-      avatar: 'https://i.pravatar.cc/150?u=sam',
-      online: true,
-    },
-  ];
+  participants = signal<any[]>([]);
 
   ngOnInit() {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -142,6 +109,7 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
       const id = parseInt(idParam, 10);
       if (!isNaN(id)) {
         this.fetchRoom(id);
+        this.fetchTasks();
       } else {
         this.error.set('Invalid Room ID');
         this.isLoading.set(false);
@@ -168,6 +136,22 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
         this.error.set('Failed to load room details.');
         this.isLoading.set(false);
       },
+    });
+  }
+
+  fetchTasks() {
+    this.isTasksLoading.set(true);
+    this.tasksError.set(null);
+    this.taskService.getTasks().subscribe({
+      next: (response) => {
+        this.tasks.set(response.data?.content || []);
+        this.isTasksLoading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.tasksError.set('Failed to load tasks.');
+        this.isTasksLoading.set(false);
+      }
     });
   }
 
@@ -212,20 +196,47 @@ export class RoomDetailComponent implements OnInit, OnDestroy {
   }
 
   // ── Task controls ─────────────────────────────────────────────────────────
-  toggleTask(taskId: number) {
+  toggleTask(task: TaskData) {
+    const updatedStatus = !task.completed;
+    // Optimistic update
     this.tasks.update((tasks) =>
-      tasks.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t)),
+      tasks.map((t) => (t.id === task.id ? { ...t, completed: updatedStatus } : t)),
     );
+    this.taskService.updateTask(task.id, { title: task.title, completed: updatedStatus }).subscribe({
+      error: (err) => {
+        console.error('Failed to update task', err);
+        // Revert on error
+        this.tasks.update((tasks) =>
+          tasks.map((t) => (t.id === task.id ? { ...t, completed: task.completed } : t)),
+        );
+      }
+    });
   }
 
   addTask() {
     const text = this.newTaskText().trim();
     if (!text) return;
-    this.tasks.update((tasks) => [
-      ...tasks,
-      { id: Date.now(), text, done: false },
-    ]);
     this.newTaskText.set('');
+    
+    this.taskService.createTask({ title: text, completed: false }).subscribe({
+      next: () => {
+        this.fetchTasks(); // Refetch to get the ID and correct state
+      },
+      error: (err) => {
+        console.error('Failed to create task', err);
+      }
+    });
+  }
+
+  deleteTask(taskId: number) {
+    this.taskService.deleteTask(taskId).subscribe({
+      next: () => {
+        this.tasks.update((tasks) => tasks.filter(t => t.id !== taskId));
+      },
+      error: (err) => {
+        console.error('Failed to delete task', err);
+      }
+    });
   }
 
   onNewTaskKeydown(event: KeyboardEvent) {

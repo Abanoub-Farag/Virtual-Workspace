@@ -663,3 +663,89 @@ $circumference:   565.49; // 2π × 90
   0%, 100% { box-shadow: 0 0 0 0 $accent-glow, 0 8px 32px $accent-glow; }
   50%       { box-shadow: 0 0 0 10px rgba($accent, 0.12), 0 8px 40px rgba($accent, 0.5); }
 }
+
+.empty-state {
+  padding: 32px 16px;
+  text-align: center;
+  color: $text-dim;
+  font-size: 0.875rem;
+
+  p {
+    margin: 0;
+  }
+}
+
+.task-delete {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: $text-dim;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+  opacity: 0;
+  transition: all 0.2s ease;
+
+  .task-delete-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    color: #EF4444; // red
+    background-color: rgba(#EF4444, 0.1);
+  }
+}
+
+.task-card:hover .task-delete {
+  opacity: 1;
+}
+
+.state-container {
+  padding: 32px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: $text-dim;
+
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba($accent-light, 0.2);
+    border-top-color: $accent-light;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  &.error {
+    color: #EF4444;
+
+    .error-hint {
+      font-size: 0.875rem;
+      margin: 0;
+      text-align: center;
+    }
+
+    .btn {
+      padding: 6px 16px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      background-color: rgba(#EF4444, 0.1);
+      color: #EF4444;
+      border: 1px solid rgba(#EF4444, 0.2);
+      cursor: pointer;
+
+      &:hover {
+        background-color: rgba(#EF4444, 0.2);
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
