@@ -66,6 +66,8 @@ export interface UpdateProfileRequest {
   firstName: string;
   lastName: string;
   bio: string;
+  gender?: 'MALE' | 'FEMALE' | string;
+  dateOfBirth?: string;
 }
 
 // ─── Error Parsing Utility ────────────────────────────────────────────────────

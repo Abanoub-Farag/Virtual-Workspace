@@ -100,14 +100,41 @@
                 </span>
               </div>
 
-              <!-- Gender / Date of Birth Removed -->
+              <!-- Gender & Date of Birth Row -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="gender">Gender</label>
+                  <select
+                    id="gender"
+                    formControlName="gender"
+                    [class.is-invalid]="isInvalid('gender')"
+                  >
+                    <option value="" disabled>Select gender</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                  </select>
+                  <span class="form-error" *ngIf="isInvalid('gender') && getServerError('gender')">
+                    {{ getServerError('gender') }}
+                  </span>
+                </div>
+
+                <div class="form-group">
+                  <label for="dateOfBirth">Date of Birth</label>
+                  <input
+                    id="dateOfBirth"
+                    type="date"
+                    formControlName="dateOfBirth"
+                    [class.is-invalid]="isInvalid('dateOfBirth')"
+                  />
+                  <span class="form-error" *ngIf="isInvalid('dateOfBirth') && getServerError('dateOfBirth')">
+                    {{ getServerError('dateOfBirth') }}
+                  </span>
+                </div>
+              </div>
 
             </div><!-- /card-body -->
 
             <div class="card-footer">
-              <button type="button" class="btn btn-ghost" (click)="fetchProfile()" [disabled]="isSavingUser()">
-                Cancel
-              </button>
               <button
                 type="submit"
                 id="saveProfileBtn"

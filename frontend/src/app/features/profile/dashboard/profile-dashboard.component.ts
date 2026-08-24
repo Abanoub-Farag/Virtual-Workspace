@@ -82,6 +82,8 @@ export class ProfileDashboardComponent implements OnInit {
       lastName:    ['', Validators.required],
       email:       [{ value: '', disabled: true }],
       bio:         [''],
+      gender:      [''],
+      dateOfBirth: [''],
     });
   }
 
@@ -142,6 +144,8 @@ export class ProfileDashboardComponent implements OnInit {
       lastName:    data.lastName ?? '',
       email:       data.email ?? '',
       bio:         data.bio ?? '',
+      gender:      data.gender ?? '',
+      dateOfBirth: data.dateOfBirth ?? '',
     });
     
     this.initialFormValues.set(this.userInfoForm.getRawValue());
@@ -160,6 +164,8 @@ export class ProfileDashboardComponent implements OnInit {
       firstName:   raw.firstName,
       lastName:    raw.lastName,
       bio:         raw.bio ?? '',
+      gender:      raw.gender || undefined,
+      dateOfBirth: raw.dateOfBirth || undefined,
     };
 
     this.profileService.updateProfile(payload).subscribe({
