@@ -59,11 +59,18 @@ $status-active: #10b981;
       width: 40px;
       height: 40px;
 
-      img {
+      .avatar-initials {
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        object-fit: cover;
+        background-color: rgba($primary-accent, 0.2);
+        color: $primary-accent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        border: 1px solid rgba($primary-accent, 0.5);
       }
 
       .status-indicator {

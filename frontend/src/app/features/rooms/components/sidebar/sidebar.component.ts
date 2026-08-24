@@ -23,6 +23,14 @@ export class SidebarComponent implements OnInit {
   private authService = inject(AuthService);
   userName = 'Guest User';
 
+  get userInitials(): string {
+    if (!this.userName || this.userName === 'Guest User') return 'U';
+    const nameParts = this.userName.trim().split(' ').filter(part => part.length > 0);
+    if (nameParts.length === 0) return 'U';
+    if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
+    return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
+  }
+
   navItems: NavItem[] = [
     { label: 'Profile', icon: UserIcon, route: '/profile' },
     { label: 'Dashboard', icon: LayoutDashboard },
