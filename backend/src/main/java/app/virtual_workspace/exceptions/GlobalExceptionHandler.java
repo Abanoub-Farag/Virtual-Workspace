@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -265,6 +266,28 @@ public class GlobalExceptionHandler {
                 .build();
 
         return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message, errorResponse);
+    }
+
+    // ── 8. Access Denied — Checked Exceptions (403) ────────────────────
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleAuthorizationDeniedException(
+            AuthorizationDeniedException ex,
+            HttpServletRequest request
+    ){
+        log.warn("Access denied at [{}]: {}", request.getRequestURI(), ex.getMessage());
+
+        String message = "You do not have permission to perform this action.";
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(HttpStatus.FORBIDDEN.value())
+                .error(HttpStatus.FORBIDDEN.getReasonPhrase())
+                .message(message)
+                .path(request.getRequestURI())
+                .build();
+
+        return buildResponseEntity(HttpStatus.FORBIDDEN, message, errorResponse);
     }
 
     // ── Shared builder ───────────────────────────────────────────────────────
