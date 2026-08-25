@@ -1,7 +1,7 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, inject, signal } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RoomMemberService } from '../../services/room-member.service';
-import { RoomMember, MemberStatus } from '../../../../core/models/room-member.model';
+import { RoomMember, MemberStatus, MemberRole } from '../../../../core/models/room-member.model';
 
 @Component({
   selector: 'app-room-members-list',
@@ -19,6 +19,7 @@ export class RoomMembersListComponent implements OnInit, OnChanges {
   members = signal<RoomMember[]>([]);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
+  onlineCount = computed(() => this.members().filter(m => m.status === MemberStatus.ONLINE).length);
 
   ngOnInit(): void {
     if (this.roomId != null) {
@@ -86,5 +87,10 @@ export class RoomMembersListComponent implements OnInit, OnChanges {
           label: status || 'Offline'
         };
     }
+  }
+  getRoleLabel(role?: MemberRole | string): string {
+    if (!role) return 'Member';
+    if (role === MemberRole.HOST || role === 'HOST') return 'Host';
+    return 'Member';
   }
 }

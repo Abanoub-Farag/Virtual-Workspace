@@ -1,5 +1,300 @@
-/* Additional custom styling for room members list component if needed */
+@use 'sass:color';
+
+// ─────────────────────────────────────────────
+// Design tokens
+// ─────────────────────────────────────────────
+$bg-panel      : #0B0E14;
+$bg-card       : rgba(255, 255, 255, 0.04);
+$border-card   : rgba(255, 255, 255, 0.08);
+$accent-violet : #8B5CF6;
+$accent-violet-dim: rgba(139, 92, 246, 0.18);
+$green-online  : #22C55E;
+$green-glow    : rgba(34, 197, 94, 0.45);
+$text-primary  : #F1F5F9;
+$text-muted    : #64748B;
+$text-role     : #7E92AB;
+
+// ─────────────────────────────────────────────
+// Host
+// ─────────────────────────────────────────────
 :host {
   display: block;
   width: 100%;
+}
+
+// ─────────────────────────────────────────────
+// Panel wrapper
+// ─────────────────────────────────────────────
+.members-panel {
+  background: $bg-panel;
+  border-radius: 18px;
+  padding: 20px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+// ─────────────────────────────────────────────
+// Header
+// ─────────────────────────────────────────────
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.header-icon {
+  width: 20px;
+  height: 20px;
+  color: $accent-violet;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: $text-primary;
+  text-transform: uppercase;
+}
+
+// ─────────────────────────────────────────────
+// Member list
+// ─────────────────────────────────────────────
+.member-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+// ─────────────────────────────────────────────
+// Member card – shared base
+// ─────────────────────────────────────────────
+.member-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  transition: background 0.2s ease;
+
+  // ── ONLINE state ──────────────────────────────
+  &.online {
+    background: $bg-card;
+    border: 1px solid $border-card;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.07);
+    }
+  }
+
+  // ── OFFLINE state ─────────────────────────────
+  &.offline {
+    background: transparent;
+    border: 1px solid transparent;
+    opacity: 0.45;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Avatar wrapper + online badge
+// ─────────────────────────────────────────────
+.avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366F1 0%, $accent-violet 100%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+
+  &.dimmed {
+    background: linear-gradient(135deg, #2D3143 0%, #3A3F5C 100%);
+    box-shadow: none;
+    filter: grayscale(0.4);
+  }
+}
+
+// Green glowing online indicator dot
+.online-badge {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: $green-online;
+  border: 2px solid $bg-panel;
+  box-shadow: 0 0 0 3px $green-glow;
+  animation: pulse-badge 2.2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { box-shadow: 0 0 0 3px $green-glow; }
+  50%       { box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.2); }
+}
+
+// ─────────────────────────────────────────────
+// Member info
+// ─────────────────────────────────────────────
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.member-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: $text-primary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &.dimmed {
+    color: rgba($text-primary, 0.5);
+  }
+}
+
+.member-role {
+  font-size: 11px;
+  font-weight: 500;
+  color: $text-role;
+  letter-spacing: 0.015em;
+
+  &.dimmed {
+    color: rgba($text-muted, 0.6);
+  }
+}
+
+// ─────────────────────────────────────────────
+// Loading skeleton
+// ─────────────────────────────────────────────
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeleton-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: $bg-card;
+  border: 1px solid $border-card;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.skeleton-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeleton-line {
+  height: 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.07);
+
+  &.w-half    { width: 55%; }
+  &.w-quarter { width: 30%; }
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+// ─────────────────────────────────────────────
+// Error state
+// ─────────────────────────────────────────────
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.error-icon {
+  width: 36px;
+  height: 36px;
+  color: #F87171;
+}
+
+.error-message {
+  font-size: 12px;
+  color: #FDA4A4;
+  margin: 0;
+}
+
+.retry-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  background: rgba(248, 113, 113, 0.12);
+  color: #FCA5A5;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba(248, 113, 113, 0.22);
+  }
+}
+
+// ─────────────────────────────────────────────
+// Empty state
+// ─────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 16px;
+  text-align: center;
+
+  svg {
+    width: 36px;
+    height: 36px;
+    color: $text-muted;
+  }
+
+  p {
+    font-size: 12px;
+    color: $text-muted;
+    margin: 0;
+  }
 }

@@ -5,9 +5,15 @@ export enum MemberStatus {
   BUSY = 'BUSY'
 }
 
+export enum MemberRole {
+  HOST = 'HOST',
+  MEMBER = 'MEMBER'
+}
+
 export interface RoomMember {
   id: number;
   status: MemberStatus | string;
+  role?: MemberRole | string;
   firstName: string;
   lastName: string;
   bio?: string;
