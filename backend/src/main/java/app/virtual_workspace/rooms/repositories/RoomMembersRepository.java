@@ -1,6 +1,7 @@
 package app.virtual_workspace.rooms.repositories;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -24,4 +25,5 @@ public interface RoomMembersRepository extends JpaRepository<RoomMembers, Long>{
     @Query("UPDATE RoomMembers r SET r.status = 'OFFLINE' WHERE r.lastActiveAt < :localDateTime AND r.status = 'ONLINE'")
     void disconnectNonActiveUsers(@Param("localDateTime") LocalDateTime localDateTime);
 
+    List<RoomMembers> findRoomMembersByRoomId(Long roomId);
 }

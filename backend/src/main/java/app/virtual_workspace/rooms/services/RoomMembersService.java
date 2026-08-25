@@ -1,7 +1,12 @@
 package app.virtual_workspace.rooms.services;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import app.virtual_workspace.accounts.dtos.data.UserDataDto;
+import app.virtual_workspace.accounts.models.Profile;
+import app.virtual_workspace.rooms.dtos.RoomMembers.RoomMemberDto;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +55,26 @@ public class RoomMembersService {
         User user = userAuthService.getAuthenticatedUser();
         roomMembersRepository.updateLastActiveAt(user.getId(), roomId, LocalDateTime.now());
 
+    }
+
+    @Cacheable(value = "room_members", key = "#roomId")
+    public List<RoomMemberDto> getRoomMembers(Long roomId) {
+        List<RoomMembers> roomMembers = roomMembersRepository.findRoomMembersByRoomId(roomId);
+
+        return roomMembers.stream()
+                .map(member -> {
+                    User user = member.getUser();
+                    Profile profile = user.getProfile();
+                    return RoomMemberDto.builder()
+                            .id(user.getId())
+                            .firstName(user.getFirstName())
+                            .lastName(user.getLastName())
+                            .bio(profile.getBio())
+                            .gender(profile.getGender())
+                            .dateOfBirth(profile.getDateOfBirth())
+                            .build();
+                })
+                .toList();
     }
 
 }

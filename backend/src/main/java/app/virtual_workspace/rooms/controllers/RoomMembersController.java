@@ -1,16 +1,15 @@
 package app.virtual_workspace.rooms.controllers;
 
+import app.virtual_workspace.rooms.dtos.RoomMembers.RoomMemberDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import app.virtual_workspace.rooms.services.RoomMembersService;
 import app.virtual_workspace.shared.dtos.ApiResponse;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,4 +41,18 @@ public class RoomMembersController {
                 
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("/{roomId}/members")
+    public ResponseEntity<ApiResponse<List<RoomMemberDto>>> getRoomMembers(@PathVariable Long roomId) {
+        List<RoomMemberDto> roomMemberDtos = roomMembersService.getRoomMembers(roomId);
+
+        ApiResponse<List<RoomMemberDto>> response = ApiResponse.<List<RoomMemberDto>>builder()
+                .status(HttpStatus.OK.value())
+                .message("Room members retrieved successfully")
+                .data(roomMemberDtos)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }   
+
 }
