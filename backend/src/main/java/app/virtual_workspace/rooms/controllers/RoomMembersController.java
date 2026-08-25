@@ -53,6 +53,6 @@ public class RoomMembersController {
                 .build();
 
         return ResponseEntity.ok(response);
-    }   
+    }
 
 }
