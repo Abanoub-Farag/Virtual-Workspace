@@ -14,6 +14,7 @@ import app.virtual_workspace.rooms.mappers.RoomMapper;
 import app.virtual_workspace.rooms.models.Room;
 import app.virtual_workspace.rooms.repositories.RoomRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -75,11 +76,19 @@ public class RoomService {
     }
 
     @Transactional
+    @CacheEvict(value = "room_members", key = "#roomId")
     public void deleteRoom(Long roomId){
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room Not Found"));
 
-        roomRepository.deleteById(roomId);
+        // Break the bidirectional association to prevent JPA cascade issues
+        User user = room.getUser();
+        if (user != null) {
+            user.setRoom(null);
+            userService.saveUser(user);
+        }
+
+        roomRepository.delete(room);
     }
 
 }
