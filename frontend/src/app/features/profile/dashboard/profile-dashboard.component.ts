@@ -1,15 +1,14 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
   FormBuilder,
   FormGroup,
   Validators,
-  AbstractControl,
-  ValidationErrors,
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ProfileService,
   UserProfileData,
@@ -22,16 +21,10 @@ import { SidebarComponent } from '../../rooms/components/sidebar/sidebar.compone
 import { TopNavComponent } from '../../rooms/components/top-nav/top-nav.component';
 import { LucideAngularModule, User as UserIcon } from 'lucide-angular';
 
-// ─── Custom Validators ────────────────────────────────────────────────────────
-
-// ─── Page-level error state ───────────────────────────────────────────────────
-
 interface PageError {
   title: string;
   hint: string;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 @Component({
   selector: 'app-profile-dashboard',
@@ -52,39 +45,31 @@ export class ProfileDashboardComponent implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly UserIcon = UserIcon;
 
   profile = signal<UserProfileData | null>(null);
   isLoading = signal<boolean>(true);
-
-  /** Structured page-level error for the initial load failure state. */
   pageError = signal<PageError | null>(null);
-
   isSavingUser = signal<boolean>(false);
-
   initialFormValues = signal<any>(null);
 
-  userInfoForm!: FormGroup;
+  userInfoForm: FormGroup = this.fb.group({
+    firstName:   ['', Validators.required],
+    lastName:    ['', Validators.required],
+    email:       [{ value: '', disabled: true }],
+    bio:         [''],
+    gender:      [''],
+    dateOfBirth: [''],
+  });
 
   get isFormDirty(): boolean {
     const current = this.userInfoForm.getRawValue();
     const initial = this.initialFormValues();
     if (!initial) return false;
     
-    // Deep equality check for shallow properties
     return Object.keys(current).some(key => current[key] !== initial[key]);
-  }
-
-  constructor() {
-    this.userInfoForm = this.fb.group({
-      firstName:   ['', Validators.required],
-      lastName:    ['', Validators.required],
-      email:       [{ value: '', disabled: true }],
-      bio:         [''],
-      gender:      [''],
-      dateOfBirth: [''],
-    });
   }
 
   ngOnInit(): void {
@@ -107,28 +92,32 @@ export class ProfileDashboardComponent implements OnInit {
     this.isLoading.set(true);
     this.pageError.set(null);
 
-    this.profileService.getProfile(identifier).subscribe({
-      next: (response) => {
-        if (response.data) {
+    this.profileService.getProfile(identifier)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (!response.data) {
+            this.pageError.set({
+              title: 'No profile data',
+              hint: 'The server returned an empty response. Please try again.',
+            });
+            this.isLoading.set(false);
+            return;
+          }
+
           this.profile.set(response.data);
           this.patchForms(response.data);
-        } else {
+          this.isLoading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          const parsed = parseApiError(err);
           this.pageError.set({
-            title: 'No profile data',
-            hint: 'The server returned an empty response. Please try again.',
+            title: this.loadErrorTitle(err.status),
+            hint: parsed.message,
           });
-        }
-        this.isLoading.set(false);
-      },
-      error: (err: HttpErrorResponse) => {
-        const parsed = parseApiError(err);
-        this.pageError.set({
-          title: this.loadErrorTitle(err.status),
-          hint: parsed.message,
-        });
-        this.isLoading.set(false);
-      },
-    });
+          this.isLoading.set(false);
+        },
+      });
   }
 
   private loadErrorTitle(status: number): string {
@@ -168,39 +157,41 @@ export class ProfileDashboardComponent implements OnInit {
       dateOfBirth: raw.dateOfBirth || undefined,
     };
 
-    this.profileService.updateProfile(payload).subscribe({
-      next: (response) => {
-        this.isSavingUser.set(false);
+    this.profileService.updateProfile(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.isSavingUser.set(false);
 
-        // Update local profile signal with fresh data from the server
-        if (response.data) {
-          this.profile.set(response.data);
-          this.patchForms(response.data);
-        }
-
-        this.toastService.success(response.message ?? 'Profile updated successfully.');
-      },
-      error: (err: HttpErrorResponse) => {
-        this.isSavingUser.set(false);
-        const parsed = parseApiError(err);
-
-        // ── 400: Apply field-level errors directly onto form controls ─────────
-        if (err.status === 400 && Object.keys(parsed.fieldErrors).length > 0) {
-          for (const [field, message] of Object.entries(parsed.fieldErrors)) {
-            const control = this.userInfoForm.get(field);
-            if (control) {
-              control.setErrors({ serverError: message });
-              control.markAsTouched();
-            }
+          if (response.data) {
+            this.profile.set(response.data);
+            this.patchForms(response.data);
           }
-        }
 
-        this.toastService.error(parsed.message);
-      },
-    });
+          this.toastService.success(response.message ?? 'Profile updated successfully.');
+        },
+        error: (err: HttpErrorResponse) => {
+          this.isSavingUser.set(false);
+          const parsed = parseApiError(err);
+
+          if (err.status === 400 && Object.keys(parsed.fieldErrors).length > 0) {
+            this.applyFieldErrors(parsed.fieldErrors);
+          }
+
+          this.toastService.error(parsed.message);
+        },
+      });
   }
 
-  // ─── Template helpers ───────────────────────────────────────────────────────
+  private applyFieldErrors(fieldErrors: Record<string, string>): void {
+    for (const [field, message] of Object.entries(fieldErrors)) {
+      const control = this.userInfoForm.get(field);
+      if (control) {
+        control.setErrors({ serverError: message });
+        control.markAsTouched();
+      }
+    }
+  }
 
   get formattedCreatedAt(): string {
     const data = this.profile();
@@ -210,12 +201,10 @@ export class ProfileDashboardComponent implements OnInit {
     });
   }
 
-  /** Returns the server-error message for a given field control, if present. */
   getServerError(field: string): string | null {
     return this.userInfoForm.get(field)?.errors?.['serverError'] ?? null;
   }
 
-  /** Convenience accessor: true when a control is invalid and has been touched. */
   isInvalid(field: string): boolean {
     const ctrl = this.userInfoForm.get(field);
     return !!(ctrl?.invalid && ctrl.touched);

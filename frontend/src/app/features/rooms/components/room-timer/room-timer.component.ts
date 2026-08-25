@@ -73,7 +73,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS; // ≈ 565.49
       </div>
     </section>
   `,
-  styleUrls: ['../../room-detail/room-detail.component.scss'] // Reusing existing timer styles for simplicity
+  styleUrls: ['../../room-detail/room-detail.component.scss']
 })
 export class RoomTimerComponent implements OnDestroy {
   readonly ClockIcon = Clock;
@@ -96,26 +96,11 @@ export class RoomTimerComponent implements OnDestroy {
   }
 
   toggleTimer() {
-    this.isRunning() ? this.pauseTimer() : this.startTimer();
-  }
-
-  private startTimer() {
-    if (this.timeLeft() === 0) return;
-    this.isRunning.set(true);
-    this.intervalId = setInterval(() => {
-      const current = this.timeLeft();
-      if (current <= 1) {
-        this.timeLeft.set(0);
-        this.pauseTimer();
-      } else {
-        this.timeLeft.set(current - 1);
-      }
-    }, 1000);
-  }
-
-  private pauseTimer() {
-    this.isRunning.set(false);
-    this.clearInterval();
+    if (this.isRunning()) {
+      this.pauseTimer();
+      return;
+    }
+    this.startTimer();
   }
 
   resetTimer() {
@@ -123,10 +108,31 @@ export class RoomTimerComponent implements OnDestroy {
     this.timeLeft.set(TIMER_DURATION);
   }
 
-  private clearInterval() {
-    if (this.intervalId !== null) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
+  private startTimer() {
+    if (this.timeLeft() <= 0) return;
+
+    this.isRunning.set(true);
+    this.intervalId = setInterval(() => this.tick(), 1000);
+  }
+
+  private tick() {
+    const current = this.timeLeft();
+    if (current <= 1) {
+      this.timeLeft.set(0);
+      this.pauseTimer();
+      return;
     }
+    this.timeLeft.set(current - 1);
+  }
+
+  private pauseTimer() {
+    this.isRunning.set(false);
+    this.clearInterval();
+  }
+
+  private clearInterval() {
+    if (!this.intervalId) return;
+    clearInterval(this.intervalId);
+    this.intervalId = null;
   }
 }

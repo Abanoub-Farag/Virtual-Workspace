@@ -1,10 +1,10 @@
 import {
   Component,
   OnInit,
-  OnDestroy,
   signal,
   inject,
   ChangeDetectionStrategy,
+  DestroyRef,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -15,8 +15,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService, AuthError } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
@@ -29,36 +28,25 @@ import { ThemeService } from '../../../core/services/theme.service';
   styleUrls: ['./login.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginComponent implements OnInit, OnDestroy {
-  // ─── DI ────────────────────────────────────────────────────────────────────
+export class LoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
-  /** Shared theme service — single source of truth across all pages. */
   readonly themeService = inject(ThemeService);
 
-  // ─── Signals ───────────────────────────────────────────────────────────────
   readonly isLoading = signal(false);
   readonly showPassword = signal(false);
   readonly serverError = signal<string | null>(null);
 
-  // ─── Form ──────────────────────────────────────────────────────────────────
   loginForm!: FormGroup;
 
-  // ─── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
     this.buildForm();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  // ─── Form Builder ──────────────────────────────────────────────────────────
   private buildForm(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -67,7 +55,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ─── Control accessors ─────────────────────────────────────────────────────
   get email(): AbstractControl {
     return this.loginForm.get('email')!;
   }
@@ -76,7 +63,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     return this.loginForm.get('password')!;
   }
 
-  // ─── Helpers ───────────────────────────────────────────────────────────────
   showError(ctrl: AbstractControl): boolean {
     return ctrl.invalid && (ctrl.dirty || ctrl.touched);
   }
@@ -85,7 +71,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.showPassword.update((v) => !v);
   }
 
-  // ─── Submit ────────────────────────────────────────────────────────────────
   onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
@@ -99,25 +84,28 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.authService
       .login({ email, password })
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          const redirect = this.route.snapshot.queryParamMap.get('redirect');
-          const target =
-            redirect && redirect !== '/login' ? redirect : '/rooms';
-          this.router.navigateByUrl(target, { replaceUrl: true });
-        },
-        error: (err: AuthError) => {
-          this.isLoading.set(false);
-          this.serverError.set(err.message);
-
-          if (err.fieldErrors && Object.keys(err.fieldErrors).length) {
-            Object.entries(err.fieldErrors).forEach(([field, msg]) => {
-              this.loginForm.get(field)?.setErrors({ serverError: msg });
-            });
-          }
-        },
+        next: () => this.handleSuccess(),
+        error: (err: AuthError) => this.handleError(err),
       });
+  }
+
+  private handleSuccess(): void {
+    this.isLoading.set(false);
+    const redirect = this.route.snapshot.queryParamMap.get('redirect');
+    const target = redirect && redirect !== '/login' ? redirect : '/rooms';
+    this.router.navigateByUrl(target, { replaceUrl: true });
+  }
+
+  private handleError(err: AuthError): void {
+    this.isLoading.set(false);
+    this.serverError.set(err.message);
+
+    if (!err.fieldErrors) return;
+
+    Object.entries(err.fieldErrors).forEach(([field, msg]) => {
+      this.loginForm.get(field)?.setErrors({ serverError: msg });
+    });
   }
 }

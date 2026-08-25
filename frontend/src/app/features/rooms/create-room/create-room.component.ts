@@ -23,16 +23,13 @@ export class CreateRoomComponent {
 
   readonly PlusIcon = Plus;
   
-  createRoomForm: FormGroup;
+  createRoomForm: FormGroup = this.fb.group({
+    title: ['', [Validators.required, Validators.minLength(3)]],
+    description: ['']
+  });
+
   isSubmitting = signal<boolean>(false);
   error = signal<string | null>(null);
-
-  constructor() {
-    this.createRoomForm = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(3)]],
-      description: ['']
-    });
-  }
 
   onSubmit() {
     if (this.createRoomForm.invalid) {
@@ -46,23 +43,24 @@ export class CreateRoomComponent {
     const payload = this.createRoomForm.value;
 
     this.roomService.createRoom(payload).subscribe({
-      next: (response) => {
-        const newRoomId = response.data?.id; 
-        if (newRoomId) {
-          this.authService.addRoomId(newRoomId);
-          this.isSubmitting.set(false);
-          this.router.navigate(['/rooms', newRoomId]);
-        } else {
-          this.isSubmitting.set(false);
-          this.router.navigate(['/rooms']);
-        }
-      },
-
-      error: (err) => {
-        console.error('Error creating room', err);
-        this.error.set('Failed to create the room. Please try again.');
-        this.isSubmitting.set(false);
-      }
+      next: (response) => this.handleSuccess(response.data?.id),
+      error: (err) => this.handleError(err)
     });
+  }
+
+  private handleSuccess(newRoomId?: number) {
+    this.isSubmitting.set(false);
+    if (newRoomId) {
+      this.authService.addRoomId(newRoomId);
+      this.router.navigate(['/rooms', newRoomId]);
+      return;
+    }
+    this.router.navigate(['/rooms']);
+  }
+
+  private handleError(err: any) {
+    console.error('Error creating room', err);
+    this.error.set('Failed to create the room. Please try again.');
+    this.isSubmitting.set(false);
   }
 }

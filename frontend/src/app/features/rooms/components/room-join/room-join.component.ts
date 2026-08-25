@@ -106,16 +106,14 @@ export class RoomJoinComponent {
   manualRoomId = signal<string>('');
 
   joinRoom(explicitId?: number | string | null): void {
-    if (this.joinState() === 'loading') {
-      return; // Prevent duplicate submission
-    }
+    if (this.joinState() === 'loading') return;
 
     const targetId = explicitId ?? this.roomId ?? this.manualRoomId();
     const validation = this.validateRoomId(targetId);
 
     if (!validation.valid || validation.parsedId === undefined) {
       this.joinState.set('error');
-      this.errorMessage.set(validation.error || 'Invalid Room ID.');
+      this.errorMessage.set(validation.error ?? 'Invalid Room ID.');
       this.successMessage.set(null);
       return;
     }
@@ -163,51 +161,44 @@ export class RoomJoinComponent {
       return err.message;
     }
 
-    if (err instanceof HttpErrorResponse) {
-      if (err.status === 0 || err.error instanceof ErrorEvent) {
-        return 'Network Error: Unable to reach the server. Please check your internet connection.';
-      }
-
-      const payload = err.error;
-      const apiMessage = payload?.message;
-      const apiErrors = payload?.errors;
-
-      if (apiErrors) {
-        if (typeof apiErrors === 'string') {
-          return apiErrors;
-        }
-        if (Array.isArray(apiErrors) && apiErrors.length > 0) {
-          return apiErrors.join(', ');
-        }
-        if (typeof apiErrors === 'object' && Object.keys(apiErrors).length > 0) {
-          return Object.entries(apiErrors)
-            .map(([field, msg]) => Array.isArray(msg) ? `${field}: ${msg.join(', ')}` : `${field}: ${msg}`)
-            .join('; ');
-        }
-      }
-
-      switch (err.status) {
-        case 400:
-          return apiMessage || 'Bad Request: The provided room ID or data is invalid.';
-        case 401:
-          return apiMessage || 'Unauthorized: Please log in to join this room.';
-        case 403:
-          return apiMessage || 'Forbidden: You do not have permission to join this room.';
-        case 404:
-          return apiMessage || 'Room Not Found: The requested room does not exist.';
-        case 409:
-          return apiMessage || 'Conflict: You are already a member of this room.';
-        case 500:
-          return apiMessage || 'Server Error: An internal server error occurred while joining.';
-        case 503:
-          return apiMessage || 'Service Unavailable: Room server is currently unavailable.';
-        case 504:
-          return apiMessage || 'Gateway Timeout: The server timed out processing your request.';
-        default:
-          return apiMessage || `Error (${err.status}): Failed to join room.`;
-      }
+    if (!(err instanceof HttpErrorResponse)) {
+      return 'An unexpected error occurred while attempting to join the room.';
     }
 
-    return 'An unexpected error occurred while attempting to join the room.';
+    if (err.status === 0 || err.error instanceof ErrorEvent) {
+      return 'Network Error: Unable to reach the server. Please check your internet connection.';
+    }
+
+    const payload = err.error;
+    const parsedErrors = this.formatApiErrors(payload?.errors);
+    if (parsedErrors) return parsedErrors;
+
+    const apiMessage = payload?.message;
+    const statusMessages: Record<number, string> = {
+      400: apiMessage ?? 'Bad Request: The provided room ID or data is invalid.',
+      401: apiMessage ?? 'Unauthorized: Please log in to join this room.',
+      403: apiMessage ?? 'Forbidden: You do not have permission to join this room.',
+      404: apiMessage ?? 'Room Not Found: The requested room does not exist.',
+      409: apiMessage ?? 'Conflict: You are already a member of this room.',
+      500: apiMessage ?? 'Server Error: An internal server error occurred while joining.',
+      503: apiMessage ?? 'Service Unavailable: Room server is currently unavailable.',
+      504: apiMessage ?? 'Gateway Timeout: The server timed out processing your request.',
+    };
+
+    return statusMessages[err.status] ?? apiMessage ?? `Error (${err.status}): Failed to join room.`;
+  }
+
+  private formatApiErrors(apiErrors: any): string | null {
+    if (!apiErrors) return null;
+    if (typeof apiErrors === 'string') return apiErrors;
+    if (Array.isArray(apiErrors) && apiErrors.length > 0) return apiErrors.join(', ');
+
+    if (typeof apiErrors === 'object' && Object.keys(apiErrors).length > 0) {
+      return Object.entries(apiErrors)
+        .map(([field, msg]) => Array.isArray(msg) ? `${field}: ${msg.join(', ')}` : `${field}: ${msg}`)
+        .join('; ');
+    }
+
+    return null;
   }
 }
