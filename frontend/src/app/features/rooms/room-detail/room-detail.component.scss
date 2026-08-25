@@ -783,6 +783,175 @@ $circumference:   565.49; // 2π × 90
   }
 }
 
+// ── Room Edit & Delete Header Buttons ─────────────────────────────────────────
+.edit-room-btn:hover {
+  color: $accent-light;
+  background-color: rgba($accent-light, 0.15);
+}
+
+.delete-room-btn:hover {
+  color: #EF4444;
+  background-color: rgba(#EF4444, 0.15);
+}
+
+// ── Modals ───────────────────────────────────────────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 480px;
+  background-color: $bg-elevated;
+  border: 1px solid $border;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: scaleIn 0.2s ease;
+
+  &--danger {
+    border-color: rgba(#EF4444, 0.4);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
+  }
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: $text-dim;
+  }
+
+  .form-control {
+    background-color: rgba($bg-elevated, 0.8);
+    border: 1px solid $border-muted;
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: $text-primary;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      border-color: $accent;
+      box-shadow: 0 0 0 2px rgba($accent, 0.25);
+    }
+
+    &.textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+  }
+}
+
+.modal-body {
+  color: $text-dim;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+
+  strong {
+    color: $text-primary;
+  }
+}
+
+.modal-error {
+  padding: 10px 12px;
+  background-color: rgba(#EF4444, 0.1);
+  border: 1px solid rgba(#EF4444, 0.3);
+  border-radius: 8px;
+  color: #EF4444;
+  font-size: 0.8125rem;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 1px solid $border-muted;
+  color: $text-primary;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(#fff, 0.05);
+    border-color: $border;
+  }
+}
+
+.btn-danger {
+  background-color: #EF4444;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust(#EF4444, $lightness: -8%);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 .task-delete {
   background: transparent;
   border: none;

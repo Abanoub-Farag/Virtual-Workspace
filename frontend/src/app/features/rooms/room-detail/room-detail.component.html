@@ -31,6 +31,20 @@
           [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'">
           <lucide-icon [img]="HeartIcon" class="btn-icon"></lucide-icon>
         </button>
+        <button
+          type="button"
+          class="icon-btn edit-room-btn"
+          (click)="openEditRoomModal()"
+          aria-label="Edit Room">
+          <lucide-icon [img]="PencilIcon" class="btn-icon"></lucide-icon>
+        </button>
+        <button
+          type="button"
+          class="icon-btn delete-room-btn"
+          (click)="openDeleteRoomModal()"
+          aria-label="Delete Room">
+          <lucide-icon [img]="Trash2Icon" class="btn-icon"></lucide-icon>
+        </button>
         <button class="icon-btn notification-btn" id="notification-btn" aria-label="Notifications">
           <lucide-icon [img]="BellIcon" class="btn-icon"></lucide-icon>
           <span class="notification-dot"></span>
@@ -203,9 +217,79 @@
 
   </div><!-- /session-main -->
 
-  <!-- ═══ Floating Help Button ════════════════════════════════════════════ -->
-  <button class="fab-help" id="help-fab-btn" aria-label="Help">
-    <lucide-icon [img]="HelpCircleIcon" class="fab-icon"></lucide-icon>
-  </button>
+  <!-- ═══ Edit Room Modal ═════════════════════════════════════════════════ -->
+  <div class="modal-overlay" *ngIf="isEditRoomModalOpen()" (click)="closeEditRoomModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Edit Room Details</h2>
+        <button type="button" class="icon-btn close-modal-btn" (click)="closeEditRoomModal()" aria-label="Close modal">
+          <lucide-icon [img]="XIcon" class="btn-icon"></lucide-icon>
+        </button>
+      </div>
+      <form (submit)="$event.preventDefault(); submitUpdateRoom()" class="modal-form">
+        <div class="form-group">
+          <label for="edit-room-title">Room Title</label>
+          <input
+            id="edit-room-title"
+            type="text"
+            class="form-control"
+            [value]="editRoomTitle()"
+            (input)="onEditRoomTitleInput($event)"
+            placeholder="Enter room title"
+            required
+            maxlength="50"
+          />
+        </div>
+        <div class="form-group">
+          <label for="edit-room-description">Description</label>
+          <textarea
+            id="edit-room-description"
+            class="form-control textarea"
+            [value]="editRoomDescription()"
+            (input)="onEditRoomDescriptionInput($event)"
+            placeholder="Enter room description"
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="modal-error" *ngIf="roomUpdateError()">
+          <p>{{ roomUpdateError() }}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeEditRoomModal()" [disabled]="isUpdatingRoom()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isUpdatingRoom()">
+            {{ isUpdatingRoom() ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══ Delete Room Confirmation Modal ══════════════════════════════════ -->
+  <div class="modal-overlay" *ngIf="isDeleteRoomModalOpen()" (click)="closeDeleteRoomModal()">
+    <div class="modal-card modal-card--danger" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Delete Room</h2>
+        <button type="button" class="icon-btn close-modal-btn" (click)="closeDeleteRoomModal()" aria-label="Close modal">
+          <lucide-icon [img]="XIcon" class="btn-icon"></lucide-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong>"{{ room()?.title }}"</strong>? This action cannot be undone.</p>
+        <div class="modal-error" *ngIf="roomDeleteError()">
+          <p>{{ roomDeleteError() }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDeleteRoomModal()" [disabled]="isDeletingRoom()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmDeleteRoom()" [disabled]="isDeletingRoom()">
+          {{ isDeletingRoom() ? 'Deleting...' : 'Delete Room' }}
+        </button>
+      </div>
+    </div>
+  </div>
 
 </div>

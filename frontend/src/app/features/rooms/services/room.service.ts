@@ -61,6 +61,11 @@ export interface CreateRoomDto {
   description: string;
 }
 
+export interface UpdateRoomDto {
+  title: string;
+  description: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -171,6 +176,39 @@ export class RoomService {
     }
 
     return this.http.get<ApiResponse<RoomData>>(`${this.baseUrl}/${numericId}`, { headers });
+  }
+
+  updateRoom(roomId: number | string, dto: UpdateRoomDto): Observable<ApiResponse<RoomData>> {
+    const numericId = typeof roomId === 'number' ? roomId : parseInt(String(roomId), 10);
+    if (!numericId || isNaN(numericId) || !Number.isInteger(numericId) || numericId <= 0) {
+      return throwError(() => new Error('Invalid room ID: must be a positive 64-bit integer.'));
+    }
+    const token = this.authService.getToken();
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true'
+    });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return this.http.put<ApiResponse<RoomData>>(`${this.baseUrl}/${numericId}`, dto, { headers });
+  }
+
+  deleteRoom(roomId: number | string): Observable<ApiResponse<any>> {
+    const numericId = typeof roomId === 'number' ? roomId : parseInt(String(roomId), 10);
+    if (!numericId || isNaN(numericId) || !Number.isInteger(numericId) || numericId <= 0) {
+      return throwError(() => new Error('Invalid room ID: must be a positive 64-bit integer.'));
+    }
+    const token = this.authService.getToken();
+    let headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/${numericId}`, { headers });
   }
 
   joinRoom(roomId: number | string): Observable<ApiResponse<any>> {

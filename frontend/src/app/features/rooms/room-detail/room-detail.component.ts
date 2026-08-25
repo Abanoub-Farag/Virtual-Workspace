@@ -35,7 +35,7 @@ import {
 } from 'lucide-angular';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { RoomTimerComponent } from '../components/room-timer/room-timer.component';
-import { RoomService, RoomData } from '../services/room.service';
+import { RoomService, RoomData, UpdateRoomDto } from '../services/room.service';
 import { TaskService, TaskData, UpdateTaskRequest } from '../services/task.service';
 
 @Component({
@@ -86,6 +86,17 @@ export class RoomDetailComponent implements OnInit {
 
   isFavorite = signal<boolean>(false);
   isPendingFavorite = signal<boolean>(false);
+
+  // ── Room Edit & Delete States ──────────────────────────────────────────────
+  isEditRoomModalOpen = signal<boolean>(false);
+  editRoomTitle = signal<string>('');
+  editRoomDescription = signal<string>('');
+  isUpdatingRoom = signal<boolean>(false);
+  roomUpdateError = signal<string | null>(null);
+
+  isDeleteRoomModalOpen = signal<boolean>(false);
+  isDeletingRoom = signal<boolean>(false);
+  roomDeleteError = signal<string | null>(null);
 
   // ── Heartbeat State ───────────────────────────────────────────────────────
   heartbeatStatus = signal<'active' | 'retrying' | 'failed'>('active');
@@ -266,8 +277,99 @@ export class RoomDetailComponent implements OnInit {
           this.error.set('Failed to load room details.');
           this.isLoading.set(false);
         }
-      },
+      }
     });
+  }
+
+  // ── Room Edit & Delete Controls ───────────────────────────────────────────
+  openEditRoomModal() {
+    const currentRoom = this.room();
+    if (!currentRoom) return;
+    this.editRoomTitle.set(currentRoom.title || '');
+    this.editRoomDescription.set(currentRoom.description || '');
+    this.roomUpdateError.set(null);
+    this.isEditRoomModalOpen.set(true);
+  }
+
+  closeEditRoomModal() {
+    this.isEditRoomModalOpen.set(false);
+    this.roomUpdateError.set(null);
+  }
+
+  onEditRoomTitleInput(event: Event) {
+    this.editRoomTitle.set((event.target as HTMLInputElement).value);
+  }
+
+  onEditRoomDescriptionInput(event: Event) {
+    this.editRoomDescription.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  submitUpdateRoom() {
+    const currentRoom = this.room();
+    if (!currentRoom) return;
+    const title = this.editRoomTitle().trim();
+    const description = this.editRoomDescription().trim();
+
+    if (!title) {
+      this.roomUpdateError.set('Room title is required.');
+      return;
+    }
+
+    this.isUpdatingRoom.set(true);
+    this.roomUpdateError.set(null);
+
+    const dto: UpdateRoomDto = { title, description };
+
+    this.roomService.updateRoom(currentRoom.id, dto)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.isUpdatingRoom.set(false);
+          this.isEditRoomModalOpen.set(false);
+          const updatedData = res.data || { ...currentRoom, title, description };
+          this.room.update(r => r ? { ...r, ...updatedData } : null);
+        },
+        error: (err: HttpErrorResponse) => {
+          console.error('Failed to update room:', err);
+          this.isUpdatingRoom.set(false);
+          const msg = err.error?.message || 'Failed to update room. Please try again.';
+          this.roomUpdateError.set(msg);
+        }
+      });
+  }
+
+  openDeleteRoomModal() {
+    this.roomDeleteError.set(null);
+    this.isDeleteRoomModalOpen.set(true);
+  }
+
+  closeDeleteRoomModal() {
+    this.isDeleteRoomModalOpen.set(false);
+    this.roomDeleteError.set(null);
+  }
+
+  confirmDeleteRoom() {
+    const currentRoom = this.room();
+    if (!currentRoom) return;
+
+    this.isDeletingRoom.set(true);
+    this.roomDeleteError.set(null);
+
+    this.roomService.deleteRoom(currentRoom.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.isDeletingRoom.set(false);
+          this.isDeleteRoomModalOpen.set(false);
+          this.router.navigate(['/rooms']);
+        },
+        error: (err: HttpErrorResponse) => {
+          console.error('Failed to delete room:', err);
+          this.isDeletingRoom.set(false);
+          const msg = err.error?.message || 'Failed to delete room. Please try again.';
+          this.roomDeleteError.set(msg);
+        }
+      });
   }
 
   fetchTasks() {
