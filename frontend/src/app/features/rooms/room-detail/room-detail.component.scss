@@ -601,6 +601,88 @@ $circumference:   565.49; // 2π × 90
       opacity: 0.7;
     }
   }
+
+  &--updating {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.task-update-error {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background-color: rgba(#EF4444, 0.1);
+  border: 1px solid rgba(#EF4444, 0.3);
+  border-radius: 8px;
+  color: #EF4444;
+  font-size: 0.8125rem;
+}
+
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.task-card:hover .task-actions {
+  opacity: 1;
+}
+
+.task-action-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  border-radius: 6px;
+  color: $text-dim;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  .task-action-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    color: $accent-light;
+    background-color: rgba($accent-light, 0.1);
+  }
+
+  &--save:hover {
+    color: $green-live;
+    background-color: rgba($green-live, 0.1);
+  }
+
+  &--cancel:hover {
+    color: #EF4444;
+    background-color: rgba(#EF4444, 0.1);
+  }
+}
+
+.task-edit-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.task-edit-input {
+  flex: 1;
+  background-color: $bg-elevated;
+  border: 1px solid $accent;
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: $text-primary;
+  font-size: 0.875rem;
+  outline: none;
+
+  &:focus {
+    box-shadow: 0 0 0 2px rgba($accent, 0.25);
+  }
 }
 
 .task-toggle {

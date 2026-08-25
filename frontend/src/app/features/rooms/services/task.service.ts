@@ -12,6 +12,19 @@ export interface TaskData {
   updatedAt?: string;
 }
 
+export interface UpdateTaskRequest {
+  title?: string;
+  completed?: boolean;
+}
+
+export interface ApiResponse<T = any> {
+  localDateTime?: string;
+  status?: number;
+  message?: string;
+  data?: T;
+  errors?: any;
+}
+
 export interface TaskResponse {
   data: {
     content: TaskData[];
@@ -45,15 +58,15 @@ export class TaskService {
     });
   }
 
-  createTask(data: { title: string; isCompleted: boolean }): Observable<any> {
-    return this.http.post<any>(this.baseUrl, data, { headers: this.authHeaders });
+  createTask(data: { title: string; isCompleted: boolean }): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(this.baseUrl, data, { headers: this.authHeaders });
   }
 
-  updateTask(taskId: number, data: { title: string; isCompleted: boolean }): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/${taskId}`, data, { headers: this.authHeaders });
+  updateTask(taskId: number, data: UpdateTaskRequest): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/${taskId}`, data, { headers: this.authHeaders });
   }
 
-  deleteTask(taskId: number): Observable<any> {
-    return this.http.delete<any>(`${this.baseUrl}/${taskId}`, { headers: this.authHeaders });
+  deleteTask(taskId: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/${taskId}`, { headers: this.authHeaders });
   }
 }

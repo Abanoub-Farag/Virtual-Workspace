@@ -29,11 +29,14 @@ import {
   ClipboardList,
   Trash2,
   Heart,
+  Pencil,
+  Check,
+  X,
 } from 'lucide-angular';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { RoomTimerComponent } from '../components/room-timer/room-timer.component';
 import { RoomService, RoomData } from '../services/room.service';
-import { TaskService, TaskData } from '../services/task.service';
+import { TaskService, TaskData, UpdateTaskRequest } from '../services/task.service';
 
 @Component({
   selector: 'app-room-detail',
@@ -72,6 +75,9 @@ export class RoomDetailComponent implements OnInit {
   readonly CheckSquareIcon = ClipboardList;
   readonly Trash2Icon = Trash2;
   readonly HeartIcon = Heart;
+  readonly PencilIcon = Pencil;
+  readonly CheckIcon = Check;
+  readonly XIcon = X;
 
   // ── Room data ─────────────────────────────────────────────────────────────
   room = signal<RoomData | null>(null);
@@ -90,6 +96,10 @@ export class RoomDetailComponent implements OnInit {
   isTasksLoading = signal<boolean>(true);
   tasksError = signal<string | null>(null);
   newTaskText = signal<string>('');
+  editingTaskId = signal<number | null>(null);
+  editingTaskTitle = signal<string>('');
+  updatingTaskId = signal<number | null>(null);
+  taskUpdateError = signal<string | null>(null);
 
   // ── Participants ──────────────────────────────────────────────────────────
   participants = signal<any[]>([]);
@@ -279,18 +289,88 @@ export class RoomDetailComponent implements OnInit {
   // ── Task controls ─────────────────────────────────────────────────────────
   toggleTask(task: TaskData) {
     const updatedStatus = !task.isCompleted;
+    this.updatingTaskId.set(task.id);
+    this.taskUpdateError.set(null);
+
     // Optimistic update
     this.tasks.update((tasks) =>
       tasks.map((t) => (t.id === task.id ? { ...t, isCompleted: updatedStatus } : t)),
     );
-    this.taskService.updateTask(task.id, { title: task.title, isCompleted: updatedStatus })
+
+    const payload: UpdateTaskRequest = {
+      title: task.title,
+      completed: updatedStatus
+    };
+
+    this.taskService.updateTask(task.id, payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
+        next: () => {
+          this.updatingTaskId.set(null);
+        },
         error: (err) => {
-          console.error('Failed to update task', err);
-          // Revert on error
+          console.error('Failed to update task completion', err);
+          this.taskUpdateError.set('Failed to update task status.');
+          this.updatingTaskId.set(null);
+          // Revert optimistic update on error
           this.tasks.update((tasks) =>
             tasks.map((t) => (t.id === task.id ? { ...t, isCompleted: task.isCompleted } : t)),
+          );
+        }
+      });
+  }
+
+  startEditTask(task: TaskData) {
+    this.editingTaskId.set(task.id);
+    this.editingTaskTitle.set(task.title);
+    this.taskUpdateError.set(null);
+  }
+
+  cancelEditTask() {
+    this.editingTaskId.set(null);
+    this.editingTaskTitle.set('');
+  }
+
+  onEditTaskInput(event: Event) {
+    this.editingTaskTitle.set((event.target as HTMLInputElement).value);
+  }
+
+  saveTaskTitle(task: TaskData) {
+    const newTitle = this.editingTaskTitle().trim();
+    if (!newTitle) return;
+    if (newTitle === task.title) {
+      this.cancelEditTask();
+      return;
+    }
+
+    const previousTitle = task.title;
+    this.updatingTaskId.set(task.id);
+    this.taskUpdateError.set(null);
+
+    // Optimistic update
+    this.tasks.update((tasks) =>
+      tasks.map((t) => (t.id === task.id ? { ...t, title: newTitle } : t))
+    );
+    this.editingTaskId.set(null);
+
+    const payload: UpdateTaskRequest = {
+      title: newTitle,
+      completed: task.isCompleted
+    };
+
+    this.taskService.updateTask(task.id, payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.updatingTaskId.set(null);
+        },
+        error: (err) => {
+          console.error('Failed to update task title', err);
+          this.taskUpdateError.set('Failed to update task title.');
+          this.updatingTaskId.set(null);
+          // Revert optimistic update on error
+          this.tasks.update((tasks) =>
+            tasks.map((t) => (t.id === task.id ? { ...t, title: previousTitle } : t))
           );
         }
       });
