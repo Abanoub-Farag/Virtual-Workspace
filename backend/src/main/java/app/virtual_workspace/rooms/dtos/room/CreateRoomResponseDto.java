@@ -19,4 +19,6 @@ public class CreateRoomResponseDto {
 
     private String description;
 
+    private Long ownerId;
+
 }

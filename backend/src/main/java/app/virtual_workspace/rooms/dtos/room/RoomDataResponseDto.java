@@ -19,4 +19,6 @@ public class RoomDataResponseDto {
 
     private String description;
 
+    private Long ownerId;
+
 }

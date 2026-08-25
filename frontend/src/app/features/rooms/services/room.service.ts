@@ -21,6 +21,7 @@ export interface RoomData {
   id: number;
   title: string;
   description: string;
+  ownerId?: number;
   // To satisfy our components which might look for these:
   tags?: string[];
   status?: string;

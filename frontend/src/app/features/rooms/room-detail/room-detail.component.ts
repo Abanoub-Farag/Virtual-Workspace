@@ -38,6 +38,7 @@ import { RoomTimerComponent } from '../components/room-timer/room-timer.componen
 import { RoomMembersListComponent } from '../components/room-members-list/room-members-list.component';
 import { RoomService, RoomData, UpdateRoomDto } from '../services/room.service';
 import { TaskService, TaskData, UpdateTaskRequest } from '../services/task.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-room-detail',
@@ -60,6 +61,7 @@ export class RoomDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly roomService = inject(RoomService);
   private readonly taskService = inject(TaskService);
+  private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
 
   // ── Lucide Icons ──────────────────────────────────────────────────────────
@@ -86,6 +88,12 @@ export class RoomDetailComponent implements OnInit {
   room = signal<RoomData | null>(null);
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
+
+  isOwner = computed(() => {
+    const r = this.room();
+    const user = this.authService.currentUser();
+    return !!r && !!user && r.ownerId === user.id;
+  });
 
   isFavorite = signal<boolean>(false);
   isPendingFavorite = signal<boolean>(false);
@@ -336,7 +344,9 @@ export class RoomDetailComponent implements OnInit {
         error: (err: HttpErrorResponse) => {
           console.error('Failed to update room:', err);
           this.isUpdatingRoom.set(false);
-          const msg = err.error?.message || 'Failed to update room. Please try again.';
+          const msg = err.status === 403 
+            ? 'You do not have permission to perform this action' 
+            : (err.error?.message || 'Failed to update room. Please try again.');
           this.roomUpdateError.set(msg);
         }
       });
@@ -370,7 +380,9 @@ export class RoomDetailComponent implements OnInit {
         error: (err: HttpErrorResponse) => {
           console.error('Failed to delete room:', err);
           this.isDeletingRoom.set(false);
-          const msg = err.error?.message || 'Failed to delete room. Please try again.';
+          const msg = err.status === 403 
+            ? 'You do not have permission to perform this action' 
+            : (err.error?.message || 'Failed to delete room. Please try again.');
           this.roomDeleteError.set(msg);
         }
       });

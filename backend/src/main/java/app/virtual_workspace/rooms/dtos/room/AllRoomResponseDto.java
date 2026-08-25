@@ -17,4 +17,6 @@ public class AllRoomResponseDto {
     private String title;
 
     private String description;
+
+    private Long ownerId;
 }

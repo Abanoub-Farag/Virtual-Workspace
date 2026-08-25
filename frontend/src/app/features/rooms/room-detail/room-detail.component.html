@@ -32,6 +32,7 @@
           <lucide-icon [img]="HeartIcon" class="btn-icon"></lucide-icon>
         </button>
         <button
+          *ngIf="isOwner()"
           type="button"
           class="icon-btn edit-room-btn"
           (click)="openEditRoomModal()"
@@ -39,6 +40,7 @@
           <lucide-icon [img]="PencilIcon" class="btn-icon"></lucide-icon>
         </button>
         <button
+          *ngIf="isOwner()"
           type="button"
           class="icon-btn delete-room-btn"
           (click)="openDeleteRoomModal()"
