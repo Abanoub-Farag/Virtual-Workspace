@@ -43,10 +43,10 @@ public class RoomMembersController {
     }
 
     @GetMapping("/{roomId}/members")
-    public ResponseEntity<ApiResponse<List<RoomMemberDto>>> getRoomMembers(@PathVariable Long roomId) {
-        List<RoomMemberDto> roomMemberDtos = roomMembersService.getRoomMembers(roomId);
+    public ResponseEntity<ApiResponse<RoomMemberDto[]>> getRoomMembers(@PathVariable Long roomId) {
+        RoomMemberDto[] roomMemberDtos = roomMembersService.getRoomMembers(roomId);
 
-        ApiResponse<List<RoomMemberDto>> response = ApiResponse.<List<RoomMemberDto>>builder()
+        ApiResponse<RoomMemberDto[]> response = ApiResponse.<RoomMemberDto[]>builder()
                 .status(HttpStatus.OK.value())
                 .message("Room members retrieved successfully")
                 .data(roomMemberDtos)

@@ -7,6 +7,7 @@ import app.virtual_workspace.accounts.dtos.data.UserDataDto;
 import app.virtual_workspace.accounts.models.Profile;
 import app.virtual_workspace.rooms.dtos.RoomMembers.RoomMemberDto;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class RoomMembersService {
     private final UserAuthService userAuthService;
 
     @Transactional
+    @CacheEvict(value = "room_members", key = "#roomId")
     public void joinRoom(Long roomId){
 
         User user = userAuthService.getAuthenticatedUser();
@@ -58,7 +60,7 @@ public class RoomMembersService {
     }
 
     @Cacheable(value = "room_members", key = "#roomId")
-    public List<RoomMemberDto> getRoomMembers(Long roomId) {
+    public RoomMemberDto[] getRoomMembers(Long roomId) {
         List<RoomMembers> roomMembers = roomMembersRepository.findRoomMembersByRoomId(roomId);
 
         return roomMembers.stream()
@@ -74,7 +76,7 @@ public class RoomMembersService {
                             .dateOfBirth(profile.getDateOfBirth())
                             .build();
                 })
-                .toList();
+                .toArray(RoomMemberDto[]::new);
     }
 
 }
