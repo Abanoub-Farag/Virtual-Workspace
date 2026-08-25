@@ -35,6 +35,7 @@ import {
 } from 'lucide-angular';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { RoomTimerComponent } from '../components/room-timer/room-timer.component';
+import { RoomMembersListComponent } from '../components/room-members-list/room-members-list.component';
 import { RoomService, RoomData, UpdateRoomDto } from '../services/room.service';
 import { TaskService, TaskData, UpdateTaskRequest } from '../services/task.service';
 
@@ -48,6 +49,7 @@ import { TaskService, TaskData, UpdateTaskRequest } from '../services/task.servi
     LucideAngularModule,
     SidebarComponent,
     RoomTimerComponent,
+    RoomMembersListComponent
   ],
   templateUrl: './room-detail.component.html',
   styleUrls: ['./room-detail.component.scss'],
@@ -80,6 +82,7 @@ export class RoomDetailComponent implements OnInit {
   readonly XIcon = X;
 
   // ── Room data ─────────────────────────────────────────────────────────────
+  roomId = signal<number | null>(null);
   room = signal<RoomData | null>(null);
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
@@ -120,6 +123,7 @@ export class RoomDetailComponent implements OnInit {
     if (idParam) {
       const id = parseInt(idParam, 10);
       if (!isNaN(id) && id > 0) {
+        this.roomId.set(id);
         this.joinRoom(id);
         this.fetchRoom(id);
         this.fetchTasks();

@@ -56,36 +56,10 @@
     <div class="session-body">
 
       <!-- ═══ LEFT COLUMN: Online Participants ═══════════════════════════════ -->
-      <section class="split-panel participants-panel" aria-label="Online Participants">
-        <div class="panel-header">
-          <span class="panel-title">ONLINE NOW ({{ participants().length }})</span>
-        </div>
-
-        <ul class="participant-list" role="list" *ngIf="participants().length > 0; else emptyParticipants">
-          <li
-            *ngFor="let p of participants()"
-            class="participant-card"
-            [id]="'participant-' + p.id"
-          >
-            <div class="participant-avatar-wrap">
-              <img [src]="p.avatar" [alt]="p.name" class="participant-avatar" />
-              <span class="online-dot" *ngIf="p.online"></span>
-            </div>
-            <div class="participant-info">
-              <span class="participant-name">{{ p.name }}</span>
-              <span
-                class="participant-role"
-                [class.role--host]="p.role === 'Host'"
-                [class.role--member]="p.role === 'Member'"
-              >{{ p.role }}</span>
-            </div>
-          </li>
-        </ul>
-        <ng-template #emptyParticipants>
-          <div class="empty-state">
-            <p>No participants online yet.</p>
-          </div>
-        </ng-template>
+      <section class="split-panel participants-panel" aria-label="Room Members">
+        @if (roomId()) {
+          <app-room-members-list [roomId]="roomId()!"></app-room-members-list>
+        }
       </section>
 
       <!-- ═══ CENTER COLUMN: Pomodoro Timer ═══════════════════════════════ -->

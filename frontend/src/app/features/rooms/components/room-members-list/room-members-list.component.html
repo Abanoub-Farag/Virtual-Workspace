@@ -1,0 +1,111 @@
+<div class="w-full max-w-4xl mx-auto space-y-4">
+  <!-- Section Header -->
+  <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center gap-2">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Room Members</h3>
+      @if (!isLoading() && !errorMessage()) {
+        <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+          {{ members().length }}
+        </span>
+      }
+    </div>
+  </div>
+
+  <!-- 1. Loading Skeleton State -->
+  @if (isLoading()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" data-testid="loading-skeleton">
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm animate-pulse flex items-start space-x-3.5">
+          <div class="w-11 h-11 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0"></div>
+          <div class="flex-1 space-y-2 py-0.5">
+            <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-2/3"></div>
+            <div class="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/3"></div>
+            <div class="h-3 bg-slate-100 dark:bg-slate-800/60 rounded w-5/6"></div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- 2. Error State with Retry Button -->
+  @else if (errorMessage()) {
+    <div class="p-6 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-950/20 text-center space-y-3">
+      <div class="w-10 h-10 mx-auto rounded-full bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center text-rose-600 dark:text-rose-400">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold text-rose-900 dark:text-rose-200">Unable to load members</h4>
+        <p class="text-xs text-rose-700 dark:text-rose-400 mt-1">{{ errorMessage() }}</p>
+      </div>
+      <button 
+        (click)="retry()"
+        class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Retry Again
+      </button>
+    </div>
+  }
+
+  <!-- 3. Empty Fallback State -->
+  @else if (members().length === 0) {
+    <div class="p-8 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 text-center space-y-2">
+      <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+      </div>
+      <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300">No members found</h4>
+      <p class="text-xs text-slate-500 dark:text-slate-400">There are currently no members in this room.</p>
+    </div>
+  }
+
+  <!-- 4. Member Cards Grid -->
+  @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      @for (member of members(); track member.id) {
+        @let badge = getStatusBadgeClass(member.status);
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs hover:shadow-md transition-shadow duration-200 flex items-start space-x-3.5">
+          <!-- Avatar + Status Dot -->
+          <div class="relative shrink-0">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm shadow-xs">
+              {{ getInitials(member.firstName, member.lastName) }}
+            </div>
+            <!-- Status Indicator Badge Dot -->
+            <span 
+              [class]="'absolute bottom-0 right-0 w-3 h-3 rounded-full ring-2 ring-white dark:ring-slate-900 ' + badge.dotClass"
+              [title]="badge.label">
+            </span>
+          </div>
+
+          <!-- Member Details -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2">
+              <h4 class="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                {{ member.firstName }} {{ member.lastName }}
+              </h4>
+              <!-- Status Label Badge -->
+              <span [class]="'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ' + badge.textClass">
+                {{ badge.label }}
+              </span>
+            </div>
+
+            <!-- Bio Snippet -->
+            @if (member.bio) {
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                {{ member.bio }}
+              </p>
+            } @else {
+              <p class="text-xs italic text-slate-400 dark:text-slate-600 mt-1">
+                No bio provided
+              </p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
