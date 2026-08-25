@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, map, catchError, throwError } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/services/auth.service';
 import { ApiResponse, RoomMember } from '../../../core/models/room-member.model';
 
 @Injectable({
@@ -8,14 +10,30 @@ import { ApiResponse, RoomMember } from '../../../core/models/room-member.model'
 })
 export class RoomMemberService {
   private http = inject(HttpClient);
+  private authService = inject(AuthService);
+
+  private get headers(): HttpHeaders {
+    let headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    const token = this.authService.getToken();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  }
 
   /**
-   * Fetches members for a given room ID using Angular HttpClient.
+   * Fetches members for a given room ID.
    * @param roomId The room ID string or number
    */
   getRoomMembers(roomId: number | string): Observable<RoomMember[]> {
+    const url = environment.apiUrl 
+      ? `${environment.apiUrl}/api/v1/rooms/${roomId}/members`
+      : `/api/v1/rooms/${roomId}/members`;
+
     return this.http
-      .get<ApiResponse<RoomMember[]>>(`/api/v1/rooms/${roomId}/members`)
+      .get<ApiResponse<RoomMember[]>>(url, { headers: this.headers })
       .pipe(
         map((response) => response.data ?? []),
         catchError((error) => {
