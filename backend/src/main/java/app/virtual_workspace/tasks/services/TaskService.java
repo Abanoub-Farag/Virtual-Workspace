@@ -45,8 +45,12 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task Not Found"));
 
-        task.setTitle(taskRequest.getTitle());
-        task.setCompleted(taskRequest.isCompleted());
+        if (taskRequest.getTitle() != null){
+            task.setTitle(taskRequest.getTitle());
+        }
+        if(taskRequest.getIsCompleted() != null){
+            task.setCompleted(taskRequest.getIsCompleted());
+        }
 
         taskRepository.save(task);
     }
