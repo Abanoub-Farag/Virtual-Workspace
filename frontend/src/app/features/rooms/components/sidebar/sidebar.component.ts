@@ -9,10 +9,11 @@ import {
   Settings, 
   User as UserIcon,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  LogOut
 } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 
 interface NavItem {
   label: string;
@@ -30,10 +31,12 @@ interface NavItem {
 })
 export class SidebarComponent implements OnInit {
   private authService = inject(AuthService);
+  private router = inject(Router);
   userName = 'Guest User';
 
   readonly ChevronLeftIcon = ChevronLeft;
   readonly ChevronRightIcon = ChevronRight;
+  readonly LogOutIcon = LogOut;
 
   isCollapsed = signal<boolean>(this.loadInitialState());
 
@@ -81,6 +84,12 @@ export class SidebarComponent implements OnInit {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('pcenter_sidebar_collapsed', String(this.isCollapsed()));
     }
+  }
+
+  logout(): void {
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']);
+    });
   }
 
   private loadInitialState(): boolean {

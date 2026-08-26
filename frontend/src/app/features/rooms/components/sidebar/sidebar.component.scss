@@ -147,7 +147,8 @@ $status-active: #10b981;
     }
   }
 
-  &__nav {
+  &__nav,
+  &__footer {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -201,6 +202,21 @@ $status-active: #10b981;
     }
   }
 
+  &__footer {
+    margin-top: auto;
+    
+    .logout-btn {
+      &:hover {
+        color: #ef4444; // red-500
+        background-color: rgba(#ef4444, 0.1);
+        
+        .nav-icon {
+          color: #ef4444;
+        }
+      }
+    }
+  }
+
   // ─── Collapsed State (Icons only mode) ──────────────────────────────────────
   &.collapsed {
     width: 76px;
@@ -226,7 +242,8 @@ $status-active: #10b981;
       }
     }
 
-    .sidebar__nav {
+    .sidebar__nav,
+    .sidebar__footer {
       .nav-item {
         padding: 12px 0;
         justify-content: center;
