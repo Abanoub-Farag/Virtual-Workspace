@@ -20,6 +20,8 @@ public class JwtService {
 
     private final SecretKey secretKey;
 
+    @Value("${jwt.tokenExpiration}") private Long tokenExpiration;
+
     public JwtService(@Value("${jwt.secretkey}") String key){
         byte[] keyBytes = Decoders.BASE64.decode(key);
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
@@ -33,7 +35,7 @@ public class JwtService {
                 .claims(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 60L * 60 * 10 * 1000))
+                .expiration(new Date(System.currentTimeMillis() + tokenExpiration))
                 .signWith(getKey())
                 .compact();
     }

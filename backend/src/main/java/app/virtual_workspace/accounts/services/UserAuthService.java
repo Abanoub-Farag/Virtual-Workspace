@@ -30,6 +30,7 @@ public class UserAuthService {
     private final AuthMapper authMapper;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
@@ -49,10 +50,12 @@ public class UserAuthService {
         applicationEventPublisher.publishEvent(event);
 
         String token = jwtService.generateToken(savedUser.getEmail(), savedUser.getId());
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId()).getToken();
 
-        return AuthResponseDto.builder().token(token).build();
+        return AuthResponseDto.builder().jwtToken(token).refreshToken(refreshToken).build();
     }
 
+    @Transactional
     public AuthResponseDto login(LoginDto request){
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         
@@ -60,7 +63,8 @@ public class UserAuthService {
                 .orElseThrow(() -> new InsufficientAuthenticationException("User not found"));
 
         String token = jwtService.generateToken(user.getEmail(), user.getId());
-        return AuthResponseDto.builder().token(token).build();
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId()).getToken();
+        return AuthResponseDto.builder().jwtToken(token).refreshToken(refreshToken).build();
     }
 
     public User getAuthenticatedUser(){

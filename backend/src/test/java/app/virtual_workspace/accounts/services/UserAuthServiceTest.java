@@ -67,7 +67,7 @@ public class UserAuthServiceTest {
         AuthResponseDto result = userAuthService.register(registerDto);
 
         assertThat(result).isNotNull();
-        assertThat(result.getToken()).isEqualTo("fake_jwt_token");
+        assertThat(result.getJwtToken()).isEqualTo("fake_jwt_token");
 
         verify(passwordEncoder, times(1)).encode(any());
         verify(userRepository, times(1)).save(any());
@@ -102,7 +102,7 @@ public class UserAuthServiceTest {
         AuthResponseDto result = userAuthService.login(loginDto);
 
         assertThat(result).isNotNull();
-        assertThat(result.getToken()).isEqualTo(expectedToken);
+        assertThat(result.getJwtToken()).isEqualTo(expectedToken);
 
         verify(authenticationManager, times(1))
                 .authenticate(any(UsernamePasswordAuthenticationToken.class));
