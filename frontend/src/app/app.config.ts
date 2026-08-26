@@ -4,6 +4,7 @@ import { routes } from './app.routes';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ngrokInterceptor } from './core/interceptors/ngrok.interceptor';
 import { authErrorInterceptor } from './core/interceptors/auth-error.interceptor';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -11,7 +12,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(
       withFetch(),
-      withInterceptors([ngrokInterceptor, authErrorInterceptor]),
+      withInterceptors([ngrokInterceptor, authInterceptor, authErrorInterceptor]),
     ),
   ],
 };

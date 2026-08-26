@@ -19,7 +19,8 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly baseUrl = `${environment.apiUrl}/api/v1/auth`;
-  private readonly TOKEN_KEY = 'pcenter_access_token';
+  private readonly JWT_TOKEN_KEY = 'pcenter_jwt_token';
+  private readonly REFRESH_TOKEN_KEY = 'pcenter_refresh_token';
 
   readonly currentUser = signal<UserData | null>(null);
   readonly isLoadingUser = signal<boolean>(false);
@@ -103,25 +104,74 @@ export class AuthService {
       );
   }
 
-  persistToken(token: string): void {
+  persistTokens(jwtToken: string, refreshToken: string): void {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(this.TOKEN_KEY, token);
+      localStorage.setItem(this.JWT_TOKEN_KEY, jwtToken);
+      localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     }
   }
 
   getToken(): string | null {
     if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem(this.TOKEN_KEY);
+      return localStorage.getItem(this.JWT_TOKEN_KEY);
+    }
+    return null;
+  }
+
+  getRefreshToken(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem(this.REFRESH_TOKEN_KEY);
     }
     return null;
   }
 
   clearToken(): void {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem(this.TOKEN_KEY);
+      localStorage.removeItem(this.JWT_TOKEN_KEY);
+      localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     }
     this.currentUser.set(null);
     this.isLoadingUser.set(false);
+  }
+
+  refreshToken(): Observable<string> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      this.clearToken();
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    return this.http.post<ApiResponse<{ token: string }>>(`${this.baseUrl}/refresh`, { refreshToken }).pipe(
+      map(res => {
+        const newJwt = res.data?.token;
+        if (!newJwt) throw new Error('No token returned');
+        
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem(this.JWT_TOKEN_KEY, newJwt);
+        }
+        return newJwt;
+      }),
+      catchError(err => {
+        this.clearToken();
+        return throwError(() => err);
+      })
+    );
+  }
+
+  logout(): Observable<ApiResponse<void>> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      this.clearToken();
+      return of({ status: 200, message: 'Local logout only', localDateTime: new Date().toISOString() } as ApiResponse<void>);
+    }
+
+    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/logout`, { refreshToken }).pipe(
+      tap(() => this.clearToken()),
+      catchError(() => {
+        this.clearToken();
+        return of({ status: 500, message: 'Server logout failed', localDateTime: new Date().toISOString() } as ApiResponse<void>);
+      })
+    );
   }
 
   isAuthenticated(): boolean {
@@ -152,8 +202,8 @@ export class AuthService {
   }
 
   private handleAuthResponse(res: ApiResponse<AuthData>): void {
-    if (res.data?.token) {
-      this.persistToken(res.data.token);
+    if (res.data?.jwtToken && res.data?.refreshToken) {
+      this.persistTokens(res.data.jwtToken, res.data.refreshToken);
       this.loadCurrentUser().subscribe();
     }
   }

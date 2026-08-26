@@ -11,9 +11,8 @@ export interface LoginRequest {
 }
 
 export interface AuthData {
-  token: string;
-  refreshToken?: string;
-  expiresIn?: number;
+  jwtToken: string;
+  refreshToken: string;
 }
 
 export interface UserData {

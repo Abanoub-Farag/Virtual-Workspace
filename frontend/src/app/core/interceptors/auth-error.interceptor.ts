@@ -1,8 +1,11 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { EMPTY, catchError, throwError } from 'rxjs';
+import { EMPTY, catchError, throwError, switchMap, BehaviorSubject, filter, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+
+let isRefreshing = false;
+let refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
 export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -18,15 +21,43 @@ export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => err);
       }
 
-      authService.clearToken();
+      if (!isRefreshing) {
+        isRefreshing = true;
+        refreshTokenSubject.next(null);
 
-      const currentPath = router.url;
-      const loginUrl = currentPath && currentPath !== '/login'
-        ? `/login?redirect=${encodeURIComponent(currentPath)}`
-        : '/login';
-
-      router.navigateByUrl(loginUrl, { replaceUrl: true });
-      return EMPTY;
+        return authService.refreshToken().pipe(
+          switchMap((token) => {
+            isRefreshing = false;
+            refreshTokenSubject.next(token);
+            
+            const authReq = req.clone({
+              headers: req.headers.set('Authorization', `Bearer ${token}`)
+            });
+            return next(authReq);
+          }),
+          catchError((refreshErr) => {
+            isRefreshing = false;
+            authService.clearToken();
+            const currentPath = router.url;
+            const loginUrl = currentPath && currentPath !== '/login'
+              ? `/login?redirect=${encodeURIComponent(currentPath)}`
+              : '/login';
+            router.navigateByUrl(loginUrl, { replaceUrl: true });
+            return throwError(() => refreshErr);
+          })
+        );
+      } else {
+        return refreshTokenSubject.pipe(
+          filter(token => token !== null),
+          take(1),
+          switchMap(token => {
+            const authReq = req.clone({
+              headers: req.headers.set('Authorization', `Bearer ${token}`)
+            });
+            return next(authReq);
+          })
+        );
+      }
     }),
   );
 };
