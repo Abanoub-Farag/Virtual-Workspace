@@ -1,6 +1,8 @@
 package app.virtual_workspace.rooms.dtos.room;
 
+import app.virtual_workspace.rooms.models.enums.Visibility;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,5 +22,8 @@ public class CreateRoomRequestDto {
     private String title;
 
     private String description;
+
+    @NotNull(message = "Visibility is required")
+    private Visibility visibility;
 
 }

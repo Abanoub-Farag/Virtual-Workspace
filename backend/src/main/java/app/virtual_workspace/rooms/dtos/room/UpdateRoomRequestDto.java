@@ -1,6 +1,6 @@
 package app.virtual_workspace.rooms.dtos.room;
 
-import jakarta.validation.constraints.NotBlank;
+import app.virtual_workspace.rooms.models.enums.Visibility;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,5 +17,7 @@ public class UpdateRoomRequestDto {
     private String title;
 
     private String description;
+
+    private Visibility visability;
 
 }
